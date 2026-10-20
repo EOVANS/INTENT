@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Use Theme.Material3-compatible base; do NOT set windowLightStatusBar here:
+         on API 35+ it conflicts with enableEdgeToEdge() and crashes on several ROMs.
+         System bar appearance is handled at runtime via enableEdgeToEdge(). -->
+    <style name="Theme.INTENT" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

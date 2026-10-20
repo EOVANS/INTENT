@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">INTENT</string>
+
+    <!-- Tabs -->
+    <string name="tab_home">首页</string>
+    <string name="tab_search">搜索</string>
+    <string name="tab_settings">设置</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_slogan">A focused reader.</string>
+    <string name="onboarding_slogan_zh">专注阅读。</string>
+    <string name="onboarding_quote_title">每日一句金句</string>
+    <string name="onboarding_quote_desc">AI 从你订阅的文章中提取当日最值得读的一句话。</string>
+    <string name="onboarding_quote_note">离线生成 · 轻量省电</string>
+    <string name="onboarding_feed_title">克制的信息流</string>
+    <string name="onboarding_feed_desc">多种卡片节奏，瑞士网格排版，只留下内容本身。</string>
+    <string name="onboarding_sources_title">订阅你自己的信息源</string>
+    <string name="onboarding_sources_desc">搜索添加、OPML 导入，BBC、The Guardian 等一键订阅。</string>
+    <string name="onboarding_name_hint">怎么称呼你？</string>
+    <string name="onboarding_notify_btn">开启通知权限</string>
+    <string name="onboarding_skip">跳过</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_start">开始阅读 →</string>
+    <string name="onboarding_privacy">隐私政策</string>
+    <string name="whats_new_title">新功能</string>
+
+    <!-- Home -->
+    <string name="greeting_hi">Hi，欢迎 👋</string>
+    <string name="today_prefix">今天是</string>
+    <string name="pull_to_refresh">下拉刷新</string>
+    <string name="refreshing">刷新中…</string>
+    <string name="mark_read">标记已读</string>
+    <string name="mark_unread">标记未读</string>
+    <string name="share">分享</string>
+    <string name="unsubscribe">取消订阅该源</string>
+    <string name="empty_feed_title">还没有内容</string>
+    <string name="empty_feed_desc">去搜索页添加一些 RSS 源吧。</string>
+    <string name="view_all">查看全部</string>
+
+    <!-- Search -->
+    <string name="search_hint">搜索 RSS 源或文章…</string>
+    <string name="recommended_sources">推荐源</string>
+    <string name="subscribe">订阅</string>
+    <string name="subscribed">已订阅 ✓</string>
+    <string name="all_articles">全部文章</string>
+    <string name="my_sources">已订阅的 RSS</string>
+    <string name="add_source_failed">添加失败，请检查地址或网络</string>
+    <string name="source_added">已订阅</string>
+    <string name="filter_all">全部</string>
+    <string name="filter_unread">未读</string>
+    <string name="no_results">没有匹配结果</string>
+
+    <!-- Source management -->
+    <string name="unread_count_fmt">%1$d 条未读</string>
+    <string name="rename">重命名</string>
+    <string name="notify_switch">推送通知</string>
+    <string name="sync_freq">同步频率</string>
+    <string name="cancel_sub">取消订阅</string>
+    <string name="source_settings">源设置</string>
+
+    <!-- Settings root -->
+    <string name="settings_title">设置</string>
+    <string name="settings_ui">更改用户界面</string>
+    <string name="settings_a11y">无障碍</string>
+    <string name="settings_notify">通知</string>
+    <string name="settings_user_name">用户名</string>
+    <string name="settings_user">用户设置</string>
+    <string name="user_change_avatar">修改用户头像</string>
+    <string name="avatar_updated">头像已更新</string>
+    <string name="settings_advanced">高级材质与交互</string>
+    <string name="glass_effect">通透玻璃效果</string>
+    <string name="glass_effect_note">开启后系统将实时渲染高动态模糊与折射效果，此功能占用较多 GPU 与 CPU 资源，可能造成界面卡顿、发热并加速电量消耗。此功能仅支持搭载Android 13+的设备</string>
+    <string name="glass_material">玻璃材质</string>
+    <string name="glass_material_regular">跟随背景</string>
+    <string name="glass_material_clear">高清透</string>
+    <string name="glass_adaptive_tint">亮度自适应染色</string>
+    <string name="glass_adaptive_tint_note">按玻璃背后内容的明暗逐像素调整染色，前景图标与文字随之自动切换深浅色</string>
+    <string name="glass_scroll_edge_blur">滚动边缘渐进模糊</string>
+    <string name="glass_scroll_edge_blur_note">滚动内容接近屏幕边缘时从清晰渐进过渡到模糊</string>
+    <string name="sync_interval">同步频率</string>
+    <string name="sync_wifi_only">仅 Wi-Fi 同步</string>
+    <string name="wifi_only_images">仅 Wi-Fi 加载图片</string>
+    <string name="import_opml">导入 OPML</string>
+    <string name="export_opml">导出 OPML</string>
+    <string name="about">关于</string>
+    <string name="licenses">开源许可</string>
+    <string name="retain_settings">文章保留</string>
+
+    <!-- Settings: UI -->
+    <string name="ui_icon">更改 App 图标</string>
+    <string name="icon_default">默认黑白</string>
+    <string name="icon_black">纯黑</string>
+    <string name="icon_white">纯白</string>
+    <string name="icon_serif">衬线 INTENT</string>
+    <string name="icon_restart_hint">部分设备需重启启动器生效</string>
+    <string name="ui_font">更改字体</string>
+    <string name="font_system">系统默认（Roboto / Mi Sans）</string>
+    <string name="font_serif">衬线</string>
+    <string name="font_import">从本地导入字体（.ttf/.otf）</string>
+    <string name="font_imported">字体已应用</string>
+    <string name="font_note">首页顶部问候区始终使用衬线字体</string>
+    <string name="ui_accent">更改强调色</string>
+    <string name="accent_red">红</string>
+    <string name="accent_black">黑</string>
+    <string name="accent_blue">蓝</string>
+    <string name="accent_green">绿</string>
+    <string name="accent_amber">琥珀</string>
+    <string name="accent_violet">紫</string>
+    <string name="accent_teal">青</string>
+    <string name="accent_magenta">品红</string>
+    <string name="accent_custom">自定义取色</string>
+    <string name="ui_theme">主题</string>
+    <string name="theme_follow">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="ui_language">切换语言</string>
+    <string name="lang_auto">跟随系统</string>
+    <string name="lang_zh">简体中文</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ja">日本語</string>
+    <string name="lang_ko">한국어</string>
+
+    <!-- Settings: Accessibility -->
+    <string name="a11y_tts">文字朗读引擎</string>
+    <string name="tts_default">系统默认</string>
+    <string name="tts_rate">语速</string>
+    <string name="tts_pitch">音调</string>
+    <string name="tts_preview">试听</string>
+    <string name="tts_sample">专注阅读，从今天开始。</string>
+    <string name="a11y_display_size">显示大小</string>
+    <string name="a11y_font_size">文字大小</string>
+    <string name="size_small">小</string>
+    <string name="size_default">默认</string>
+    <string name="size_large">大</string>
+    <string name="size_xlarge">特大</string>
+    <string name="a11y_follow_system_font">跟随系统字体大小</string>
+    <string name="a11y_high_contrast">高对比度文字</string>
+    <string name="a11y_large_touch">放大触控目标</string>
+    <string name="a11y_reduce_anim">关闭非必要动画</string>
+
+    <!-- Settings: Notifications -->
+    <string name="notify_daily">推送今日摘要</string>
+    <string name="notify_daily_time">推送时间</string>
+    <string name="notify_quiet">静默时段</string>
+    <string name="notify_live">实时活动（今日阅读时间）</string>
+    <string name="live_update_unsupported">实时活动需 Android 16（API 36）及以上系统；当前设备系统版本较低，功能暂不可用</string>
+    <string name="live_update_permission_denied">实时活动权限已关闭，请到系统设置开启</string>
+    <string name="open_system_settings">前往系统设置</string>
+    <string name="notify_goal">每日阅读目标（分钟）</string>
+    <string name="channel_summary">今日摘要</string>
+    <string name="channel_summary_desc">每日阅读摘要通知</string>
+    <string name="channel_live_update">实时活动</string>
+    <string name="channel_live_update_desc">今日阅读时间进度</string>
+    <string name="daily_summary_title">今日阅读摘要</string>
+    <string name="daily_summary_body">今日新增 %1$d 篇 · 未读 %2$d 篇</string>
+    <string name="live_update_reading">已阅读🧐 %1$d 分钟</string>
+    <string name="live_update_achieved">已达成阅读目标🥳</string>
+    <string name="live_update_progress">目标 %1$d / %2$d 分钟</string>
+
+    <!-- Reader -->
+    <string name="reader_read_aloud">朗读全文</string>
+    <string name="reader_stop_tts">停止朗读</string>
+    <string name="reader_open_in_browser">在浏览器打开</string>
+    <string name="reading_now">阅读中</string>
+</resources>

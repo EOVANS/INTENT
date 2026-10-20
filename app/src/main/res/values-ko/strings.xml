@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">INTENT</string>
+
+    <string name="tab_home">홈</string>
+    <string name="tab_search">검색</string>
+    <string name="tab_settings">설정</string>
+
+    <string name="onboarding_slogan">A focused reader.</string>
+    <string name="onboarding_slogan_zh">专注阅读。</string>
+    <string name="onboarding_quote_title">오늘의 문장</string>
+    <string name="onboarding_quote_desc">AI가 구독한 기사에서 오늘 가장 읽을 가치가 있는 한 문장을 뽑아드립니다.</string>
+    <string name="onboarding_quote_note">오프라인 생성 · 가볍고 저전력</string>
+    <string name="onboarding_feed_title">절제된 피드</string>
+    <string name="onboarding_feed_desc">스위스 그리드의 리듬감 있는 카드, 콘텐츠만 남겼습니다.</string>
+    <string name="onboarding_sources_title">나만의 정보원 구독</string>
+    <string name="onboarding_sources_desc">검색 추가, OPML 가져오기. BBC, The Guardian도 원탭.</string>
+    <string name="onboarding_name_hint">어떻게 불러드릴까요?</string>
+    <string name="onboarding_notify_btn">알림 허용</string>
+    <string name="onboarding_skip">건너뛰기</string>
+    <string name="onboarding_next">다음</string>
+    <string name="onboarding_start">독서 시작 →</string>
+    <string name="onboarding_privacy">개인정보 처리방침</string>
+    <string name="whats_new_title">새로운 기능</string>
+
+    <string name="greeting_hi">안녕하세요 👋</string>
+    <string name="today_prefix">오늘은</string>
+    <string name="pull_to_refresh">아래로 당겨서 새로고침</string>
+    <string name="refreshing">새로고침 중…</string>
+    <string name="mark_read">읽음으로 표시</string>
+    <string name="mark_unread">읽지 않음으로 표시</string>
+    <string name="share">공유</string>
+    <string name="unsubscribe">이 소스 구독 취소</string>
+    <string name="empty_feed_title">아직 콘텐츠가 없습니다</string>
+    <string name="empty_feed_desc">검색 탭에서 RSS 소스를 추가해 보세요.</string>
+    <string name="view_all">전체 보기</string>
+
+    <string name="search_hint">소스나 기사 검색…</string>
+    <string name="recommended_sources">추천</string>
+    <string name="subscribe">구독</string>
+    <string name="subscribed">구독 중 ✓</string>
+    <string name="all_articles">전체 기사</string>
+    <string name="my_sources">구독 중인 RSS</string>
+    <string name="add_source_failed">추가하지 못했습니다. 주소와 네트워크를 확인하세요.</string>
+    <string name="source_added">구독 완료</string>
+    <string name="filter_all">전체</string>
+    <string name="filter_unread">읽지 않음</string>
+    <string name="no_results">결과 없음</string>
+
+    <string name="unread_count_fmt">읽지 않음 %1$d개</string>
+    <string name="rename">이름 변경</string>
+    <string name="notify_switch">알림</string>
+    <string name="sync_freq">동기화 주기</string>
+    <string name="cancel_sub">구독 취소</string>
+    <string name="source_settings">소스 설정</string>
+
+    <string name="settings_title">설정</string>
+    <string name="settings_ui">사용자 인터페이스</string>
+    <string name="settings_a11y">접근성</string>
+    <string name="settings_notify">알림</string>
+    <string name="settings_user_name">사용자 이름</string>
+    <string name="sync_interval">동기화 주기</string>
+    <string name="sync_wifi_only">Wi-Fi에서만 동기화</string>
+    <string name="wifi_only_images">Wi-Fi에서만 이미지 로드</string>
+    <string name="import_opml">OPML 가져오기</string>
+    <string name="export_opml">OPML 내보내기</string>
+    <string name="about">정보</string>
+    <string name="licenses">오픈소스 라이선스</string>
+    <string name="retain_settings">기사 보관</string>
+
+    <string name="ui_icon">앱 아이콘 변경</string>
+    <string name="icon_default">기본</string>
+    <string name="icon_black">블랙</string>
+    <string name="icon_white">화이트</string>
+    <string name="icon_serif">세리프 INTENT</string>
+    <string name="icon_restart_hint">일부 런처는 재시작이 필요합니다</string>
+    <string name="ui_font">글꼴 변경</string>
+    <string name="font_system">시스템 기본（Roboto / Mi Sans）</string>
+    <string name="font_serif">세리프</string>
+    <string name="font_import">저장소에서 가져오기（.ttf/.otf）</string>
+    <string name="font_imported">글꼴이 적용되었습니다</string>
+    <string name="font_note">홈 상단 인사 영역은 항상 세리프체입니다</string>
+    <string name="ui_accent">강조색 변경</string>
+    <string name="accent_red">빨강</string>
+    <string name="accent_black">검정</string>
+    <string name="accent_blue">파랑</string>
+    <string name="accent_green">초록</string>
+    <string name="accent_amber">호박색</string>
+    <string name="accent_violet">보라</string>
+    <string name="accent_teal">청록</string>
+    <string name="accent_magenta">자홍색</string>
+    <string name="accent_custom">사용자 지정 색상</string>
+    <string name="ui_theme">테마</string>
+    <string name="theme_follow">시스템 따르기</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
+    <string name="ui_language">언어</string>
+    <string name="lang_auto">시스템 따르기</string>
+    <string name="lang_zh">简体中文</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ja">日本語</string>
+    <string name="lang_ko">한국어</string>
+
+    <string name="a11y_tts">음성 읽기 엔진</string>
+    <string name="tts_default">시스템 기본</string>
+    <string name="tts_rate">말하기 속도</string>
+    <string name="tts_pitch">음높이</string>
+    <string name="tts_preview">미리 듣기</string>
+    <string name="tts_sample">집중해서 읽기, 오늘부터.</string>
+    <string name="a11y_display_size">화면 크기</string>
+    <string name="a11y_font_size">글자 크기</string>
+    <string name="size_small">작게</string>
+    <string name="size_default">기본</string>
+    <string name="size_large">크게</string>
+    <string name="size_xlarge">매우 크게</string>
+    <string name="a11y_follow_system_font">시스템 글자 크기 따르기</string>
+    <string name="a11y_high_contrast">고대비 텍스트</string>
+    <string name="a11y_large_touch">터치 대상 확대</string>
+    <string name="a11y_reduce_anim">불필요한 애니메이션 끄기</string>
+
+    <string name="notify_daily">오늘의 요약 보내기</string>
+    <string name="notify_daily_time">알림 시간</string>
+    <string name="notify_quiet">방해 금지 시간</string>
+    <string name="notify_live">실시간 활동（오늘의 독서 시간）</string>
+    <string name="live_update_unsupported">실시간 활동은 Android 16 이상이 필요합니다</string>
+    <string name="live_update_permission_denied">권한이 꺼져 있습니다. 시스템 설정에서 켜주세요.</string>
+    <string name="open_system_settings">시스템 설정 열기</string>
+    <string name="notify_goal">하루 독서 목표（분）</string>
+    <string name="channel_summary">오늘의 요약</string>
+    <string name="channel_summary_desc">매일 독서 요약 알림</string>
+    <string name="channel_live_update">실시간 활동</string>
+    <string name="channel_live_update_desc">오늘의 독서 진행 상황</string>
+    <string name="daily_summary_title">오늘의 독서</string>
+    <string name="daily_summary_body">오늘 %1$d개 추가 · 읽지 않음 %2$d개</string>
+    <string name="live_update_reading">독서 중 🧐 %1$d분</string>
+    <string name="live_update_achieved">독서 목표 달성 🥳</string>
+    <string name="live_update_progress">목표 %1$d / %2$d분</string>
+
+    <string name="reader_read_aloud">전체 읽어주기</string>
+    <string name="reader_stop_tts">읽기 중지</string>
+    <string name="reader_open_in_browser">브라우저에서 열기</string>
+    <string name="reading_now">독서 중</string>
+</resources>

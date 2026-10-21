@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">INTENT</string>
 
@@ -40,7 +40,9 @@
     <string name="subscribe">구독</string>
     <string name="subscribed">구독 중 ✓</string>
     <string name="all_articles">전체 기사</string>
+    <string name="imported_sources">가져온 RSS 소스</string>
     <string name="my_sources">구독 중인 RSS</string>
+    <string name="add_source_success">피드를 추가했습니다</string>
     <string name="add_source_failed">추가하지 못했습니다. 주소와 네트워크를 확인하세요.</string>
     <string name="source_added">구독 완료</string>
     <string name="filter_all">전체</string>
@@ -65,6 +67,11 @@
     <string name="import_opml">OPML 가져오기</string>
     <string name="export_opml">OPML 내보내기</string>
     <string name="about">정보</string>
+    <string name="changelog">변경 로그</string>
+    <string name="privacy_policy">개인정보 처리방침</string>
+    <string name="terms_of_use">이용 약관</string>
+    <string name="delete">삭제</string>
+    <string name="selected_count_fmt">%1$d개 선택됨</string>
     <string name="licenses">오픈소스 라이선스</string>
     <string name="retain_settings">기사 보관</string>
 
@@ -91,6 +98,9 @@
     <string name="accent_magenta">자홍색</string>
     <string name="accent_custom">사용자 지정 색상</string>
     <string name="ui_theme">테마</string>
+    <string name="ui_widget_style">위젯 스타일 변경</string>
+    <string name="widget_style_classic">기본</string>
+    <string name="widget_style_image">이미지</string>
     <string name="theme_follow">시스템 따르기</string>
     <string name="theme_light">라이트</string>
     <string name="theme_dark">다크</string>
@@ -140,4 +150,15 @@
     <string name="reader_stop_tts">읽기 중지</string>
     <string name="reader_open_in_browser">브라우저에서 열기</string>
     <string name="reading_now">독서 중</string>
+
+    <!-- Home-screen widgets -->
+    <string name="widget_large_label">INTENT · 오늘의 기사</string>
+    <string name="widget_small_label">INTENT · 오늘의 브리프</string>
+    <string name="widget_large_desc">홈 화면에 오늘의 기사 목록을 표시합니다</string>
+    <string name="widget_small_desc">홈 화면에서 오늘의 기사를 가로로 넘겨 봅니다</string>
+    <string name="widget_today_count">%1$d개</string>
+    <string name="widget_empty">아직 새 글이 없습니다</string>
+    <string name="widget_view_all">모두 보기 →</string>
+    <string name="widget_next">다음 기사</string>
+    <string name="widget_unread">읽지 않음</string>
 </resources>

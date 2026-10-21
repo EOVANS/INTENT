@@ -1,6 +1,7 @@
 package com.intent.reader
 
 import android.content.ContextWrapper
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -35,9 +37,18 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
+    companion object {
+        /** Extra carrying an article id, e.g. tapped from a home-screen widget. */
+        const val EXTRA_ARTICLE_ID = "articleId"
+    }
+
+    /** Article deep-link pending navigation; consumed by IntentNavHost. */
+    private val pendingArticleId = mutableStateOf<String?>(null)
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pendingArticleId.value = intent?.getStringExtra(EXTRA_ARTICLE_ID)
         // Guard: on some API 35/36 ROMs (MIUI/ColorOS/OneUI) enableEdgeToEdge
         // can throw during window inset setup; failing open keeps the app alive.
         try {
@@ -134,11 +145,20 @@ class MainActivity : ComponentActivity() {
                         IntentNavHost(
                             startOnOnboarding = s.onboardingCompletedVersion == 0,
                             widthSizeClass = widthClass.widthSizeClass,
+                            startArticleId = pendingArticleId.value,
+                            onStartArticleConsumed = { pendingArticleId.value = null },
                         )
                     }
                 }
             }
         }
+    }
+
+    // singleTask: widget taps re-deliver here instead of creating a new task.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pendingArticleId.value = intent.getStringExtra(EXTRA_ARTICLE_ID)
     }
 }
 

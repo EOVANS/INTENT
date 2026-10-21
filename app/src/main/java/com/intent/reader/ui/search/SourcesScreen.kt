@@ -1,7 +1,10 @@
 package com.intent.reader.ui.search
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.intent.reader.R
 import com.intent.reader.data.db.Source
 import com.intent.reader.ui.components.SourceLogo
@@ -48,8 +52,9 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
- * Subscription management: logo, name, unread count, last update;
- * click -> source settings sheet, long-press -> actions.
+ * Subscription management: logo, name, unread count, last update.
+ * Click opens the source; long-press enters batch selection with pill-shaped
+ * 删除 / 取消 actions in the top bar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,22 +63,41 @@ fun SourcesScreen(
     unreadBySource: Map<String, Int>,
     onBack: () -> Unit,
     onOpenSource: (String) -> Unit,
-    onRename: (String, String) -> Unit,
-    onSetNotify: (String, Boolean) -> Unit,
     onRemove: (String) -> Unit,
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
-    var menuFor by remember { mutableStateOf<Source?>(null) }
-    var renameFor by remember { mutableStateOf<Source?>(null) }
-    var renameText by remember { mutableStateOf("") }
+    var selected by remember { mutableStateOf<Set<String>?>(null) }
+    val sel = selected
 
     Column(Modifier.fillMaxSize().background(c.bg)) {
         TopAppBar(
-            title = { Text(stringResource(R.string.my_sources), style = t.pageTitle) },
+            title = {
+                Text(
+                    if (sel == null) stringResource(R.string.my_sources)
+                    else stringResource(R.string.selected_count_fmt).format(sel.size),
+                    style = t.pageTitle,
+                )
+            },
             navigationIcon = {
-                IconButton(onClick = onBack) {
+                IconButton(onClick = { if (sel == null) onBack() else selected = null }) {
                     Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
+                }
+            },
+            actions = {
+                if (sel != null) {
+                    CapsuleAction(
+                        text = stringResource(R.string.delete),
+                        enabled = sel.isNotEmpty(),
+                    ) {
+                        sel.forEach(onRemove)
+                        selected = null
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    CapsuleAction(text = stringResource(android.R.string.cancel)) {
+                        selected = null
+                    }
+                    Spacer(Modifier.width(12.dp))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -92,83 +116,48 @@ fun SourcesScreen(
                 SourceRow(
                     source = s,
                     unread = unreadBySource[s.id] ?: 0,
-                    onClick = { onOpenSource(s.id) },
-                    onLongClick = { menuFor = s },
+                    selectionMode = sel != null,
+                    selected = sel?.contains(s.id) == true,
+                    onClick = {
+                        when {
+                            sel == null -> onOpenSource(s.id)
+                            sel.contains(s.id) -> selected = sel - s.id
+                            else -> selected = sel + s.id
+                        }
+                    },
+                    onLongClick = {
+                        if (sel == null) selected = setOf(s.id)
+                    },
                 )
                 Box(Modifier.fillMaxWidth().height(1.dp).background(c.divider))
             }
         }
     }
-
-    menuFor?.let { src ->
-        DropdownMenu(expanded = true, onDismissRequest = { menuFor = null }) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.rename)) },
-                onClick = {
-                    renameFor = src
-                    renameText = src.title
-                    menuFor = null
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.notify_switch) + ": " + if (src.notifyEnabled) "on" else "off") },
-                onClick = {
-                    onSetNotify(src.id, !src.notifyEnabled)
-                    menuFor = null
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.cancel_sub)) },
-                onClick = {
-                    onRemove(src.id)
-                    menuFor = null
-                },
-            )
-        }
-    }
-
-    renameFor?.let { src ->
-        RenameDialog(
-            initial = renameText,
-            onConfirm = {
-                onRename(src.id, it)
-                renameFor = null
-            },
-            onDismiss = { renameFor = null },
-        )
-    }
 }
 
+/** Pill-shaped top-bar action used in batch-selection mode. */
 @Composable
-private fun RenameDialog(initial: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf(initial) }
-    androidx.compose.material3.AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.rename)) },
-        text = {
-            androidx.compose.material3.OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                singleLine = true,
-            )
-        },
-        confirmButton = {
-            androidx.compose.material3.TextButton(onClick = { onConfirm(text) }) {
-                Text(stringResource(android.R.string.ok))
-            }
-        },
-        dismissButton = {
-            androidx.compose.material3.TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
-        },
-    )
+private fun CapsuleAction(text: String, enabled: Boolean = true, onClick: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(50))
+            .background(c.card)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+    ) {
+        Text(text, style = t.meta, color = if (enabled) c.text else c.textSecondary)
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SourceRow(
     source: Source,
     unread: Int,
+    selectionMode: Boolean,
+    selected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
@@ -182,11 +171,27 @@ private fun SourceRow(
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        if (selectionMode) {
+            Box(
+                Modifier
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(if (selected) c.accent else Color.Transparent)
+                    .border(
+                        width = 1.5.dp,
+                        color = if (selected) c.accent else c.textSecondary,
+                        shape = CircleShape,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (selected) Text("✓", color = Color.White, fontSize = 12.sp)
+            }
+        }
         SourceLogo(source.logoUrl, source.title, 32.dp)
         Column(Modifier.weight(1f)) {
             Text(
@@ -205,6 +210,6 @@ private fun SourceRow(
                 color = c.textSecondary,
             )
         }
-        Text("→", style = t.body, color = c.textSecondary)
+        if (!selectionMode) Text("→", style = t.body, color = c.textSecondary)
     }
 }

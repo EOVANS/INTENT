@@ -40,7 +40,9 @@
     <string name="subscribe">購読</string>
     <string name="subscribed">購読中 ✓</string>
     <string name="all_articles">すべての記事</string>
+    <string name="imported_sources">インポートした RSS</string>
     <string name="my_sources">購読中のフィード</string>
+    <string name="add_source_success">フィードを追加しました</string>
     <string name="add_source_failed">追加できませんでした。URL とネットワークを確認してください。</string>
     <string name="source_added">購読しました</string>
     <string name="filter_all">すべて</string>
@@ -65,6 +67,11 @@
     <string name="import_opml">OPML を取り込む</string>
     <string name="export_opml">OPML を書き出す</string>
     <string name="about">このアプリについて</string>
+    <string name="changelog">変更履歴</string>
+    <string name="privacy_policy">プライバシーポリシー</string>
+    <string name="terms_of_use">利用規約</string>
+    <string name="delete">削除</string>
+    <string name="selected_count_fmt">%1$d 件選択中</string>
     <string name="licenses">オープンソースライセンス</string>
     <string name="retain_settings">記事の保持</string>
 
@@ -91,6 +98,9 @@
     <string name="accent_magenta">マゼンタ</string>
     <string name="accent_custom">カスタムカラー</string>
     <string name="ui_theme">テーマ</string>
+    <string name="ui_widget_style">ウィジェットのスタイル</string>
+    <string name="widget_style_classic">クラシック</string>
+    <string name="widget_style_image">画像</string>
     <string name="theme_follow">システムに従う</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
@@ -140,4 +150,15 @@
     <string name="reader_stop_tts">読み上げを停止</string>
     <string name="reader_open_in_browser">ブラウザで開く</string>
     <string name="reading_now">読書中</string>
+
+    <!-- Home-screen widgets -->
+    <string name="widget_large_label">INTENT · 今日の記事</string>
+    <string name="widget_small_label">INTENT · 今日の速覧</string>
+    <string name="widget_large_desc">ホーム画面に今日の記事一覧を表示します</string>
+    <string name="widget_small_desc">ホーム画面で今日の記事を横にめくります</string>
+    <string name="widget_today_count">%1$d 件</string>
+    <string name="widget_empty">更新はまだありません</string>
+    <string name="widget_view_all">すべて見る →</string>
+    <string name="widget_next">次の記事へ</string>
+    <string name="widget_unread">未読</string>
 </resources>

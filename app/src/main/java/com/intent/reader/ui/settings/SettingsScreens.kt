@@ -76,13 +76,14 @@ import com.intent.reader.ui.theme.AccentPresets
 import com.intent.reader.ui.theme.IntentDimens
 import com.intent.reader.ui.theme.IntentTheme
 import com.intent.reader.ui.theme.withCjkSpacing
+import com.intent.reader.widget.IntentWidgets
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 /** Settings ViewModel: single source of truth over SettingsState. */
-class SettingsViewModel(app: IntentApplication) : ViewModel() {
+class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
     private val repo = app.container.settingsRepository
     private val sourceRepo = app.container.sourceRepository
 
@@ -98,8 +99,10 @@ class SettingsViewModel(app: IntentApplication) : ViewModel() {
 
     fun setUserName(v: String) = launch { repo.setUserName(v) }
     fun setAvatarPath(v: String) = launch { repo.setAvatarPath(v) }
-    fun setThemeMode(m: ThemeMode) = launch { repo.setThemeMode(m) }
-    fun setAccentColor(argb: Long) = launch { repo.setAccentColor(argb) }
+    // Home-screen widgets mirror accent/theme, so repaint them once the write lands.
+    fun setThemeMode(m: ThemeMode) = launch { repo.setThemeMode(m); IntentWidgets.refreshAll(app) }
+    fun setAccentColor(argb: Long) = launch { repo.setAccentColor(argb); IntentWidgets.refreshAll(app) }
+    fun setWidgetStyle(v: String) = launch { repo.setWidgetStyle(v); IntentWidgets.refreshAll(app) }
     fun setFontChoice(v: String) = launch { repo.setFontChoice(v) }
     fun setLanguageTag(v: String) = launch { repo.setLanguageTag(v) }
     fun setTextScaleLevel(v: Int) = launch { repo.setTextScaleLevel(v) }
@@ -394,6 +397,7 @@ fun SettingsScreen(
     onOpenNotify: () -> Unit,
     onOpenUser: () -> Unit,
     onOpenAdvanced: () -> Unit,
+    onOpenAbout: () -> Unit,
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
@@ -402,7 +406,6 @@ fun SettingsScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var showAbout by remember { mutableStateOf(false) }
     var showLicenses by remember { mutableStateOf(false) }
 
     val opmlImport = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -459,33 +462,30 @@ fun SettingsScreen(
         EntryRow(stringResource(R.string.export_opml)) { opmlExport.launch("intent-subscriptions.opml") }
 
         SectionLabel(stringResource(R.string.about))
-        EntryRow(stringResource(R.string.about)) { showAbout = true }
+        EntryRow(stringResource(R.string.about), onClick = onOpenAbout)
         EntryRow(stringResource(R.string.licenses)) { showLicenses = true }
     }
 
-    if (showAbout) {
-        AlertDialog(
-            onDismissRequest = { showAbout = false },
-            confirmButton = {
-                TextButton(onClick = { showAbout = false }) { Text(stringResource(R.string.filter_all)) }
-            },
-            title = { Text("INTENT", fontFamily = androidx.compose.ui.text.font.FontFamily.Serif) },
-            text = {
-                Text("v1.0\n\n" + stringResource(R.string.onboarding_slogan_zh))
-            },
-            containerColor = c.card,
-        )
-    }
     if (showLicenses) {
         AlertDialog(
             onDismissRequest = { showLicenses = false },
             confirmButton = {
                 TextButton(onClick = { showLicenses = false }) { Text(stringResource(R.string.filter_all)) }
             },
-            title = { Text(stringResource(R.string.licenses)) },
+            title = { Text("Open Source License of INTENT") },
             text = {
                 Text(
-                    "Jetpack Compose · Room · DataStore · WorkManager · Coil · OkHttp · kotlinx.serialization\nApache License 2.0"
+                    "INTENT is powered by this open-source software.\n\n" +
+                        "Jetpack Compose\n" +
+                        "Jetpack Glance\n" +
+                        "Navigation Compose\n" +
+                        "Room\n" +
+                        "DataStore\n" +
+                        "WorkManager\n" +
+                        "Coil\n" +
+                        "OkHttp\n" +
+                        "kotlinx.serialization\n\n" +
+                        "Apache License 2.0"
                 )
             },
             containerColor = c.card,
@@ -769,6 +769,17 @@ fun UiSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
                     else -> ThemeMode.DARK
                 }
             )
+        }
+
+        SectionLabel(stringResource(R.string.ui_widget_style))
+        Segmented(
+            options = listOf(
+                stringResource(R.string.widget_style_classic),
+                stringResource(R.string.widget_style_image),
+            ),
+            selectedIndex = if (s.widgetStyle == "image") 1 else 0,
+        ) { i ->
+            vm.setWidgetStyle(if (i == 1) "image" else "classic")
         }
 
         SectionLabel(stringResource(R.string.ui_language))

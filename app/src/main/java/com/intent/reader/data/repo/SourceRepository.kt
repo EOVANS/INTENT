@@ -41,11 +41,15 @@ class SourceRepository(
 
         // Try feed discovery first when it doesn't look like XML
         val info = SiteDiscovery.fetch(client, url).getOrNull()
-        if (info != null) {
-            info.feedUrl?.let { feedUrl = it }
-            info.siteUrl?.let { siteUrl = it }
-            info.title?.let { title = it }
-            info.iconUrl?.let { iconUrl = it }
+            // Unreachable / HTTP error: there is nothing usable to subscribe to.
+            ?: return@withContext Result.failure(IllegalStateException("site unreachable"))
+        info.feedUrl?.let { feedUrl = it }
+        info.siteUrl?.let { siteUrl = it }
+        info.title?.let { title = it }
+        info.iconUrl?.let { iconUrl = it }
+        // Reached a web page that advertises no feed: subscribing is pointless.
+        if (info.feedUrl == null && info.siteUrl != null) {
+            return@withContext Result.failure(IllegalStateException("no feed found"))
         }
 
         db.sourceDao().getByFeedUrl(feedUrl)?.let { return@withContext Result.success(it) }

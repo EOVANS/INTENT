@@ -21,6 +21,7 @@ data class SettingsState(
     val onboardingCompletedVersion: Int = 0,
     val themeMode: ThemeMode = ThemeMode.FOLLOW_SYSTEM,
     val accentColor: Long = 0xFFE02B2B,
+    val widgetStyle: String = "classic",     // "classic" | "image"
     val fontChoice: String = "system",     // "system" | "serif" | "custom:<path>"
     val languageTag: String = "",           // "" = follow system
     val textScaleLevel: Int = 1,            // 0..3
@@ -60,6 +61,7 @@ class SettingsRepository(private val context: Context) {
         val onboardingVersion = intPreferencesKey("onboarding_completed_version")
         val themeMode = intPreferencesKey("theme_mode")
         val accentColor = stringPreferencesKey("accent_color")
+        val widgetStyle = stringPreferencesKey("widget_style")
         val fontChoice = stringPreferencesKey("font_choice")
         val languageTag = stringPreferencesKey("language_tag")
         val textScale = intPreferencesKey("text_scale_level")
@@ -98,6 +100,7 @@ class SettingsRepository(private val context: Context) {
             onboardingCompletedVersion = p[Keys.onboardingVersion] ?: 0,
             themeMode = ThemeMode.entries.getOrElse(p[Keys.themeMode] ?: 0) { ThemeMode.FOLLOW_SYSTEM },
             accentColor = p[Keys.accentColor]?.toLongOrNull() ?: 0xFFE02B2B,
+            widgetStyle = p[Keys.widgetStyle] ?: "classic",
             fontChoice = p[Keys.fontChoice] ?: "system",
             languageTag = p[Keys.languageTag] ?: "",
             textScaleLevel = p[Keys.textScale] ?: 1,
@@ -135,6 +138,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun setOnboardingVersion(v: Int) = edit { it[Keys.onboardingVersion] = v }
     suspend fun setThemeMode(mode: ThemeMode) = edit { it[Keys.themeMode] = mode.ordinal }
     suspend fun setAccentColor(argb: Long) = edit { it[Keys.accentColor] = argb.toString() }
+    suspend fun setWidgetStyle(v: String) = edit { it[Keys.widgetStyle] = v }
     suspend fun setFontChoice(v: String) = edit { it[Keys.fontChoice] = v }
     suspend fun setLanguageTag(v: String) = edit { it[Keys.languageTag] = v }
     suspend fun setTextScaleLevel(v: Int) = edit { it[Keys.textScale] = v }

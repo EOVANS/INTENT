@@ -40,7 +40,9 @@
     <string name="subscribe">Follow</string>
     <string name="subscribed">Following ✓</string>
     <string name="all_articles">All articles</string>
+    <string name="imported_sources">Your imported feeds</string>
     <string name="my_sources">Your feeds</string>
+    <string name="add_source_success">Feed added</string>
     <string name="add_source_failed">Could not add. Check the URL or network.</string>
     <string name="source_added">Subscribed</string>
     <string name="filter_all">All</string>
@@ -65,6 +67,11 @@
     <string name="import_opml">Import OPML</string>
     <string name="export_opml">Export OPML</string>
     <string name="about">About</string>
+    <string name="changelog">Changelog</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="delete">Delete</string>
+    <string name="selected_count_fmt">%1$d selected</string>
     <string name="licenses">Open-source licenses</string>
     <string name="retain_settings">Article retention</string>
 
@@ -91,6 +98,9 @@
     <string name="accent_magenta">Magenta</string>
     <string name="accent_custom">Custom color</string>
     <string name="ui_theme">Theme</string>
+    <string name="ui_widget_style">Widget style</string>
+    <string name="widget_style_classic">Classic</string>
+    <string name="widget_style_image">Artwork</string>
     <string name="theme_follow">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
@@ -154,4 +164,15 @@
     <string name="glass_adaptive_tint_note">Tints the glass per pixel from the luminance behind it; foreground icons and labels flip light/dark automatically</string>
     <string name="glass_scroll_edge_blur">Scroll-edge progressive blur</string>
     <string name="glass_scroll_edge_blur_note">Content ramps from sharp to blurred as it approaches the screen edge</string>
+
+    <!-- Home-screen widgets -->
+    <string name="widget_large_label">INTENT · Today</string>
+    <string name="widget_small_label">INTENT · Today’s Brief</string>
+    <string name="widget_large_desc">Shows today’s articles on your home screen</string>
+    <string name="widget_small_desc">Scroll through today’s articles on your home screen</string>
+    <string name="widget_today_count">%1$d today</string>
+    <string name="widget_empty">Nothing new yet</string>
+    <string name="widget_view_all">View all →</string>
+    <string name="widget_next">Next article</string>
+    <string name="widget_unread">unread</string>
 </resources>

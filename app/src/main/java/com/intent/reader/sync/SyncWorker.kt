@@ -14,6 +14,7 @@ import com.intent.reader.IntentApplication
 import com.intent.reader.data.db.Article
 import com.intent.reader.data.repo.SourceRepository
 import com.intent.reader.rss.HtmlText
+import com.intent.reader.widget.IntentWidgets
 import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
@@ -98,6 +99,8 @@ class SyncWorker(appContext: Context, params: WorkerParameters) :
         } catch (_: Exception) {
             // quote computation must never fail the sync
         }
+        // Fresh articles are in Room -> re-render any placed home-screen widgets.
+        runCatching { IntentWidgets.refreshAll(applicationContext) }
         return Result.success()
     }
 

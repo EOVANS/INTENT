@@ -6,6 +6,7 @@ import com.intent.reader.di.AppContainer
 import com.intent.reader.notify.DailySummaryWorker
 import com.intent.reader.notify.NotificationChannels
 import com.intent.reader.sync.SyncWorker
+import com.intent.reader.widget.IntentWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -47,5 +48,8 @@ class IntentApplication : Application(), Configuration.Provider {
                     if (enabled) DailySummaryWorker.scheduleDaily(this@IntentApplication, hour, minute)
                 }
         }
+
+        // Generated widget-picker previews (API 35+); no-op below / when rate-limited.
+        appScope.launch { IntentWidgets.publishPickerPreviews(this@IntentApplication) }
     }
 }

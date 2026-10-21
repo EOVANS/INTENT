@@ -65,12 +65,14 @@ import com.intent.reader.ui.search.SearchScreen
 import com.intent.reader.ui.search.SearchViewModel
 import com.intent.reader.ui.search.SourceDetailScreen
 import com.intent.reader.ui.search.SourcesScreen
+import com.intent.reader.ui.settings.AboutScreen
 import com.intent.reader.ui.settings.AccessibilityScreen
 import com.intent.reader.ui.settings.AdvancedMaterialScreen
 import com.intent.reader.ui.settings.NotificationScreen
 import com.intent.reader.ui.settings.SettingsScreen
 import com.intent.reader.ui.settings.UiSettingsScreen
 import com.intent.reader.ui.settings.UserSettingsScreen
+import com.intent.reader.ui.settings.WebPageScreen
 import com.intent.reader.ui.theme.IntentTheme
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -91,6 +93,10 @@ object Routes {
     const val SETTINGS_NOTIFY = "settings_notify"
     const val SETTINGS_USER = "settings_user"
     const val SETTINGS_ADVANCED = "settings_advanced"
+    const val SETTINGS_ABOUT = "settings_about"
+    const val SETTINGS_WEB = "settings_web/{title}/{url}"
+    fun webPage(title: String, url: String) =
+        "settings_web/${android.net.Uri.encode(title)}/${android.net.Uri.encode(url)}"
 }
 
 /**
@@ -119,12 +125,27 @@ private fun AnimatedContentTransitionScope<NavBackStackEntry>.slidesBackwards():
 fun IntentNavHost(
     startOnOnboarding: Boolean,
     widthSizeClass: WindowWidthSizeClass,
+    startArticleId: String? = null,
+    onStartArticleConsumed: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val app = context.applicationContext as IntentApplication
     val container = app.container
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
+
+    // Widget deep-link: a tapped article id arrives after the NavHost is already
+    // composed. Consume it once, verify the article still exists (retention may
+    // have cleaned it up -> degrade gracefully to the home feed), then navigate.
+    androidx.compose.runtime.LaunchedEffect(startArticleId) {
+        val id = startArticleId ?: return@LaunchedEffect
+        onStartArticleConsumed()
+        if (startOnOnboarding) return@LaunchedEffect
+        val exists = runCatching {
+            container.database.articleDao().getById(id) != null
+        }.getOrDefault(false)
+        if (exists) navController.navigate(Routes.reader(id))
+    }
     val tabBehavior = rememberTabScrollBehavior()
     val settings by container.settingsRepository.settings
         .collectAsState(initial = SettingsState())
@@ -331,9 +352,10 @@ fun IntentNavHost(
                         state = state,
                         onQueryChange = vm::onQueryChange,
                         onAddSource = vm::addSource,
-                        onAddRecommended = vm::addRecommended,
+                        onAddRecommended = vm::toggleRecommended,
                         onOpenAllArticles = { navController.navigate(Routes.ALL_ARTICLES) },
                         onOpenSources = { navController.navigate(Routes.SOURCES) },
+                        onOpenSource = { navController.navigate(Routes.source(it)) },
                         onOpenArticle = { navController.navigate(Routes.reader(it)) },
                     )
                 }
@@ -350,6 +372,30 @@ fun IntentNavHost(
                     onOpenNotify = { navController.navigate(Routes.SETTINGS_NOTIFY) },
                     onOpenUser = { navController.navigate(Routes.SETTINGS_USER) },
                     onOpenAdvanced = { navController.navigate(Routes.SETTINGS_ADVANCED) },
+                    onOpenAbout = { navController.navigate(Routes.SETTINGS_ABOUT) },
+                )
+            }
+
+            composable(Routes.SETTINGS_ABOUT) {
+                AboutScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenPage = { title, url ->
+                        navController.navigate(Routes.webPage(title, url))
+                    },
+                )
+            }
+
+            composable(
+                Routes.SETTINGS_WEB,
+                arguments = listOf(
+                    navArgument("title") { type = NavType.StringType },
+                    navArgument("url") { type = NavType.StringType },
+                ),
+            ) { entry ->
+                WebPageScreen(
+                    title = entry.arguments?.getString("title") ?: "",
+                    url = entry.arguments?.getString("url") ?: "",
+                    onBack = { navController.popBackStack() },
                 )
             }
 
@@ -387,12 +433,6 @@ fun IntentNavHost(
                     unreadBySource = unread,
                     onBack = { navController.popBackStack() },
                     onOpenSource = { navController.navigate(Routes.source(it)) },
-                    onRename = { id, title ->
-                        scope.launch { container.sourceRepository.rename(id, title) }
-                    },
-                    onSetNotify = { id, enabled ->
-                        scope.launch { container.sourceRepository.setNotifyEnabled(id, enabled) }
-                    },
                     onRemove = { id ->
                         scope.launch { container.sourceRepository.remove(id) }
                     },

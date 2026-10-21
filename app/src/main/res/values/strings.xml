@@ -44,7 +44,9 @@
     <string name="subscribe">订阅</string>
     <string name="subscribed">已订阅 ✓</string>
     <string name="all_articles">全部文章</string>
+    <string name="imported_sources">您导入的 RSS 源</string>
     <string name="my_sources">已订阅的 RSS</string>
+    <string name="add_source_success">已添加订阅</string>
     <string name="add_source_failed">添加失败，请检查地址或网络</string>
     <string name="source_added">已订阅</string>
     <string name="filter_all">全部</string>
@@ -84,6 +86,11 @@
     <string name="import_opml">导入 OPML</string>
     <string name="export_opml">导出 OPML</string>
     <string name="about">关于</string>
+    <string name="changelog">更新日志</string>
+    <string name="privacy_policy">隐私协议</string>
+    <string name="terms_of_use">软件使用条款</string>
+    <string name="delete">删除</string>
+    <string name="selected_count_fmt">已选 %1$d 项</string>
     <string name="licenses">开源许可</string>
     <string name="retain_settings">文章保留</string>
 
@@ -111,6 +118,9 @@
     <string name="accent_magenta">品红</string>
     <string name="accent_custom">自定义取色</string>
     <string name="ui_theme">主题</string>
+    <string name="ui_widget_style">更改小组件样式</string>
+    <string name="widget_style_classic">经典</string>
+    <string name="widget_style_image">大图</string>
     <string name="theme_follow">跟随系统</string>
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色</string>
@@ -163,4 +173,15 @@
     <string name="reader_stop_tts">停止朗读</string>
     <string name="reader_open_in_browser">在浏览器打开</string>
     <string name="reading_now">阅读中</string>
+
+    <!-- Home-screen widgets -->
+    <string name="widget_large_label">INTENT · 今日文章</string>
+    <string name="widget_small_label">INTENT · 今日速览</string>
+    <string name="widget_large_desc">在桌面展示今天更新的文章列表</string>
+    <string name="widget_small_desc">在桌面横向浏览今天的文章</string>
+    <string name="widget_today_count">%1$d 篇</string>
+    <string name="widget_empty">暂无更新</string>
+    <string name="widget_view_all">查看全部 →</string>
+    <string name="widget_next">切换下一篇</string>
+    <string name="widget_unread">未读</string>
 </resources>

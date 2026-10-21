@@ -85,7 +85,31 @@ interface ArticleDao {
 
     @Query("SELECT COUNT(*) FROM articles")
     suspend fun count(): Int
+
+    @Query(
+        """
+        SELECT a.id AS id, a.title AS title, s.title AS sourceTitle,
+               a.publishedAt AS publishedAt, a.imageUrl AS imageUrl, a.isRead AS isRead,
+               s.logoUrl AS sourceLogoUrl
+        FROM articles a INNER JOIN sources s ON s.id = a.sourceId
+        WHERE a.publishedAt >= :dayStart
+        ORDER BY a.publishedAt DESC
+        LIMIT :limit
+        """
+    )
+    suspend fun getTodayForWidget(dayStart: Long, limit: Int): List<WidgetArticleRow>
 }
 
 data class UnreadCount(val sourceId: String, val cnt: Int)
 data class SourceDayCount(val sourceId: String, val cnt: Int)
+
+/** Flat row for the home-screen widget: article + its source title in one query. */
+data class WidgetArticleRow(
+    val id: String,
+    val title: String,
+    val sourceTitle: String,
+    val publishedAt: Long,
+    val imageUrl: String?,
+    val isRead: Boolean,
+    val sourceLogoUrl: String?,
+)

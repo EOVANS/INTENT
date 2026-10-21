@@ -66,12 +66,14 @@ fun SearchScreen(
     onAddRecommended: (String, (Boolean) -> Unit) -> Unit,
     onOpenAllArticles: () -> Unit,
     onOpenSources: () -> Unit,
+    onOpenSource: (String) -> Unit,
     onOpenArticle: (String) -> Unit,
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val successMsg = stringResource(R.string.add_source_success)
     val failedMsg = stringResource(R.string.add_source_failed)
     var input by remember { mutableStateOf("") }
     // Edge-to-edge: the list has to clear the status bar itself.
@@ -84,8 +86,12 @@ fun SearchScreen(
                 (v.contains(".") && !v.contains(" ")) -> {
                 onAddSource(v) { ok ->
                     scope.launch {
-                        if (!ok) snackbar.showSnackbar(failedMsg)
-                        else input = ""
+                        if (ok) {
+                            input = ""
+                            snackbar.showSnackbar(successMsg)
+                        } else {
+                            snackbar.showSnackbar(failedMsg)
+                        }
                     }
                 }
             }
@@ -180,6 +186,22 @@ fun SearchScreen(
                         }
                     }
                 }
+                // User-imported feeds (added by URL / OPML, i.e. not built-in picks)
+                val imported = state.sources.filter { !it.isBuiltIn }
+                if (imported.isNotEmpty()) {
+                    item {
+                        Text(stringResource(R.string.imported_sources), style = t.sectionTitle)
+                    }
+                    imported.forEach { s ->
+                        item(key = "imported_" + s.id) {
+                            ImportedSourceRow(
+                                title = s.title,
+                                logoUrl = s.logoUrl,
+                                onClick = { onOpenSource(s.id) },
+                            )
+                        }
+                    }
+                }
                 // Entries (doc 4.2.3)
                 item { EntryRow(stringResource(R.string.all_articles)) { onOpenAllArticles() } }
                 item { EntryRow(stringResource(R.string.my_sources)) { onOpenSources() } }
@@ -214,6 +236,38 @@ private fun HeroSource(name: String, logoUrl: String, subscribed: Boolean, onCli
             color = c.textSecondary,
             maxLines = 1,
         )
+    }
+}
+
+@Composable
+private fun ImportedSourceRow(title: String, logoUrl: String?, onClick: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick),
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SourceLogo(logoUrl, title, 28.dp)
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = title,
+                style = t.body,
+                color = c.text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Text("→", style = t.body, color = c.textSecondary)
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(c.divider))
     }
 }
 

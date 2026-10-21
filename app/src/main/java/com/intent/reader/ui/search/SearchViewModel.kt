@@ -85,6 +85,16 @@ class SearchViewModel(private val app: IntentApplication) : ViewModel() {
         }
     }
 
+    /** Hero tap: subscribe when not subscribed, unsubscribe when already subscribed. */
+    fun toggleRecommended(feedUrl: String, onDone: (Boolean) -> Unit) {
+        val existing = state.value.sources.firstOrNull { it.feedUrl == feedUrl }
+        if (existing != null) {
+            removeSource(existing.id) { onDone(true) }
+        } else {
+            addRecommended(feedUrl, onDone)
+        }
+    }
+
     fun removeSource(id: String, onDone: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
             container.sourceRepository.remove(id)

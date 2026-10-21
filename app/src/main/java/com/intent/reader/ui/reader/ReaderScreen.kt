@@ -242,11 +242,15 @@ fun ReaderScreen(
                                 .background(c.heroBg),
                         )
                         if (!block.alt.isNullOrBlank()) {
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(6.dp))
+                            // Caption: centered small secondary text so it reads as
+                            // an annotation, not another body paragraph.
                             Text(
                                 text = block.alt,
                                 style = t.micro,
                                 color = c.textSecondary,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
                         Spacer(Modifier.height(16.dp))

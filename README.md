@@ -345,5 +345,16 @@ A：先用"OPML 导出"备份订阅，在新手机安装 INTENT 后导入即可�
 A：在 App 内改色后会自动刷新；如启动器缓存，可删除小组件重新添加。
 
 ---
+## Star History
+
+<a href="https://www.star-history.com/?repos=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%2F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&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=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/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&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=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/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&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=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/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&type=date&legend=top-left" />
+ </picture>
+</a>
+
+---
 
 *祝你在 INTENT 里，读得专注。*

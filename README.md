@@ -7,6 +7,10 @@
 
 近期功能与实现记录：[更新日志](CHANGELOG.md)
 
+官网：https://intentread.netlify.app/
+
+使用指南：https://intentsonnet.netlify.app/
+
 ---
 
 ## 目录

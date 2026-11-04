@@ -13,7 +13,7 @@
 
 软件安全性检查：https://www.virustotal.com/gui/
 
-<img width="1030" height="507" alt="image" src="https://github.com/user-attachments/assets/eabc0e84-5360-446b-9a59-8bfb06a9d2c5" />
+<img width="1215" height="555" alt="image" src="https://github.com/user-attachments/assets/94bc9d77-8e91-4cf9-98ff-103af8b49bcf" />
 
 
 ## 目录

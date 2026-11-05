@@ -5,7 +5,7 @@
 适用版本：INTENT 1.5 · Android 11 及以上
 手册内容：添加订阅 · 找 RSS 源 · 管理与阅读 · 桌面小组件 · 个性化设置 · 常见问题
 
-近期功能与实现记录：[更新日志](CHANGELOG.md)
+近期功能与实现记录：[更新日志](changelog.md)
 
 官网：https://intentread.netlify.app/
 

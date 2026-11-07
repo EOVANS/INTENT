@@ -2,14 +2,14 @@
 
 **INTENT — 一款专注于阅读的、由 AI 轻量赋能的 RSS 阅读器**
 
-适用版本：INTENT 1.5 · Android 11 及以上
+适用版本：INTENT 1.5.2 · Android 11 及以上
 手册内容：添加订阅 · 找 RSS 源 · 管理与阅读 · 桌面小组件 · 个性化设置 · 常见问题
 
 近期功能与实现记录：[更新日志](changelog.md)
 
-官网：https://intentread.netlify.app/
+快来网站看看：[官网](https://intentread.pages.dev/#features)
 
-使用指南：https://intentsonnet.netlify.app/
+欢迎到访直男之家：[帮助中心](https://intentsonnet.pages.dev/help.html)
 
 软件安全性检查：https://www.virustotal.com/gui/
 

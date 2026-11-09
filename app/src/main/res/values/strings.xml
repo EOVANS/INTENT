@@ -95,6 +95,7 @@
 
     <!-- Settings root -->
     <string name="settings_title">设置</string>
+    <string name="settings_pick_pane">从左侧选择一项设置</string>
     <string name="settings_ui">更改用户界面</string>
     <string name="settings_a11y">无障碍</string>
     <string name="settings_notify">通知</string>

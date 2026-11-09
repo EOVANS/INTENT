@@ -104,6 +104,7 @@ import com.intent.reader.ui.settings.UiSettingsScreen
 import com.intent.reader.ui.settings.ThemeSettingsScreen
 import com.intent.reader.ui.settings.UserSettingsScreen
 import com.intent.reader.ui.settings.PrivacyScreen
+import com.intent.reader.ui.settings.SettingsSplitScreen
 import com.intent.reader.ui.settings.ReadingHistoryScreen
 import com.intent.reader.ui.settings.WebPageScreen
 import com.intent.reader.ui.theme.IntentTheme
@@ -626,18 +627,30 @@ fun IntentNavHost(
                 // translucent tab bar and SettingsScaffold reserves the bar's
                 // footprint at the end of its scroll content. Padding the whole
                 // viewport on top of that left a dead band at the bottom.
-                SettingsScreen(
-                    onBack = { navController.popBackStack() },
-                    onOpenUi = { navController.navigate(Routes.SETTINGS_UI) },
-                    onOpenA11y = { navController.navigate(Routes.SETTINGS_A11Y) },
-                    onOpenNotify = { navController.navigate(Routes.SETTINGS_NOTIFY) },
-                    onOpenUser = { navController.navigate(Routes.SETTINGS_USER) },
-                    onOpenPrivacy = { navController.navigate(Routes.SETTINGS_PRIVACY) },
-                    onOpenAdvanced = { navController.navigate(Routes.SETTINGS_ADVANCED) },
-                    onOpenAbout = { navController.navigate(Routes.SETTINGS_ABOUT) },
-                    onOpenAi = { navController.navigate(Routes.SETTINGS_AI) },
-                    onOpenStorage = { navController.navigate(Routes.SETTINGS_STORAGE) },
-                )
+                if (widthSizeClass == WindowWidthSizeClass.Compact) {
+                    SettingsScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenUi = { navController.navigate(Routes.SETTINGS_UI) },
+                        onOpenA11y = { navController.navigate(Routes.SETTINGS_A11Y) },
+                        onOpenNotify = { navController.navigate(Routes.SETTINGS_NOTIFY) },
+                        onOpenUser = { navController.navigate(Routes.SETTINGS_USER) },
+                        onOpenPrivacy = { navController.navigate(Routes.SETTINGS_PRIVACY) },
+                        onOpenAdvanced = { navController.navigate(Routes.SETTINGS_ADVANCED) },
+                        onOpenAbout = { navController.navigate(Routes.SETTINGS_ABOUT) },
+                        onOpenAi = { navController.navigate(Routes.SETTINGS_AI) },
+                        onOpenStorage = { navController.navigate(Routes.SETTINGS_STORAGE) },
+                    )
+                } else {
+                    // Tablets and unfolded foldables keep the index in view and show the
+                    // selected section beside it instead of replacing the whole page.
+                    SettingsSplitScreen(
+                        widthSizeClass = widthSizeClass,
+                        popupBackdrop = backdrop,
+                        onExit = { navController.popBackStack() },
+                        onOpenSources = { navController.navigate(Routes.SOURCES) },
+                        onOpenWeb = { title, url -> navController.navigate(Routes.webPage(title, url)) },
+                    )
+                }
             }
 
             framedComposable(Routes.SETTINGS_STORAGE) {

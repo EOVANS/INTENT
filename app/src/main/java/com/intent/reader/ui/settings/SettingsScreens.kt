@@ -71,6 +71,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -192,6 +193,12 @@ private fun settingsVm(): SettingsViewModel {
 
 // ---------- shared widgets ----------
 
+/**
+ * True while a settings page is shown inside the wide two-pane layout. The pane keeps
+ * the section list visible, so a top-level page has no back arrow of its own.
+ */
+internal val LocalSettingsPaneEmbedded = staticCompositionLocalOf { false }
+
 @Composable
 internal fun SettingsScaffold(
     title: String,
@@ -200,6 +207,7 @@ internal fun SettingsScaffold(
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
+    val embedded = LocalSettingsPaneEmbedded.current
     Column(
         Modifier
             .fillMaxSize()
@@ -222,7 +230,7 @@ internal fun SettingsScaffold(
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (onBack != null) {
+            if (onBack != null && !embedded) {
                 HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
             }
             Text(

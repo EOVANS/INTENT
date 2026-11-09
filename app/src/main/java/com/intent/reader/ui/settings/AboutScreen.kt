@@ -138,7 +138,11 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
         TopAppBar(
             title = { Text(stringResource(R.string.about), style = t.pageTitle) },
             navigationIcon = {
-                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                // Inside the wide two-pane layout the section index stays visible, so the
+                // page does not need an arrow of its own.
+                if (!LocalSettingsPaneEmbedded.current) {
+                    HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                }
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = c.bg,

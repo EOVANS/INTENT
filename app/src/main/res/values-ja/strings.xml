@@ -84,6 +84,7 @@
     <string name="source_settings">フィード設定</string>
 
     <string name="settings_title">設定</string>
+    <string name="settings_pick_pane">左側から設定を選択</string>
     <string name="settings_ui">ユーザーインターフェース</string>
     <string name="settings_a11y">アクセシビリティ</string>
     <string name="settings_notify">通知</string>

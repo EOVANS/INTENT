@@ -84,6 +84,7 @@
     <string name="source_settings">소스 설정</string>
 
     <string name="settings_title">설정</string>
+    <string name="settings_pick_pane">왼쪽에서 설정을 선택하세요</string>
     <string name="settings_ui">사용자 인터페이스</string>
     <string name="settings_a11y">접근성</string>
     <string name="settings_notify">알림</string>

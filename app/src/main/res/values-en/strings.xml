@@ -84,6 +84,7 @@
     <string name="source_settings">Source settings</string>
 
     <string name="settings_title">Settings</string>
+    <string name="settings_pick_pane">Choose a setting on the left</string>
     <string name="settings_ui">Appearance</string>
     <string name="settings_a11y">Accessibility</string>
     <string name="settings_notify">Notifications</string>

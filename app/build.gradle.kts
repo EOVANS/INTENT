@@ -57,7 +57,6 @@ android {
 }
 
 dependencies {
-    implementation("top.yukonga.miuix.kmp:miuix:0.3.0")
     implementation(files("libs/sharedview-kit-1.0.0.5.aar"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

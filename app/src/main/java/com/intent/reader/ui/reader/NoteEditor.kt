@@ -104,7 +104,7 @@ fun NoteEditor(
                     }
                 }
                 drawing?.let { HandwritingPreview(it, Modifier.fillMaxWidth().height(200.dp)
-                    .clickable(enabled = ready && !busy) { beforeInk = drawing; editingInk = true }) }
+                    .clickable(enabled = ready && !busy) { beforeInk = drawing; editingInk = true }, anchorText = quote) }
                 if (loadFailed) Text(stringResource(R.string.ink_load_error), color = c.accent, style = t.meta)
                 if (failed) Text(stringResource(R.string.notes_save_error), color = c.accent, style = t.meta)
             }
@@ -123,7 +123,7 @@ fun NoteEditor(
             }
         },
     )
-    if (editingInk) HandwritingEditor(initial = beforeInk, onCancel = { drawing = beforeInk; editingInk = false }, onDone = { drawing = it; editingInk = false }, onDraft = { drawing = it })
+    if (editingInk) HandwritingEditor(initial = beforeInk, anchorText = quote, onCancel = { drawing = beforeInk; editingInk = false }, onDone = { drawing = it; editingInk = false }, onDraft = { drawing = it })
     if (confirmDelete && onDelete != null) AlertDialog(
         onDismissRequest = { if (!busy) confirmDelete = false },
         title = { Text(stringResource(R.string.notes_delete_title)) },

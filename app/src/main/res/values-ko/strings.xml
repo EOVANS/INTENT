@@ -102,6 +102,7 @@
     <string name="privacy_ai_description">설명: 이러한 데이터는 기기에서 지정한 서드파티 AI 서비스로 직접 전송됩니다. INTENT는 이를 가로채거나 저장, 전달하지 않습니다. 데이터 처리 및 보관은 해당 서비스 제공자의 개인정보 처리방침을 따르며 책임도 제공자에게 있습니다.</string>
     <string name="privacy_row_sources">RSS 구독 목록</string>
     <string name="privacy_row_reading">읽기 진행률 및 기록</string>
+    <string name="privacy_row_island_notes">아일랜드 노트</string>
     <string name="privacy_row_preferences">앱 테마 및 환경설정</string>
     <string name="privacy_row_cache">기사 오프라인 캐시</string>
     <string name="privacy_row_saved">로컬 저장 콘텐츠</string>
@@ -111,6 +112,7 @@
     <string name="privacy_row_api_key">서드파티 AI 서비스 API 키</string>
     <string name="privacy_count_sources">구독 %1$d개</string>
     <string name="privacy_count_records">기록 %1$d개</string>
+    <string name="privacy_count_notes">노트 %1$d개</string>
     <string name="privacy_count_articles">기사 %1$d개</string>
     <string name="privacy_count_saved">저장 %1$d개</string>
     <string name="privacy_local_only">로컬 전용</string>

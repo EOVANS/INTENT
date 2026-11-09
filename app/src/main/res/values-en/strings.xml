@@ -223,6 +223,7 @@
     <string name="privacy_ai_description">Details: This data is sent directly from your device to the third-party AI provider you specify. INTENT does not intercept, store, or forward it. Handling and retention are governed by that provider\'s privacy policy, and responsibility rests with the provider.</string>
     <string name="privacy_row_sources">RSS subscriptions</string>
     <string name="privacy_row_reading">Reading progress and history</string>
+    <string name="privacy_row_island_notes">Island notes</string>
     <string name="privacy_row_preferences">App theme and preferences</string>
     <string name="privacy_row_cache">Offline article cache</string>
     <string name="privacy_row_saved">Saved items</string>
@@ -232,6 +233,7 @@
     <string name="privacy_row_api_key">Third-party AI API key</string>
     <string name="privacy_count_sources">%1$d feeds</string>
     <string name="privacy_count_records">%1$d records</string>
+    <string name="privacy_count_notes">%1$d notes</string>
     <string name="privacy_count_articles">%1$d articles</string>
     <string name="privacy_count_saved">%1$d saved</string>
     <string name="privacy_local_only">Local only</string>

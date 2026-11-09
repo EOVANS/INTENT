@@ -113,6 +113,7 @@
     <string name="privacy_ai_description">说明：该类数据由您的设备直接发送至您指定的第三方 AI 服务商接口，INTENT 不做任何截留、存储或转发；数据的处理、留存规则以对应服务商的隐私政策为准，相关责任由服务商承担。</string>
     <string name="privacy_row_sources">RSS 订阅列表</string>
     <string name="privacy_row_reading">阅读进度与历史记录</string>
+    <string name="privacy_row_island_notes">孤岛笔记</string>
     <string name="privacy_row_preferences">应用主题与偏好设置</string>
     <string name="privacy_row_cache">文章离线缓存</string>
     <string name="privacy_row_saved">本地收藏内容</string>
@@ -122,6 +123,7 @@
     <string name="privacy_row_api_key">第三方 AI 服务 API 密钥</string>
     <string name="privacy_count_sources">%1$d 个订阅源</string>
     <string name="privacy_count_records">%1$d 条记录</string>
+    <string name="privacy_count_notes">%1$d 条笔记</string>
     <string name="privacy_count_articles">%1$d 篇文章</string>
     <string name="privacy_count_saved">%1$d 篇收藏</string>
     <string name="privacy_local_only">仅本地</string>

@@ -240,7 +240,7 @@ fun NotesScreen(
                                 catch (cancelled: CancellationException) { throw cancelled }
                                 catch (_: Exception) { inkFailed = true }
                             }
-                            drawing?.let { HandwritingPreview(it, Modifier.fillMaxWidth().height(320.dp)) }
+                            drawing?.let { HandwritingPreview(it, Modifier.fillMaxWidth().height(320.dp), anchorText = note.quote) }
                             if (inkFailed) Text(stringResource(R.string.ink_load_error), style = t.meta, color = c.accent)
                         }
                     }

@@ -1227,6 +1227,8 @@ class PrivacyViewModel(private val app: IntentApplication) : ViewModel() {
         private set
     var readingCount by mutableStateOf(0)
         private set
+    var islandNotes by mutableStateOf(0)
+        private set
     var cachedArticles by mutableStateOf(0)
         private set
     var savedArticles by mutableStateOf(0)
@@ -1240,6 +1242,7 @@ class PrivacyViewModel(private val app: IntentApplication) : ViewModel() {
         viewModelScope.launch { app.container.sourceRepository.observeSources().collect { sources = it } }
         viewModelScope.launch { db.readingEventDao().observeRecent(300).collect { readingEvents = it } }
         viewModelScope.launch { db.readingEventDao().observeCount().collect { readingCount = it } }
+        viewModelScope.launch { app.container.notesRepository.state.collect { islandNotes = it.notes.size } }
         viewModelScope.launch { db.articleDao().observeCount().collect { cachedArticles = it } }
         viewModelScope.launch { db.articleDao().observeFavoriteCount().collect { savedArticles = it } }
         viewModelScope.launch { repo.settings.collect { settings = it } }
@@ -1297,6 +1300,10 @@ fun PrivacyScreen(
                 label = stringResource(R.string.privacy_row_reading),
                 value = stringResource(R.string.privacy_count_records, vm.readingCount),
                 onClick = onOpenReadingHistory,
+            )
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_island_notes),
+                value = stringResource(R.string.privacy_count_notes, vm.islandNotes),
             )
             PrivacyDataRow(
                 label = stringResource(R.string.privacy_row_preferences),

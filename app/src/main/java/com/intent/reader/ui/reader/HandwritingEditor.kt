@@ -39,7 +39,10 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.semantics.contentDescription
@@ -58,10 +61,22 @@ private fun InkTool(icon: ImageVector, description: String, enabled: Boolean = t
 }
 
 @Composable
-fun HandwritingPreview(drawing: Handwriting, modifier: Modifier = Modifier) {
+fun HandwritingPreview(drawing: Handwriting, modifier: Modifier = Modifier, anchorText: String = "") {
     val description = stringResource(R.string.ink_note_preview)
-    Canvas(modifier.clip(RoundedCornerShape(16.dp)).background(Color(drawing.backgroundColor.toInt()))
-        .semantics { contentDescription = description }) {
+    Box(modifier.clip(RoundedCornerShape(16.dp)).background(Color(drawing.backgroundColor.toInt()))
+        .semantics { contentDescription = description }, contentAlignment = Alignment.Center) {
+        // The highlighted sentence sits under the ink, exactly as it does in the editor.
+        if (anchorText.isNotBlank()) Text(
+            text = anchorText,
+            color = Color(0xFF3A3A3A),
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 6,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        )
+        Canvas(Modifier.matchParentSize()) {
         val points = drawing.strokes.flatMap { it.points }
         if (points.isEmpty()) return@Canvas
         // Fit the ink itself instead of the whole canvas, so a preview never shows the
@@ -81,11 +96,18 @@ fun HandwritingPreview(drawing: Handwriting, modifier: Modifier = Modifier) {
             if (strokePoints.size == 1) drawCircle(color, radius = 2f * scale, center = origin + Offset(strokePoints[0].x * scale, strokePoints[0].y * scale))
             for (i in 1 until strokePoints.size) drawLine(color, origin + Offset(strokePoints[i-1].x * scale, strokePoints[i-1].y * scale), origin + Offset(strokePoints[i].x * scale, strokePoints[i].y * scale), strokeWidth = 3f * scale, cap = StrokeCap.Round)
         }
+        }
     }
 }
 
 @Composable
-fun HandwritingEditor(initial: Handwriting?, onCancel: () -> Unit, onDone: (Handwriting?) -> Unit, onDraft: (Handwriting?) -> Unit) {
+fun HandwritingEditor(
+    initial: Handwriting?,
+    anchorText: String = "",
+    onCancel: () -> Unit,
+    onDone: (Handwriting?) -> Unit,
+    onDraft: (Handwriting?) -> Unit,
+) {
     var width by remember { mutableFloatStateOf(initial?.width ?: 0f) }
     var height by remember { mutableFloatStateOf(initial?.height ?: 0f) }
     var strokes by remember { mutableStateOf(initial?.strokes.orEmpty()) }
@@ -162,6 +184,18 @@ fun HandwritingEditor(initial: Handwriting?, onCancel: () -> Unit, onDone: (Hand
                         height = availableHeight
                     }
                 }
+                // The highlighted sentence stays exactly in the middle of the page, under
+                // the ink, so the annotation can be written on top of the words themselves.
+                if (anchorText.isNotBlank()) Text(
+                    text = anchorText,
+                    color = Color(0xFF3A3A3A),
+                    fontSize = 18.sp,
+                    lineHeight = 27.sp,
+                    textAlign = TextAlign.Center,
+                    maxLines = 12,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.align(Alignment.Center).fillMaxWidth().padding(horizontal = 32.dp),
+                )
                 Canvas(Modifier.fillMaxSize()
                     .pointerInput(fingerDraw, width, height, eraser, penColor) {
                         awaitEachGesture {

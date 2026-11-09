@@ -30,10 +30,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
@@ -97,7 +97,7 @@ import java.util.Locale
 /** Grid columns per window size class (doc 8). */
 fun articleColumns(widthClass: WindowWidthSizeClass): Int = when (widthClass) {
     WindowWidthSizeClass.Medium -> 2
-    WindowWidthSizeClass.Expanded -> 4
+    WindowWidthSizeClass.Expanded -> 2
     else -> 2
 }
 
@@ -112,7 +112,7 @@ private fun isHalfWidthStyle(style: CardStyle): Boolean =
  *   orphan A/B — i.e. the last card of an odd-length run of half-width cards —
  *   is promoted to the full row so the right column is never left empty.
  * - Medium screens: every card takes one of two columns.
- * - Expanded screens: A/B take one of four columns, other cards span two.
+ * - Expanded screens also use two independently flowing columns.
  */
 fun computeSpans(rows: List<HomeRowUi>, widthClass: WindowWidthSizeClass): List<Int> {
     val total = articleColumns(widthClass)
@@ -165,7 +165,7 @@ fun HomeScreen(
     // The feed is edge-to-edge, so the grid has to clear the status bar itself.
     val statusBarTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
     val spans = remember(state.rows, widthClass) { computeSpans(state.rows, widthClass) }
-    val gridState = rememberLazyGridState()
+    val gridState = rememberLazyStaggeredGridState()
     val scope = rememberCoroutineScope()
     val refreshState = rememberPullToRefreshState()
     val pull = refreshState.distanceFraction.coerceIn(0f, 3f)
@@ -228,8 +228,8 @@ fun HomeScreen(
                 HeaderIconButton(Icons.Outlined.Settings, stringResource(R.string.tab_settings), onOpenSettings)
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(articleColumns(widthClass)),
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(articleColumns(widthClass)),
                 state = gridState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
@@ -239,9 +239,9 @@ fun HomeScreen(
                     bottom = contentPadding.calculateBottomPadding() + 96.dp,
                 ),
                 horizontalArrangement = Arrangement.spacedBy(IntentDimens.cardSpacing.dp),
-                verticalArrangement = Arrangement.spacedBy(IntentDimens.cardSpacing.dp),
+                verticalItemSpacing = IntentDimens.cardSpacing.dp,
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }, key = "header") {
+                item(span = StaggeredGridItemSpan.FullLine, key = "header") {
                     GreetingHeader(
                         userName = state.userName,
                         greetingEmoji = state.greetingEmoji,
@@ -258,7 +258,7 @@ fun HomeScreen(
                 state.rows.forEachIndexed { index, row ->
                     when (row) {
                         is HomeRowUi.Single -> {
-                            item(key = row.a.article.id, span = { GridItemSpan(spans[index]) }) {
+                            item(key = row.a.article.id, span = if (spans[index] > 1) StaggeredGridItemSpan.FullLine else StaggeredGridItemSpan.SingleLane) {
                                 LongPressCard(
                                     article = row.a.article,
                                     onSetRead = onSetRead,
@@ -270,7 +270,7 @@ fun HomeScreen(
                                         sourceTitle = row.a.sourceTitle,
                                         sourceLogo = row.a.sourceLogo,
                                         onClick = { onOpenCard(row.a.article.id) },
-                                        aligned = spans[index] == 1,
+                                        aligned = !isTablet && spans[index] == 1,
                                     )
                                 }
                             }
@@ -278,7 +278,7 @@ fun HomeScreen(
                         is HomeRowUi.Aggregate -> {
                             item(
                                 key = "agg_" + (row.items.firstOrNull()?.article?.id ?: row.hashCode()),
-                                span = { GridItemSpan(spans[index]) },
+                                span = if (spans[index] > 1) StaggeredGridItemSpan.FullLine else StaggeredGridItemSpan.SingleLane,
                             ) {
                                 CardE(
                                     sourceTitle = row.sourceTitle,

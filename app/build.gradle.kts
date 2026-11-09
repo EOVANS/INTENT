@@ -1,3 +1,11 @@
+import java.util.Properties
+
+// Release signing lives outside version control; without it the release build simply
+// falls back to an unsigned APK instead of failing the whole build.
+val keystoreProps: Properties? = rootProject.file("keystore.properties").takeIf { it.exists() }?.let {
+    Properties().apply { it.inputStream().use { stream -> load(stream) } }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,6 +28,17 @@ android {
         vectorDrawables { useSupportLibrary = true }
     }
 
+    signingConfigs {
+        if (keystoreProps != null) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             // R8 full mode (AGP 8+ default), including code and resource shrinking.
@@ -29,6 +48,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.findByName("release")
         }
     }
     compileOptions {

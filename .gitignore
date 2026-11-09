@@ -12,6 +12,12 @@ captures/
 # IDE
 .idea/
 
+# Signing (never commit the release key or its passwords)
+keystore.properties
+keystore/
+*.jks
+*.keystore
+
 # OS
 .DS_Store
 Thumbs.db

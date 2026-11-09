@@ -389,3 +389,16 @@ A：在 App 内改色后会自动刷新；如启动器缓存，可删除小组�
 ## 许可证
 
 本项目原创代码采用 [MIT 许可证](LICENSE)，版权归 Cynosure/Atelier 所有。项目包含的第三方组件遵循各自的许可证；例如 Android Liquid Glass 使用 [Apache License 2.0](third-party/android-liquid-glass/LICENSE)。
+
+---
+
+## Star History
+
+<a href="https://star-history.com/#EOVANS/INTENT&amp;Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=EOVANS/INTENT&amp;type=Date&amp;theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=EOVANS/INTENT&amp;type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=EOVANS/INTENT&amp;type=Date" />
+  </picture>
+</a>
+

@@ -134,6 +134,7 @@ object Routes {
     const val SETTINGS_A11Y = "settings_a11y"
     const val SETTINGS_NOTIFY = "settings_notify"
     const val SETTINGS_USER = "settings_user"
+    const val SETTINGS_PRIVACY = "settings_privacy"
     const val SETTINGS_ADVANCED = "settings_advanced"
     const val SETTINGS_DEVELOPER = "settings_developer"
     const val SETTINGS_ABOUT = "settings_about"
@@ -628,6 +629,7 @@ fun IntentNavHost(
                     onOpenA11y = { navController.navigate(Routes.SETTINGS_A11Y) },
                     onOpenNotify = { navController.navigate(Routes.SETTINGS_NOTIFY) },
                     onOpenUser = { navController.navigate(Routes.SETTINGS_USER) },
+                    onOpenPrivacy = { navController.navigate(Routes.SETTINGS_PRIVACY) },
                     onOpenAdvanced = { navController.navigate(Routes.SETTINGS_ADVANCED) },
                     onOpenAbout = { navController.navigate(Routes.SETTINGS_ABOUT) },
                     onOpenAi = { navController.navigate(Routes.SETTINGS_AI) },
@@ -825,6 +827,10 @@ fun IntentNavHost(
 
             framedComposable(Routes.SETTINGS_USER) {
                 UserSettingsScreen(onBack = { navController.popBackStack() })
+            }
+
+            framedComposable(Routes.SETTINGS_PRIVACY) {
+                PrivacyScreen(onBack = { navController.popBackStack() })
             }
 
             framedComposable(Routes.SETTINGS_ADVANCED) {

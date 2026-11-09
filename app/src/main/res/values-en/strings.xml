@@ -209,6 +209,21 @@
     <string name="reading_now">Reading</string>
 
     <string name="settings_user">User profile</string>
+    <string name="settings_privacy">Privacy</string>
+    <string name="privacy_intro">We believe privacy is a fundamental human right, and it should never be compromised. Control over data belongs to the people using the product, not to the product provider. On this page you can manage how all data is stored and transmitted — RSS subscriptions, reading data, custom API keys and other core information — and decide what stays on this device and what may be sent elsewhere. INTENT follows data minimization and local-first principles by default: no forced uploads, no hidden collection. Every data action happens only with your explicit permission.</string>
+    <string name="privacy_data_section">Data storage and transmission</string>
+    <string name="privacy_sandbox_title">Data stored locally (app sandbox)</string>
+    <string name="privacy_sandbox_contents">Includes: RSS subscription list, reading progress and history, app theme and preferences, offline article cache, local saved items.</string>
+    <string name="privacy_sandbox_description">Details: Stored in the app\'s private sandbox directory, readable only by this app; other apps have no access. The data is permanently removed when the app is uninstalled and is never uploaded to any server.</string>
+    <string name="privacy_export_title">Data stored in public storage (user exports)</string>
+    <string name="privacy_export_contents">Includes: OPML subscription backups, article exports, and app log files that you export yourself.</string>
+    <string name="privacy_export_description">Details: Stored in public storage on your device and can be viewed, moved, or deleted with the system file manager. These files are created only by your own actions; the app never writes or uploads them automatically.</string>
+    <string name="privacy_secure_title">Data encrypted on this device</string>
+    <string name="privacy_secure_contents">Includes: third-party AI service API keys and sensitive authorization credentials that you configure.</string>
+    <string name="privacy_secure_description">Details: Stored securely with system-level encryption. Plaintext keys are only briefly held in memory when you make an AI request, cannot be read or exported directly, and are never uploaded to INTENT servers.</string>
+    <string name="privacy_ai_title">Data uploaded to AI providers</string>
+    <string name="privacy_ai_contents">Includes: article text, custom prompts and other request content submitted when you actively use AI quick reading or summarization.</string>
+    <string name="privacy_ai_description">Details: This data is sent directly from your device to the third-party AI provider you specify. INTENT does not intercept, store, or forward it. Handling and retention are governed by that provider\'s privacy policy, and responsibility rests with the provider.</string>
     <string name="user_change_avatar">Change avatar</string>
     <string name="avatar_updated">Avatar updated</string>
     <string name="settings_advanced">Advanced material &amp; interaction</string>

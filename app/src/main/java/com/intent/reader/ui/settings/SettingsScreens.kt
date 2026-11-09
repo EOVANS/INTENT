@@ -490,6 +490,7 @@ fun SettingsScreen(
     onOpenA11y: () -> Unit,
     onOpenNotify: () -> Unit,
     onOpenUser: () -> Unit,
+    onOpenPrivacy: () -> Unit,
     onOpenAdvanced: () -> Unit,
     onOpenAbout: () -> Unit,
     onOpenAi: () -> Unit,
@@ -532,6 +533,7 @@ fun SettingsScreen(
             EntryRow(stringResource(R.string.settings_notify), icon = Icons.Filled.Notifications, iconColor = Color(0xFF31C76A), onClick = onOpenNotify)
             EntryRow(stringResource(R.string.ai_settings), icon = Icons.Filled.AutoAwesome, iconColor = Color(0xFF9B70EF), onClick = onOpenAi)
             EntryRow(stringResource(R.string.settings_user), value = s.userName.ifBlank { null }, icon = Icons.Filled.Person, iconColor = Color(0xFFEC9450), onClick = onOpenUser)
+            EntryRow(stringResource(R.string.settings_privacy), icon = Icons.Filled.PrivacyTip, iconColor = Color(0xFF5A64D8), onClick = onOpenPrivacy)
             EntryRow(stringResource(R.string.settings_advanced), icon = Icons.Filled.Tune, iconColor = Color(0xFF50B7C5), onClick = onOpenAdvanced)
         }
         Spacer(Modifier.height(16.dp))
@@ -1208,6 +1210,67 @@ fun LanguageSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
 private fun Color.toArgbLong(): Long = 0xFFFFFFFFL and android.graphics.Color.argb(
     (alpha * 255).toInt(), (red * 255).toInt(), (green * 255).toInt(), (blue * 255).toInt(),
 ).toLong() and 0xFFFFFFFFL
+
+// ---------- Privacy settings (level 1) ----------
+
+@Composable
+fun PrivacyScreen(onBack: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+
+    SettingsScaffold(title = stringResource(R.string.settings_privacy), onBack = onBack) {
+        Column(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.surface).padding(horizontal = 20.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(Modifier.size(64.dp).background(Color(0xFF5A64D8), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.PrivacyTip, contentDescription = null, tint = Color.White, modifier = Modifier.size(40.dp))
+            }
+            Spacer(Modifier.height(16.dp))
+            Text(stringResource(R.string.settings_privacy), style = t.pageTitle, fontWeight = FontWeight.Bold, color = c.text)
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(R.string.privacy_intro).withCjkSpacing(),
+                style = t.bodySmall,
+                color = c.textSecondary,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        SectionLabel(stringResource(R.string.privacy_data_section))
+        PrivacyBlock(Icons.Filled.PhoneAndroid, Color(0xFF50B7C5), R.string.privacy_sandbox_title, R.string.privacy_sandbox_contents, R.string.privacy_sandbox_description)
+        Spacer(Modifier.height(10.dp))
+        PrivacyBlock(Icons.Filled.Folder, Color(0xFFEC9450), R.string.privacy_export_title, R.string.privacy_export_contents, R.string.privacy_export_description)
+        Spacer(Modifier.height(10.dp))
+        PrivacyBlock(Icons.Filled.Lock, Color(0xFF2587FF), R.string.privacy_secure_title, R.string.privacy_secure_contents, R.string.privacy_secure_description)
+        Spacer(Modifier.height(10.dp))
+        PrivacyBlock(Icons.Filled.CloudUpload, Color(0xFF9B70EF), R.string.privacy_ai_title, R.string.privacy_ai_contents, R.string.privacy_ai_description)
+    }
+}
+
+@Composable
+private fun PrivacyBlock(icon: ImageVector, iconColor: Color, titleRes: Int, contentsRes: Int, descriptionRes: Int) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    SettingsGroup {
+        Row(Modifier.fillMaxWidth().padding(top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(21.dp))
+            Spacer(Modifier.width(14.dp))
+            Text(stringResource(titleRes).withCjkSpacing(), style = t.body, fontWeight = FontWeight.SemiBold, color = c.text)
+        }
+        Text(
+            stringResource(contentsRes).withCjkSpacing(),
+            style = t.bodySmall,
+            color = c.textSecondary,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        Text(
+            stringResource(descriptionRes).withCjkSpacing(),
+            style = t.bodySmall,
+            color = c.textTertiary,
+            modifier = Modifier.padding(top = 6.dp, bottom = 14.dp),
+        )
+    }
+}
 
 // ---------- Accessibility settings (level 1) ----------
 

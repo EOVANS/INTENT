@@ -68,10 +68,6 @@ import com.intent.reader.ui.theme.IntentTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import top.yukonga.miuix.kmp.basic.TextButton as MiuixTextButton
-import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.theme.darkColorScheme as miuixDarkColorScheme
-import top.yukonga.miuix.kmp.theme.lightColorScheme as miuixLightColorScheme
 
 internal fun aiErrorResource(error: Throwable): Int = when ((error as? AiException)?.reason) {
     AiError.CONFIG -> R.string.ai_error_config
@@ -203,12 +199,12 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
         }
         Text(stringResource(R.string.ai_save_hint), style = IntentTheme.typography.micro, color = IntentTheme.colors.textSecondary,
             modifier = Modifier.padding(top = 8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            AiActionButton(stringResource(R.string.ai_save), !busy, material.liquidGlass) {
-                perform(R.string.ai_saved) { container.aiConfigStore.save(draft) }
+        Row {
+            TextButton(enabled = !busy, onClick = { perform(R.string.ai_saved) { container.aiConfigStore.save(draft) } }) {
+                Text(stringResource(R.string.ai_save))
             }
-            AiActionButton(stringResource(R.string.ai_test), !busy, material.liquidGlass) {
-                perform(R.string.ai_test_ok) { container.aiRepository.testConnection(draft) }
+            TextButton(enabled = !busy, onClick = { perform(R.string.ai_test_ok) { container.aiRepository.testConnection(draft) } }) {
+                Text(stringResource(R.string.ai_test))
             }
         }
         if (busy) Text(stringResource(R.string.ai_loading), color = IntentTheme.colors.textSecondary)
@@ -234,18 +230,6 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
         }
         TextButton(enabled = !busy, onClick = { perform(R.string.ai_cleared) { container.aiConfigStore.clear() } }) {
             Text(stringResource(R.string.ai_clear_config))
-        }
-    }
-}
-
-@Composable
-private fun AiActionButton(label: String, enabled: Boolean, advanced: Boolean, onClick: () -> Unit) {
-    if (advanced && Build.VERSION.SDK_INT >= 33) {
-        TextButton(enabled = enabled, onClick = onClick) { Text(label) }
-    } else {
-        val colors = if (IntentTheme.colors.isDark) miuixDarkColorScheme() else miuixLightColorScheme()
-        MiuixTheme(colors = colors) {
-            MiuixTextButton(text = label, onClick = onClick, enabled = enabled)
         }
     }
 }

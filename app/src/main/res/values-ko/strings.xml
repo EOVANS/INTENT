@@ -1,10 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_note_preview">손글씨 스케치 포함</string>
+    <string name="ink_white">흰색</string>
+    <string name="ink_background">캔버스 배경색</string>
+    <string name="ink_hand_enabled_help">손가락 쓰기를 켰습니다. 손가락으로 쓰거나 지울 수 있으며 펜도 사용할 수 있습니다. 끄면 손가락으로는 그려지지 않습니다.</string>
+    <string name="ink_hand_disabled_help">손가락 쓰기를 껐습니다. 펜으로 쓰거나 지우세요.</string>
+    <string name="ink_understood">확인</string>
     <string name="ink_black">검정</string><string name="ink_blue">파랑</string><string name="ink_red">빨강</string><string name="ink_green">초록</string>
     <string name="ink_pen">펜</string><string name="ink_eraser">지우개</string>
-    <string name="ink_extend">캔버스 늘리기</string>
     <string name="ink_add">손글씨 추가</string><string name="ink_edit">손글씨 편집</string><string name="ink_load_error">손글씨 또는 임시 저장을 읽을 수 없습니다. 원본 파일은 보존됩니다.</string>
-    <string name="ink_undo">실행 취소</string><string name="ink_redo">다시 실행</string><string name="ink_finger_on">손가락 쓰기: 켬</string><string name="ink_finger_off">손가락 쓰기: 끔</string><string name="ink_clear">모두 지우기</string><string name="ink_clear_confirm">모든 손글씨를 지울까요?</string><string name="ink_hint">펜으로 쓰고 손가락으로 스크롤합니다. 필요하면 손가락 쓰기를 켜세요.</string>
+    <string name="ink_undo">실행 취소</string><string name="ink_redo">다시 실행</string><string name="ink_finger_on">손가락 쓰기: 켬</string><string name="ink_finger_off">손가락 쓰기: 끔</string><string name="ink_clear">모두 지우기</string><string name="ink_clear_confirm">모든 손글씨를 지울까요?</string><string name="ink_hint">펜으로 쓰거나, 손가락 쓰기를 켜서 손가락으로 그리세요.</string>
     <string name="home_pull_refresh">당겨서 새로고침</string>
     <string name="home_release_refresh">놓아서 새로고침</string>
     <string name="home_refreshing">새로고침 중</string>

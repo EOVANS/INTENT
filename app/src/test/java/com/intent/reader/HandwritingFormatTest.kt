@@ -29,13 +29,16 @@ class HandwritingFormatTest {
         val old = """{"version":1,"width":100.0,"height":200.0,"strokes":[{"points":[{"x":2.0,"y":3.0}]}]}"""
         val decoded = HandwritingFormat.decode(old.toByteArray())
         assertEquals(0xFF000000L, decoded.strokes.single().color)
-        val colored = decoded.copy(strokes = listOf(decoded.strokes.single().copy(color = 0xFFD32F2FL)))
+        assertEquals(0xFFFFFFFFL, decoded.backgroundColor)
+        val colored = decoded.copy(backgroundColor = 0xFF202124L, strokes = listOf(decoded.strokes.single().copy(color = 0xFFD32F2FL)))
         assertEquals(colored, HandwritingFormat.decode(HandwritingFormat.encode(colored)))
     }
 
     @Test fun rejectsUnsupportedAndInvalidData() {
         val ink = Handwriting(width = 400f, height = 800f, strokes = emptyList())
         assertThrows(IllegalArgumentException::class.java) { HandwritingFormat.encode(ink.copy(version = 2)) }
+        assertThrows(IllegalArgumentException::class.java) { HandwritingFormat.encode(ink.copy(backgroundColor = 0x100000000L)) }
+        assertThrows(IllegalArgumentException::class.java) { HandwritingFormat.encode(ink.copy(backgroundColor = 0L)) }
         assertThrows(IllegalArgumentException::class.java) { HandwritingFormat.encode(ink.copy(strokes = listOf(InkStroke(listOf(InkPoint(Float.NaN, 0f)))))) }
         assertThrows(IllegalArgumentException::class.java) { HandwritingFormat.encode(ink.copy(strokes = listOf(InkStroke(listOf(InkPoint(401f, 0f)))))) }
         assertThrows(IllegalArgumentException::class.java) { HandwritingFormat.decode(ByteArray(HandwritingFormat.MAX_BYTES + 1)) }

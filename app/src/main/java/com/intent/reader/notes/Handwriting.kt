@@ -13,7 +13,13 @@ data class InkPoint(val x: Float, val y: Float)
 data class InkStroke(val points: List<InkPoint>, val color: Long = 0xFF000000L)
 
 @Serializable
-data class Handwriting(val version: Int = 1, val width: Float, val height: Float, val strokes: List<InkStroke>)
+data class Handwriting(
+    val version: Int = 1,
+    val width: Float,
+    val height: Float,
+    val strokes: List<InkStroke>,
+    val backgroundColor: Long = 0xFFFFFFFFL,
+)
 
 /** Reject malformed or unsupported data instead of treating it as an empty drawing. */
 object HandwritingFormat {
@@ -34,6 +40,7 @@ object HandwritingFormat {
 
     private fun validate(drawing: Handwriting) {
         require(drawing.version == 1)
+        require(drawing.backgroundColor in 0xFF000000L..0xFFFFFFFFL)
         require(drawing.width.isFinite() && drawing.width in 1f..100_000f)
         require(drawing.height.isFinite() && drawing.height in 1f..100_000f)
         require(drawing.strokes.size <= MAX_STROKES)

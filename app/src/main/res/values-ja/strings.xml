@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_note_preview">手書きスケッチを含む</string>
+    <string name="ink_white">白</string>
+    <string name="ink_background">キャンバスの背景色</string>
+    <string name="ink_hand_enabled_help">指での描画を有効にしました。指で描画・消去でき、ペンも使用できます。無効にすると指では描画されません。</string>
+    <string name="ink_hand_disabled_help">指での描画を無効にしました。ペンで描画・消去します。</string>
+    <string name="ink_understood">了解</string>
     <string name="ink_black">黒</string><string name="ink_blue">青</string><string name="ink_red">赤</string><string name="ink_green">緑</string>
     <string name="ink_pen">ペン</string><string name="ink_eraser">消しゴム</string>
-    <string name="ink_extend">キャンバスを延長</string>
     <string name="ink_add">手書きを追加</string><string name="ink_edit">手書きを編集</string><string name="ink_load_error">手書きまたは下書きを読み込めません。元のファイルは保持されています。</string>
-    <string name="ink_undo">元に戻す</string><string name="ink_redo">やり直す</string><string name="ink_finger_on">指で描く：オン</string><string name="ink_finger_off">指で描く：オフ</string><string name="ink_clear">消去</string><string name="ink_clear_confirm">手書きをすべて消去しますか？</string><string name="ink_hint">ペンで書き、指でスクロールします。必要に応じて指での描画を有効にします。</string>
+    <string name="ink_undo">元に戻す</string><string name="ink_redo">やり直す</string><string name="ink_finger_on">指で描く：オン</string><string name="ink_finger_off">指で描く：オフ</string><string name="ink_clear">消去</string><string name="ink_clear_confirm">手書きをすべて消去しますか？</string><string name="ink_hint">ペンで書くか、指での描画を有効にして指で描いてください。</string>
     <string name="home_pull_refresh">下に引いて更新</string>
     <string name="home_release_refresh">離して更新</string>
     <string name="home_refreshing">更新中</string>

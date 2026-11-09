@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_note_preview">Contains a handwritten sketch</string>
+    <string name="ink_white">White</string>
+    <string name="ink_background">Canvas background</string>
+    <string name="ink_hand_enabled_help">Finger drawing is on. Use a finger to draw or erase; your stylus still works. Turn this off to stop finger input from drawing.</string>
+    <string name="ink_hand_disabled_help">Finger drawing is off. Use a stylus to draw or erase.</string>
+    <string name="ink_understood">Got it</string>
     <string name="ink_black">Black</string><string name="ink_blue">Blue</string><string name="ink_red">Red</string><string name="ink_green">Green</string>
     <string name="ink_pen">Pen</string><string name="ink_eraser">Eraser</string>
-    <string name="ink_extend">Extend canvas</string>
     <string name="ink_add">Add handwriting</string><string name="ink_edit">Edit handwriting</string><string name="ink_load_error">Handwriting or draft could not be read. The original file is preserved.</string>
-    <string name="ink_undo">Undo</string><string name="ink_redo">Redo</string><string name="ink_finger_on">Finger drawing: on</string><string name="ink_finger_off">Finger drawing: off</string><string name="ink_clear">Clear</string><string name="ink_clear_confirm">Clear all handwriting?</string><string name="ink_hint">Write with a stylus and scroll with a finger. Enable finger drawing when needed.</string>
+    <string name="ink_undo">Undo</string><string name="ink_redo">Redo</string><string name="ink_finger_on">Finger drawing: on</string><string name="ink_finger_off">Finger drawing: off</string><string name="ink_clear">Clear</string><string name="ink_clear_confirm">Clear all handwriting?</string><string name="ink_hint">Write with a stylus, or turn on finger drawing to draw with a finger.</string>
     <string name="home_pull_refresh">Pull to refresh</string>
     <string name="home_release_refresh">Release to refresh</string>
     <string name="home_refreshing">Refreshing</string>

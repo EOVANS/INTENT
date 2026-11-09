@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -84,7 +85,7 @@ fun NoteEditor(
             finally { busy = false }
         }
     }
-    AlertDialog(
+    if (!editingInk) AlertDialog(
         onDismissRequest = { if (!busy) perform { if (ready) repository.writeDraft(draftKey, NoteDraft(remark, drawing)) } },
         containerColor = c.bg,
         title = { Text(stringResource(R.string.island_notes), style = t.pageTitle, color = c.text) },
@@ -92,15 +93,18 @@ fun NoteEditor(
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(quote, style = t.bodySmall, color = c.textSecondary)
                 OutlinedTextField(
-                    value = remark, onValueChange = { remark = it }, enabled = !busy,
+                    value = remark, onValueChange = { remark = it }, enabled = ready && !busy,
                     modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8,
                     label = { Text(stringResource(R.string.notes_remark)) },
                     placeholder = { Text(stringResource(R.string.notes_remark_hint)) },
                 )
-                TextButton(enabled = ready && !busy, onClick = { beforeInk = drawing; editingInk = true }) {
-                    Text(stringResource(if (drawing == null) R.string.ink_add else R.string.ink_edit))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(enabled = ready && !busy, onClick = { beforeInk = drawing; editingInk = true }) {
+                        Text(stringResource(if (drawing == null) R.string.ink_add else R.string.ink_edit))
+                    }
                 }
-                drawing?.let { HandwritingPreview(it, Modifier.fillMaxWidth().height(120.dp)) }
+                drawing?.let { HandwritingPreview(it, Modifier.fillMaxWidth().height(200.dp)
+                    .clickable(enabled = ready && !busy) { beforeInk = drawing; editingInk = true }) }
                 if (loadFailed) Text(stringResource(R.string.ink_load_error), color = c.accent, style = t.meta)
                 if (failed) Text(stringResource(R.string.notes_save_error), color = c.accent, style = t.meta)
             }

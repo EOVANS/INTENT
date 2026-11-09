@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_note_preview">包含手笔速写</string>
+    <string name="ink_white">白色</string>
+    <string name="ink_background">画布背景色</string>
+    <string name="ink_hand_enabled_help">已开启手指书写。现在可以直接用手指画线或擦除；手写笔仍可正常使用。关闭后，手指不再绘制。</string>
+    <string name="ink_hand_disabled_help">已关闭手指书写。请使用手写笔书写或擦除。</string>
+    <string name="ink_understood">知道了</string>
     <string name="ink_black">黑色</string><string name="ink_blue">蓝色</string><string name="ink_red">红色</string><string name="ink_green">绿色</string>
     <string name="ink_add">添加手写</string>
     <string name="ink_pen">画笔</string><string name="ink_eraser">橡皮擦</string>
-    <string name="ink_extend">延长画布</string>
     <string name="ink_edit">编辑手写</string>
     <string name="ink_load_error">手写内容或草稿无法读取，原文件已保留。</string>
     <string name="ink_undo">撤销</string><string name="ink_redo">重做</string>
     <string name="ink_finger_on">手指书写：开</string><string name="ink_finger_off">手指书写：关</string>
     <string name="ink_clear">清空</string><string name="ink_clear_confirm">清空全部手写？</string>
-    <string name="ink_hint">使用手写笔书写；手指可滚动。无笔时可开启手指书写。</string>
+    <string name="ink_hint">使用手写笔书写，或开启手指书写后用手指绘制。</string>
     <string name="home_pull_refresh">下拉刷新</string>
     <string name="home_release_refresh">松开刷新</string>
     <string name="home_refreshing">正在刷新</string>

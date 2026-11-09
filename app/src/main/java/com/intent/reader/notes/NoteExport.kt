@@ -46,7 +46,7 @@ object NoteExport {
         val bitmap = Bitmap.createBitmap((drawing.width * scale).roundToInt().coerceAtLeast(1), (drawing.height * scale).roundToInt().coerceAtLeast(1), Bitmap.Config.ARGB_8888)
         try {
             val canvas = Canvas(bitmap)
-            canvas.drawColor(Color.WHITE)
+            canvas.drawColor(drawing.backgroundColor.toInt())
             val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK; strokeWidth = 2.5f * scale; strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND; style = Paint.Style.STROKE }
             drawing.strokes.forEach { stroke ->
                 paint.color = stroke.color.toInt()

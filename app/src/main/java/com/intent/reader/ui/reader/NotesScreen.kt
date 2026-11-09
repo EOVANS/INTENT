@@ -36,6 +36,7 @@ import com.intent.reader.notes.NoteArticle
 import com.intent.reader.notes.NoteArticles
 import com.intent.reader.notes.NoteMarkdown
 import com.intent.reader.notes.NoteExport
+import com.intent.reader.notes.Handwriting
 import com.intent.reader.rss.HtmlText
 import com.intent.reader.ui.components.HeaderIconButton
 import com.intent.reader.ui.components.LocalHeaderMaterial
@@ -227,12 +228,21 @@ fun NotesScreen(
                 items(ordered, key = { it.id }) { note ->
                     Column(Modifier.fillMaxWidth().clickable { editingId = note.id }, verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         Text(note.quote.withCjkSpacing(), style = t.body.copy(lineHeight = t.body.lineHeight * 1.4f), color = c.text)
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (note.remark.isNotBlank() || note.handwritingRevision == null) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Box(Modifier.width(2.dp).height(20.dp).background(c.accent))
                             Text(note.remark.ifBlank { stringResource(R.string.notes_add_remark) }.withCjkSpacing(),
                                 style = t.bodySmall, color = c.textSecondary)
                         }
-                        if (note.handwritingRevision != null) Text(stringResource(R.string.ink_edit), style = t.meta, color = c.textSecondary)
+                        if (note.handwritingRevision != null) {
+                            var inkFailed by remember(note.id, note.handwritingRevision) { mutableStateOf(false) }
+                            val drawing by produceState<Handwriting?>(null, note.id, note.handwritingRevision) {
+                                try { value = repository.loadHandwriting(note); inkFailed = value == null }
+                                catch (cancelled: CancellationException) { throw cancelled }
+                                catch (_: Exception) { inkFailed = true }
+                            }
+                            drawing?.let { HandwritingPreview(it, Modifier.fillMaxWidth().height(320.dp)) }
+                            if (inkFailed) Text(stringResource(R.string.ink_load_error), style = t.meta, color = c.accent)
+                        }
                     }
                 }
                 if (ordered.isNotEmpty()) item(key = "footer") {
@@ -323,7 +333,9 @@ fun NotesScreen(
 
 @Composable
 private fun NotePreviewCard(group: NoteArticle, modifier: Modifier = Modifier, legacyCover: String? = null, onClick: () -> Unit) {
-    val preview = group.preview.replace(Regex("\\s+"), " ").take(160)
+    val preview = if (group.paragraphs.all { it.remark.isBlank() } && group.paragraphs.any { it.handwritingRevision != null }) {
+        stringResource(R.string.ink_note_preview)
+    } else group.preview.replace(Regex("\\s+"), " ").take(160)
     val latest = group.latest
     TextStoryCard(latest.articleTitle, preview, latest.sourceTitle, null, onClick, modifier, imageUrl = group.imageUrl ?: legacyCover)
 }

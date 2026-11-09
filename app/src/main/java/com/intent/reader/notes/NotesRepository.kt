@@ -14,6 +14,8 @@ import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneOffset
 import java.util.UUID
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 data class NotesState(val notes: List<IslandNote> = emptyList(), val loaded: Boolean = false, val unreadableFiles: Int = 0)
 
@@ -120,14 +122,17 @@ class NotesRepository(private val directory: File, private val now: () -> Long =
     private fun writeLocked(note: IslandNote) {
         val target = fileFor(note)
         if (!target.parentFile!!.isDirectory && !target.parentFile!!.mkdirs()) throw IOException("Cannot create notes month")
-        val file = AtomicFile(target)
-        val output = file.startWrite()
+        // A sibling temporary file keeps the old note intact until replacement.
+        // Files.move also replaces existing files reliably in Windows-hosted tests.
+        val temporary = File(target.parentFile, ".${target.name}.${UUID.randomUUID()}.tmp")
         try {
-            output.write(NoteMarkdown.encode(note).toByteArray(Charsets.UTF_8))
-            file.finishWrite(output)
-        } catch (error: Exception) {
-            file.failWrite(output)
-            throw error
+            temporary.outputStream().use { output ->
+                output.write(NoteMarkdown.encode(note).toByteArray(Charsets.UTF_8))
+                output.fd.sync()
+            }
+            Files.move(temporary.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        } finally {
+            temporary.delete()
         }
         mutableState.value = state.value.copy(
             notes = (state.value.notes.filterNot { it.id == note.id } + note).sortedByDescending { it.createdAt },

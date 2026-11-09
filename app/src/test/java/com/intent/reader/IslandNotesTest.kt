@@ -42,11 +42,19 @@ class IslandNotesTest {
             com.intent.reader.notes.InkStroke(listOf(com.intent.reader.notes.InkPoint(12f, 20f)))
         ))
         repository.updateHandwriting(id, ink)
+        assertNotNull("reference in memory", repository.state.value.notes.single().handwritingRevision)
+        val savedFile = directory.walkTopDown().first { it.extension == "md" }
+        assertNotNull("reference on disk: ${savedFile.readText()}", NoteMarkdown.decode(savedFile.readText()).handwritingRevision)
         val reopened = NotesRepository(directory)
         reopened.load()
         val note = reopened.state.value.notes.single()
         assertEquals("文字备注", note.remark)
         assertEquals(ink, reopened.loadHandwriting(note))
+        try {
+            reopened.updateHandwriting(id, ink.copy(version = 2))
+            fail("unsupported handwriting version should fail")
+        } catch (_: IllegalArgumentException) { }
+        assertEquals(ink, reopened.loadHandwriting(reopened.state.value.notes.single()))
         reopened.update(id, "修改文字")
         assertEquals(ink, reopened.loadHandwriting(reopened.state.value.notes.single()))
         reopened.updateHandwriting(id, null)

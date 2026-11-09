@@ -30,7 +30,7 @@
     <string name="onboarding_slogan">A focused reader.</string>
     <string name="onboarding_slogan_zh">专注阅读。</string>
     <string name="onboarding_quote_title">每日一句金句</string>
-    <string name="onboarding_quote_desc">Ai 从你订阅的文章中提取当日最值得读的一句话。</string>
+    <string name="onboarding_quote_desc">AI 从你订阅的文章中提取当日最值得读的一句话。</string>
     <string name="onboarding_quote_note">离线生成 · 轻量省电</string>
     <string name="onboarding_feed_title">克制的信息流</string>
     <string name="onboarding_feed_desc">多种卡片节奏，瑞士网格排版，只留下内容本身。</string>
@@ -47,7 +47,7 @@
     <string name="whats_new_title">新功能</string>
 
     <!-- Home -->
-    <string name="greeting_hi">Hi，欢迎 👋</string>
+    <string name="greeting_hi">Hi, 欢迎 👋</string>
     <string name="today_prefix">今天是</string>
     <string name="pull_to_refresh">下拉刷新</string>
     <string name="refreshing">刷新中…</string>
@@ -171,7 +171,7 @@
     <string name="glass_transparency_tinted">更柔和</string>
     <string name="glass_transparency_clear">更通透</string>
     <string name="glass_transparency_note">拖动滑块实时预览。开启玻璃效果后，此设置应用于导航栏和顶部按钮。</string>
-    <string name="glass_effect_note">开启后系统将实时渲染高动态模糊与折射效果，此功能占用较多 GPU 与 CPU 资源，可能造成界面卡顿、发热并加速电量消耗。此功能仅支持搭载Android 13+的设备</string>
+    <string name="glass_effect_note">开启后系统将实时渲染高动态模糊与折射效果，此功能占用较多 GPU 与 CPU 资源，可能造成界面卡顿、发热并加速电量消耗。此功能仅支持搭载 Android 13+ 的设备</string>
     <string name="glass_material">玻璃材质</string>
     <string name="glass_material_regular">跟随背景</string>
     <string name="glass_material_clear">高清透</string>
@@ -315,8 +315,8 @@
     <string name="widget_next">切换下一篇</string>
     <string name="widget_unread">未读</string>
     <string name="widget_style_restart_hint">更改小组件样式后，需重启 APP 才能生效</string>
-    <!-- Optional BYOK Ai -->
-    <string name="ai_settings">Ai 配置</string>
+    <!-- Optional BYOK AI -->
+    <string name="ai_settings">AI 配置</string>
     <string name="ai_provider_label">服务商：%1$s</string>
     <string name="ai_provider_custom">自定义</string>
     <string name="ai_provider_volcengine">字节火山引擎</string>
@@ -338,41 +338,41 @@
     <string name="ai_service_section">服务配置</string>
     <string name="ai_features_section">功能管理</string>
     <string name="ai_data_section">数据管理</string>
-    <string name="ai_enabled">启用 Ai 服务</string>
+    <string name="ai_enabled">启用 AI 服务</string>
     <string name="ai_url">服务地址（兼容 Chat Completions）</string>
     <string name="ai_model">模型名称</string>
     <string name="ai_key">API Key</string>
-    <string name="ai_privacy">启用后，速读会把当前文章内容发送到你配置的 Ai 服务；Ai 金句会发送少量候选文章。请求直接连接该服务，费用由你的 API 账户承担，连接测试也会消耗少量额度。密钥加密保存在本机，不参与系统备份。</string>
+    <string name="ai_privacy">启用后，速读会把当前文章内容发送到你配置的 AI 服务；AI 金句会发送少量候选文章。请求直接连接该服务，费用由你的 API 账户承担，连接测试也会消耗少量额度。密钥加密保存在本机，不参与系统备份。</string>
     <string name="ai_save">保存设置</string>
     <string name="ai_save_hint">开关即时生效；修改连接配置后，请点「保存设置」。</string>
-    <string name="ai_saved">Ai 设置已保存</string>
+    <string name="ai_saved">AI 设置已保存</string>
     <string name="ai_test">测试连接</string>
     <string name="ai_test_ok">连接成功</string>
     <string name="ai_clear_config">清除配置与密钥</string>
-    <string name="ai_clear_cache">清除 Ai 结果缓存</string>
+    <string name="ai_clear_cache">清除 AI 结果缓存</string>
     <string name="ai_cleared">已清除</string>
-    <string name="ai_loading">Ai 处理中…</string>
-    <string name="ai_summary">Ai 速读</string>
+    <string name="ai_loading">AI 处理中…</string>
+    <string name="ai_summary">AI 速读</string>
     <string name="ai_regenerate">重新生成</string>
     <string name="ai_excerpt_only">仅基于 RSS 摘要，未获取完整正文。</string>
     <string name="ai_content_scope">基于 App 已获取的文章文字；不包含图片或未获取的网页内容。</string>
-    <string name="ai_output_hint">Ai 内容仅供参考；重新生成会再次调用你的服务。</string>
-    <string name="ai_quote">Ai 金句</string>
-    <string name="ai_quote_enabled">从正文提取每日 Ai 金句</string>
+    <string name="ai_output_hint">AI 内容仅供参考；重新生成会再次调用你的服务。</string>
+    <string name="ai_quote">AI 金句</string>
+    <string name="ai_quote_enabled">从正文提取每日 AI 金句</string>
     <string name="ai_quote_help">开启后，在首页有候选正文时，每天自动尝试一次。只展示能在原文中核实的摘录；失败时继续显示离线金句。手动重新提取会再次调用服务。</string>
-    <string name="ai_quote_ready">Ai 原文摘录</string>
+    <string name="ai_quote_ready">AI 原文摘录</string>
     <string name="ai_quote_retry">重新提取</string>
-    <string name="ai_quote_unavailable">暂未取得 Ai 摘录，继续显示离线金句。</string>
-    <string name="ai_error_config">请先在「Ai配置」中启用服务，并填写模型和有效密钥。</string>
+    <string name="ai_quote_unavailable">暂未取得 AI 摘录，继续显示离线金句。</string>
+    <string name="ai_error_config">请先在「AI 配置」中启用服务，并填写模型和有效密钥。</string>
     <string name="ai_error_url">请输入 HTTPS 服务地址，不包含用户名、密码、查询参数或片段。</string>
     <string name="ai_error_empty">当前没有可供分析的文章文字。</string>
-    <string name="ai_error_long">文章超出首版分析长度限制（24,000 字符），本次未发送。</string>
+    <string name="ai_error_long">文章超出首版分析长度限制（24000 字符），本次未发送。</string>
     <string name="ai_error_auth">密钥无效或无访问权限，请检查服务配置。</string>
     <string name="ai_error_rate">服务额度不足或请求过于频繁，请稍后手动重试。</string>
     <string name="ai_error_network">网络连接失败或超时，请稍后重试。</string>
-    <string name="ai_error_service">Ai 服务返回错误，请检查地址、模型或服务状态。</string>
+    <string name="ai_error_service">AI 服务返回错误，请检查地址、模型或服务状态。</string>
     <string name="ai_error_response">服务未返回完整的兼容结果，本次未采用。</string>
-    <string name="ai_error_quote">Ai 摘录无法在对应正文中核实，已保留离线金句。</string>
+    <string name="ai_error_quote">AI 摘录无法在对应正文中核实，已保留离线金句。</string>
     <string name="ai_error_storage">本地保存失败，请检查设备存储后重试。</string>
     <string name="island_notes">孤岛笔记</string>
     <string name="notes_this_article">本篇笔记</string>
@@ -403,7 +403,7 @@
     <plurals name="notes_week_count">
         <item quantity="other">本周留下了 %1$d 篇笔记</item>
     </plurals>
-    <string name="greeting_first_line">Hi，</string>
+    <string name="greeting_first_line">Hi,</string>
     <string name="greeting_welcome_line">欢迎</string>
     <string name="notes_add_remark">点此添加备注</string>
     <string name="notes_detail_meta">编辑于 %1$s · %2$d 字</string>
@@ -425,16 +425,16 @@
     <string name="widget_preview_source">示例来源</string>
     <string name="widget_preview_note">以下为示意预览，实际内容来自你的订阅。</string>
     <string name="ui_intro">你的阅读空间，应当完全顺应你的感官偏好。从图标的观感、字体的呼吸，到光影的明暗，请按照你最舒适的方式，打磨这座属于你的精神孤岛。</string>
-    <string name="ai_intro">我们坚持透明的 Ai 协作方式。你的 API 密钥仅加密存储于本机，阅读内容直连你选择的服务商，不经由任何中间服务器。在这里，智能是辅助，而隐私与安全，永远是你的底线。</string>
+    <string name="ai_intro">我们坚持透明的 AI 协作方式。你的 API 密钥仅加密存储于本机，阅读内容直连你选择的服务商，不经由任何中间服务器。在这里，智能是辅助，而隐私与安全，永远是你的底线。</string>
     <string name="ai_feature_quote">每日金句 Quote</string>
     <string name="ai_feature_quote_desc">通过云端 LLM 提呈金句，相对于本地算法推算的金句质量更高。开启后，在首页有候选正文时，每天自动尝试一次。只展示能在原文中核实的摘录；失败时继续显示离线金句。手动重新提取会再次调用服务。</string>
     <string name="ai_feature_diet">信息饮食报告</string>
     <string name="ai_feature_diet_desc">量化你的阅读结构\n这是一个基于本地数据的统计分析工具，旨在帮你客观审视自己的信息摄入情况。</string>
     <string name="ai_feature_unsupported">暂不支持</string>
-    <string name="ai_feature_read">Ai 速读</string>
-    <string name="ai_feature_read_desc">针对长文阅读场景，INTENT 提供基于 BYOK (Bring Your Own Key) 模式的 Ai 辅助功能。你可以配置自己的 API Key，让 Ai 成为你的私人阅读助理。</string>
+    <string name="ai_feature_read">AI 速读</string>
+    <string name="ai_feature_read_desc">针对长文阅读场景，INTENT 提供基于 BYOK（Bring Your Own Key）模式的 AI 辅助功能。你可以配置自己的 API Key，让 AI 成为你的私人阅读助理。</string>
     <string name="about_thanks_title">感谢您使用 INTENT</string>
-    <string name="about_thanks_body">This app was built with passion and a love for read. We hope you enjoy the experience.</string>
+    <string name="about_thanks_body">This app was built with passion and a love for reading. We hope you enjoy the experience.</string>
     <string name="developer_title">开发人员</string>
     <string name="developer_message">感谢你发现这里。愿阅读始终带来新的发现。</string>
     <string name="developer_owner">主理人</string>
@@ -444,7 +444,7 @@
     <string name="developer_senior_engineer">高级软件工程师</string>
     <string name="developer_assistant">开发助理</string>
     <string name="developer_marketing">软件营销执行官</string>
-    <string name="developer_rights">上述 Ai 大模型名称及相关标识的权利归各自所属公司所有。</string>
+    <string name="developer_rights">上述 AI 大模型名称及相关标识的权利归各自所属公司所有。</string>
     <string name="developer_team">开发团队</string>
     <string name="developer_from">来自 %1$s</string>
     <string name="about_intent_voice">来自 INTENT 的声音</string>

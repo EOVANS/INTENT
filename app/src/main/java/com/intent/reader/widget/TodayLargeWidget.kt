@@ -42,6 +42,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.intent.reader.R
+import com.intent.reader.ui.theme.withCjkSpacing
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -166,7 +167,7 @@ private fun LargeWidgetContent(state: WidgetSnapshot, thumbs: Map<String, Bitmap
                         ) {
                             Column(GlanceModifier.defaultWeight()) {
                                 Text(
-                                    article.title,
+                                    article.title.withCjkSpacing(),
                                     maxLines = 2,
                                     style = TextStyle(
                                         color = colors.onSurface,
@@ -177,7 +178,7 @@ private fun LargeWidgetContent(state: WidgetSnapshot, thumbs: Map<String, Bitmap
                                 )
                                 Spacer(GlanceModifier.height(4.dp))
                                 Text(
-                                    "${article.sourceTitle} · $time",
+                                    "${article.sourceTitle.withCjkSpacing()} · $time",
                                     maxLines = 1,
                                     style = TextStyle(
                                         color = colors.onSurfaceVariant,

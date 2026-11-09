@@ -43,6 +43,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.intent.reader.R
+import com.intent.reader.ui.theme.withCjkSpacing
 
 /**
  * 4×2 "今日速览" widget: accent rail + a window of article cards + next-page
@@ -211,7 +212,7 @@ private fun SmallArticleCard(
         }
         Column(GlanceModifier.defaultWeight()) {
             Text(
-                article.title,
+                article.title.withCjkSpacing(),
                 maxLines = 2,
                 style = TextStyle(
                     color = colors.onSurface,
@@ -221,7 +222,7 @@ private fun SmallArticleCard(
             )
             Spacer(GlanceModifier.height(2.dp))
             Text(
-                "${article.sourceTitle} · $time",
+                "${article.sourceTitle.withCjkSpacing()} · $time",
                 maxLines = 1,
                 style = TextStyle(
                     color = colors.onSurfaceVariant,

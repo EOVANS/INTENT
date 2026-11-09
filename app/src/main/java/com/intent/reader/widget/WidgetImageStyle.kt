@@ -34,6 +34,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.intent.reader.R
+import com.intent.reader.ui.theme.withCjkSpacing
 
 private val White = ColorProvider(Color.White)
 private val White70 = ColorProvider(Color(0xB3FFFFFF))
@@ -175,7 +176,7 @@ fun ImageStyleContent(
                             ) {}
                             Spacer(GlanceModifier.width(8.dp))
                             Text(
-                                article.title,
+                                article.title.withCjkSpacing(),
                                 maxLines = 2,
                                 style = TextStyle(
                                     color = White,

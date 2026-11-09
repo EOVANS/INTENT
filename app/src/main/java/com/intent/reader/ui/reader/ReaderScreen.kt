@@ -293,7 +293,7 @@ fun ReaderScreen(
                             // Caption: centered small secondary text so it reads as
                             // an annotation, not another body paragraph.
                             Text(
-                                text = block.alt,
+                                text = block.alt.orEmpty().withCjkSpacing(),
                                 style = t.micro,
                                 color = c.textSecondary,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -395,7 +395,7 @@ fun ReaderScreen(
                     style = t.meta, color = c.textSecondary,
                 )
                 if (state.summaryLoading) Text(stringResource(R.string.ai_loading), style = t.body, color = c.textSecondary)
-                state.aiSummary?.let { Text(it, style = t.body, color = c.text) }
+                state.aiSummary?.let { Text(it.withCjkSpacing(), style = t.body, color = c.text) }
                 state.summaryError?.let { Text(stringResource(it), style = t.meta, color = c.textSecondary) }
                 Text(stringResource(R.string.ai_output_hint), style = t.micro, color = c.textSecondary)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {

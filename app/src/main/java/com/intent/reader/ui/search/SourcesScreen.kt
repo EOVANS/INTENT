@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.intent.reader.R
+import com.intent.reader.ui.theme.withCjkSpacing
 import com.intent.reader.data.db.Source
 import com.intent.reader.ui.components.SourceLogo
 import com.intent.reader.ui.components.HeaderIconButton
@@ -171,7 +172,7 @@ private fun SourceRow(
         SourceLogo(source.logoUrl, source.title, 32.dp)
         Column(Modifier.weight(1f)) {
             Text(
-                text = source.title,
+                text = source.title.withCjkSpacing(),
                 style = t.body,
                 color = c.text,
                 maxLines = 1,

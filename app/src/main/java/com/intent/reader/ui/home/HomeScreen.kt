@@ -426,7 +426,7 @@ fun GreetingHeader(
     val dateText = run {
         val d = LocalDate.now()
         if (Locale.getDefault().language == "zh") {
-            "${d.monthValue}月/${d.dayOfMonth}日"
+            "${d.monthValue} 月 ${d.dayOfMonth} 日"
         } else {
             d.format(DateTimeFormatter.ofPattern("MMM/d", Locale.ENGLISH))
         }

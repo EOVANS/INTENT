@@ -21,3 +21,16 @@ keystore/
 # OS
 .DS_Store
 Thumbs.db
+
+# Build artifacts
+*.apk
+*.aab
+
+# Profiling and crash dumps
+*.hprof
+*.log
+hs_err_pid*.log
+crash*.txt
+
+# Local toolchain (JDK / Gradle distributions kept outside the repo)
+.tools/

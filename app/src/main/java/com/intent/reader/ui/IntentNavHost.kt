@@ -103,6 +103,7 @@ import com.intent.reader.ui.settings.StorageSettingsScreen
 import com.intent.reader.ui.settings.UiSettingsScreen
 import com.intent.reader.ui.settings.ThemeSettingsScreen
 import com.intent.reader.ui.settings.UserSettingsScreen
+import com.intent.reader.ui.settings.PrivacyScreen
 import com.intent.reader.ui.settings.WebPageScreen
 import com.intent.reader.ui.theme.IntentTheme
 import com.intent.reader.ui.theme.IntentDimens

@@ -47,7 +47,8 @@ $env:GRADLE_USER_HOME="D:\APP Data Core\Android APP Build\.tools\gradle-user-hom
 - 发新版固定流程：
   1. 递增 `versionCode`（12 → 13），更新 `versionName`；
   2. `:app:assembleRelease`；
-  3. 用 `apksigner verify --print-certs` 确认签名，`aapt dump badging` 确认版本。
+  3. 用 `apksigner verify --print-certs` 确认签名，`aapt dump badging` 确认版本；
+  4. Release 附件的文件名统一用点号格式 `INTENT.<version>.apk`（如 `INTENT.1.6.apk`），不要再用 `INTENT-v1.6.apk`。
 - 验签/取版本：
 
 ```powershell

@@ -20,6 +20,7 @@ data class IslandNote(
     @Transient val quote: String = "",
     @Transient val remark: String = "",
     val imageUrl: String? = null,
+    val handwritingRevision: String? = null,
 )
 
 data class NoteParagraph(val key: String, val text: String)

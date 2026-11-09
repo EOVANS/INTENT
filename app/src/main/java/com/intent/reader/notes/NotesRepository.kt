@@ -50,12 +50,54 @@ class NotesRepository(private val directory: File, private val now: () -> Long =
         }
     }
 
+    /** Write a new immutable revision before committing its reference in the note. */
+    suspend fun updateHandwriting(id: String, drawing: Handwriting?) = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            loadLocked()
+            val note = state.value.notes.first { it.id == id }
+            val revision = drawing?.let {
+                val bytes = HandwritingFormat.encode(it)
+                val id = UUID.randomUUID().toString()
+                val target = inkFile(note, id)
+                if (!target.parentFile!!.isDirectory && !target.parentFile!!.mkdirs()) throw IOException("Cannot create handwriting directory")
+                val atomic = AtomicFile(target)
+                val stream = atomic.startWrite()
+                try { stream.write(bytes); atomic.finishWrite(stream) }
+                catch (error: Exception) { atomic.failWrite(stream); throw error }
+                id
+            }
+            try {
+                writeLocked(note.copy(handwritingRevision = revision, updatedAt = maxOf(now(), note.updatedAt)))
+            } catch (error: Exception) {
+                revision?.let { inkFile(note, it).delete() }
+                throw error
+            }
+            note.handwritingRevision?.let { runCatching { inkFile(note, it).delete() } }
+        }
+    }
+
+    suspend fun loadHandwriting(note: IslandNote): Handwriting? = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            note.handwritingRevision?.let { revision ->
+                val file = inkFile(note, revision)
+                require(file.length() <= HandwritingFormat.MAX_BYTES)
+                HandwritingFormat.decode(AtomicFile(file).openRead().use { it.readBytes() })
+            }
+        }
+    }
+
+    private fun inkFile(note: IslandNote, revision: String): File {
+        require(UUID.fromString(revision).toString() == revision)
+        return File(File(fileFor(note).parentFile, "handwriting"), "${note.id}-$revision.json")
+    }
+
     suspend fun delete(id: String) = withContext(Dispatchers.IO) {
         mutex.withLock {
             loadLocked()
             val note = state.value.notes.first { it.id == id }
             val file = fileFor(note)
             if (file.exists() && !file.delete()) throw IOException("Cannot delete note")
+            note.handwritingRevision?.let { runCatching { inkFile(note, it).delete() } }
             mutableState.value = state.value.copy(notes = state.value.notes.filterNot { it.id == id })
         }
     }

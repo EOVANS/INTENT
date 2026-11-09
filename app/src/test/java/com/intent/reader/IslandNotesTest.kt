@@ -33,6 +33,27 @@ class IslandNotesTest {
     private val paragraph = NoteParagraph("paragraph:0", "读书让我们看见更大的世界。")
     private val timestamp = 1793097600000L
 
+    @Test fun handwritingRoundTripKeepsTextAndCanBeRemovedIndependently() = runBlocking {
+        val directory = temporary.newFolder()
+        val repository = NotesRepository(directory) { timestamp }
+        repository.save(article, "来源", paragraph, "文字备注")
+        val id = repository.state.value.notes.single().id
+        val ink = com.intent.reader.notes.Handwriting(width = 100f, height = 200f, strokes = listOf(
+            com.intent.reader.notes.InkStroke(listOf(com.intent.reader.notes.InkPoint(12f, 20f)))
+        ))
+        repository.updateHandwriting(id, ink)
+        val reopened = NotesRepository(directory)
+        reopened.load()
+        val note = reopened.state.value.notes.single()
+        assertEquals("文字备注", note.remark)
+        assertEquals(ink, reopened.loadHandwriting(note))
+        reopened.update(id, "修改文字")
+        assertEquals(ink, reopened.loadHandwriting(reopened.state.value.notes.single()))
+        reopened.updateHandwriting(id, null)
+        assertEquals("修改文字", reopened.state.value.notes.single().remark)
+        assertNull(reopened.loadHandwriting(reopened.state.value.notes.single()))
+    }
+
     @Test fun markdownRoundTripPreservesUnicodeQuotesAndMarkdownInRemarks() {
         val note = IslandNote(UUID.randomUUID().toString(), article.id, "标题 -->\n## 摘录", article.link, "来源 & 🌊",
             "key:0", timestamp, timestamp,

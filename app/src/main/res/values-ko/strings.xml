@@ -322,7 +322,7 @@
     <string name="ai_key">API Key</string>
     <string name="ai_privacy">활성화하면 요약은 현재 글을, Ai 문장은 소수의 후보 글을 설정한 Ai 서비스로 직접 전송합니다. 비용은 사용자의 API 계정으로 청구되며 연결 테스트도 소량의 비용이 발생합니다. 키는 기기에 암호화되어 저장되며 시스템 백업에서 제외됩니다.</string>
     <string name="ai_save">설정 저장</string>
-    <string name="ai_save_hint">스위치나 설정을 변경한 후 저장해 주세요.</string>
+    <string name="ai_save_hint">스위치는 즉시 적용됩니다. 연결 설정을 변경한 후 저장해 주세요.</string>
     <string name="ai_saved">Ai 설정을 저장했습니다</string>
     <string name="ai_test">연결 테스트</string>
     <string name="ai_test_ok">연결 성공</string>

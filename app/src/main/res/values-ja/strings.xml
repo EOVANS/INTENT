@@ -322,7 +322,7 @@
     <string name="ai_key">API Key</string>
     <string name="ai_privacy">有効にすると、要約は現在の記事を、Ai 名言は少数の候補記事を設定先の Ai サービスへ直接送信します。料金はご自身の API アカウントに発生し、接続テストも少量の利用料を消費します。キーは端末内で暗号化され、システムバックアップには含まれません。</string>
     <string name="ai_save">設定を保存</string>
-    <string name="ai_save_hint">スイッチや設定を変更したら保存してください。</string>
+    <string name="ai_save_hint">スイッチは即時反映されます。接続設定を変更したら保存してください。</string>
     <string name="ai_saved">Ai 設定を保存しました</string>
     <string name="ai_test">接続テスト</string>
     <string name="ai_test_ok">接続できました</string>

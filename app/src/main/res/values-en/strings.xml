@@ -323,7 +323,7 @@
     <string name="ai_key">API Key</string>
     <string name="ai_privacy">When enabled, summaries send the current article to your configured Ai service; Ai quotes send a few candidate articles. Requests go directly to that service and are billed to your API account. Connection tests also use a small amount of credit. Your key is encrypted locally and excluded from system backups.</string>
     <string name="ai_save">Save settings</string>
-    <string name="ai_save_hint">Save after changing switches or configuration.</string>
+    <string name="ai_save_hint">Switches apply instantly; tap Save after editing the connection settings.</string>
     <string name="ai_saved">Ai settings saved</string>
     <string name="ai_test">Test connection</string>
     <string name="ai_test_ok">Connected successfully</string>

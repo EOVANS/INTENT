@@ -140,8 +140,11 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
         }
         SectionLabel(stringResource(R.string.ai_service_section))
         Text(stringResource(R.string.ai_privacy), style = IntentTheme.typography.meta, color = IntentTheme.colors.textSecondary, modifier = Modifier.padding(bottom = 8.dp))
-        SwitchRow(stringResource(R.string.ai_enabled), draft.enabled, !busy) {
-            draft = draft.copy(enabled = it); status = null
+        SwitchRow(stringResource(R.string.ai_enabled), draft.enabled, !busy) { want ->
+            draft = draft.copy(enabled = want); status = null
+            // A toggle is a setting of its own: apply it without a separate save tap.
+            val next = draft
+            scope.launch { container.aiConfigStore.save(next) }
         }
         Box(Modifier.fillMaxWidth()) {
             OutlinedButton(enabled = !busy, onClick = { keyboard?.hide(); providerMenu = true }, modifier = Modifier.fillMaxWidth()) {
@@ -215,7 +218,12 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
                 Switch(
                     checked = draft.quoteEnabled,
                     enabled = draft.enabled && !busy,
-                    onCheckedChange = { draft = draft.copy(quoteEnabled = it); status = null },
+                    onCheckedChange = { want ->
+                        draft = draft.copy(quoteEnabled = want); status = null
+                        // Daily quote is live too — no save button needed.
+                        val next = draft
+                        scope.launch { container.aiConfigStore.save(next) }
+                    },
                     colors = SwitchDefaults.colors(checkedTrackColor = colors.text, checkedThumbColor = colors.bg, uncheckedTrackColor = colors.divider, uncheckedThumbColor = colors.bg, uncheckedBorderColor = colors.divider),
                 )
             }

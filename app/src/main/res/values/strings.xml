@@ -344,7 +344,7 @@
     <string name="ai_key">API Key</string>
     <string name="ai_privacy">启用后，速读会把当前文章内容发送到你配置的 Ai 服务；Ai 金句会发送少量候选文章。请求直接连接该服务，费用由你的 API 账户承担，连接测试也会消耗少量额度。密钥加密保存在本机，不参与系统备份。</string>
     <string name="ai_save">保存设置</string>
-    <string name="ai_save_hint">修改开关或配置后，请点“保存设置”。</string>
+    <string name="ai_save_hint">开关即时生效；修改连接配置后，请点「保存设置」。</string>
     <string name="ai_saved">Ai 设置已保存</string>
     <string name="ai_test">测试连接</string>
     <string name="ai_test_ok">连接成功</string>

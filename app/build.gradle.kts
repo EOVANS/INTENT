@@ -14,14 +14,15 @@ android {
         applicationId = "com.intent.reader"
         minSdk = 30
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 11
+        versionName = "v1.5.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
     }
 
     buildTypes {
         release {
+            // R8 full mode (AGP 8+ default), including code and resource shrinking.
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -37,8 +38,11 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    sourceSets["main"].java.srcDir("../third-party/android-liquid-glass/src")
+
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -53,6 +57,7 @@ android {
 }
 
 dependencies {
+    implementation(files("libs/sharedview-kit-1.0.0.5.aar"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -84,4 +89,12 @@ dependencies {
     testImplementation(libs.androidx.test.core)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Automatically watches destroyed Activities and cleared ViewModels.
+    // Never include the heap analyzer in release builds.
+    debugImplementation(libs.leakcanary.android)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.leakcanary.instrumentation)
 }

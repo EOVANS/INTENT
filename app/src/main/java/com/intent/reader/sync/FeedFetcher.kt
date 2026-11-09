@@ -13,6 +13,9 @@ import java.util.concurrent.TimeUnit
  */
 class FeedFetcher(private val client: OkHttpClient) {
 
+    /** Whether a fetch failed on the wire or because the body is not a feed. */
+    enum class FailureKind { NETWORK, PARSE }
+
     sealed interface FetchResult {
         data class Ok(
             val feed: FeedParser.ParsedFeed,
@@ -21,7 +24,7 @@ class FeedFetcher(private val client: OkHttpClient) {
         ) : FetchResult
 
         data object NotModified : FetchResult
-        data class Failed(val message: String) : FetchResult
+        data class Failed(val message: String, val kind: FailureKind = FailureKind.NETWORK) : FetchResult
     }
 
     fun fetch(source: Source): FetchResult = try {
@@ -37,12 +40,13 @@ class FeedFetcher(private val client: OkHttpClient) {
                 resp.code == 304 -> FetchResult.NotModified
                 !resp.isSuccessful -> FetchResult.Failed("HTTP ${resp.code}")
                 else -> {
-                    val body = resp.body ?: return FetchResult.Failed("empty body")
+                    val body = resp.body ?: return FetchResult.Failed("empty body", FailureKind.PARSE)
                     val etag = resp.header("ETag")
                     val lastModified = resp.header("Last-Modified")
                     when (val parsed = FeedParser.parse(body.charStream())) {
                         is FeedParser.ParseResult.Ok -> FetchResult.Ok(parsed.feed, etag, lastModified)
-                        is FeedParser.ParseResult.Error -> FetchResult.Failed(parsed.message)
+                        is FeedParser.ParseResult.Error ->
+                            FetchResult.Failed(parsed.message, FailureKind.PARSE)
                     }
                 }
             }

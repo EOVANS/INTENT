@@ -5,6 +5,8 @@ import android.net.Uri
 import com.intent.reader.data.assets.RecommendedSource
 import com.intent.reader.data.db.AppDatabase
 import com.intent.reader.data.db.Source
+import com.intent.reader.sync.FeedFetcher
+import com.intent.reader.sync.FeedSyncer
 import com.intent.reader.sync.Opml
 import com.intent.reader.sync.SiteDiscovery
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +18,13 @@ class SourceRepository(
     private val context: Context,
     private val db: AppDatabase,
     private val client: okhttp3.OkHttpClient,
+    private val syncer: FeedSyncer,
 ) {
+    /** Why an external feed could not be subscribed, surfaced as a toast/snackbar. */
+    enum class AddSourceError { INVALID, NOT_FOUND, BAD_FORMAT }
+
+    class AddSourceException(val error: AddSourceError) : Exception(error.name)
+
     fun observeSources(): Flow<List<Source>> = db.sourceDao().observeAll()
 
     suspend fun getAll(): List<Source> = db.sourceDao().getAll()
@@ -28,11 +36,12 @@ class SourceRepository(
 
     /**
      * Adds a source from a feed URL or a site URL (auto-discovers the feed).
-     * Returns the added Source, or null when discovery failed.
+     * The feed itself is fetched and parsed before reporting success, so a
+     * successful add always has at least one article to show.
      */
     suspend fun addFromUrl(rawUrl: String): Result<Source> = withContext(Dispatchers.IO) {
         val url = SiteDiscovery.normalizeUrl(rawUrl)
-        db.sourceDao().getByFeedUrl(url)?.let { return@withContext Result.success(it) }
+        db.sourceDao().getByFeedUrl(url)?.let { return@withContext reuseOrRefresh(it) }
 
         var feedUrl = url
         var siteUrl: String? = null
@@ -40,19 +49,28 @@ class SourceRepository(
         var iconUrl: String? = null
 
         // Try feed discovery first when it doesn't look like XML
-        val info = SiteDiscovery.fetch(client, url).getOrNull()
-            // Unreachable / HTTP error: there is nothing usable to subscribe to.
-            ?: return@withContext Result.failure(IllegalStateException("site unreachable"))
+        val info = SiteDiscovery.fetch(client, url).getOrElse { e ->
+            // Unreachable / HTTP error / non-feed body: nothing usable to subscribe to.
+            return@withContext Result.failure(
+                AddSourceException(
+                    when ((e as? SiteDiscovery.FeedException)?.kind) {
+                        SiteDiscovery.FeedFailure.BAD_FORMAT -> AddSourceError.BAD_FORMAT
+                        SiteDiscovery.FeedFailure.NO_FEED -> AddSourceError.NOT_FOUND
+                        else -> AddSourceError.INVALID
+                    }
+                )
+            )
+        }
         info.feedUrl?.let { feedUrl = it }
         info.siteUrl?.let { siteUrl = it }
         info.title?.let { title = it }
         info.iconUrl?.let { iconUrl = it }
         // Reached a web page that advertises no feed: subscribing is pointless.
         if (info.feedUrl == null && info.siteUrl != null) {
-            return@withContext Result.failure(IllegalStateException("no feed found"))
+            return@withContext Result.failure(AddSourceException(AddSourceError.NOT_FOUND))
         }
 
-        db.sourceDao().getByFeedUrl(feedUrl)?.let { return@withContext Result.success(it) }
+        db.sourceDao().getByFeedUrl(feedUrl)?.let { return@withContext reuseOrRefresh(it) }
 
         val source = Source(
             id = idFor(feedUrl),
@@ -68,10 +86,53 @@ class SourceRepository(
         if (rowId == -1L) {
             // Unique conflict: fetch the existing one
             val existing = db.sourceDao().getByFeedUrl(feedUrl)
-            return@withContext if (existing != null) Result.success(existing)
-            else Result.failure(IllegalStateException("insert conflict"))
+            return@withContext if (existing != null) reuseOrRefresh(existing)
+            else Result.failure(AddSourceException(AddSourceError.INVALID))
         }
-        Result.success(source)
+
+        // Verify the feed really yields articles; otherwise undo the insert so the
+        // user is not left with a silently empty subscription.
+        when (val outcome = syncer.sync(source)) {
+            is FeedSyncer.Outcome.Ok ->
+                if (outcome.articles > 0) {
+                    Result.success(db.sourceDao().getById(source.id) ?: source)
+                } else {
+                    rollback(source.id)
+                    Result.failure(AddSourceException(AddSourceError.NOT_FOUND))
+                }
+
+            FeedSyncer.Outcome.NotModified ->
+                Result.success(db.sourceDao().getById(source.id) ?: source)
+
+            is FeedSyncer.Outcome.Failed -> {
+                rollback(source.id)
+                Result.failure(AddSourceException(outcome.error()))
+            }
+        }
+    }
+
+    /** Already-subscribed feed: return it, but sync it first when it has no articles yet. */
+    private suspend fun reuseOrRefresh(existing: Source): Result<Source> {
+        if (db.articleDao().countBySource(existing.id) > 0) return Result.success(existing)
+        return when (val outcome = syncer.sync(existing)) {
+            is FeedSyncer.Outcome.Ok ->
+                if (outcome.articles > 0) Result.success(db.sourceDao().getById(existing.id) ?: existing)
+                else Result.failure(AddSourceException(AddSourceError.NOT_FOUND))
+
+            FeedSyncer.Outcome.NotModified -> Result.success(existing)
+            is FeedSyncer.Outcome.Failed ->
+                Result.failure(AddSourceException(outcome.error()))
+        }
+    }
+
+    private fun FeedSyncer.Outcome.Failed.error(): AddSourceError = when (kind) {
+        FeedFetcher.FailureKind.PARSE -> AddSourceError.BAD_FORMAT
+        FeedFetcher.FailureKind.NETWORK -> AddSourceError.INVALID
+    }
+
+    private suspend fun rollback(sourceId: String) {
+        db.articleDao().deleteBySource(sourceId)
+        db.sourceDao().delete(sourceId)
     }
 
     suspend fun addRecommended(rs: RecommendedSource): Result<Source> =

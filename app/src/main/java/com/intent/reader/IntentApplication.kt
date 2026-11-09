@@ -5,6 +5,8 @@ import androidx.work.Configuration
 import com.intent.reader.di.AppContainer
 import com.intent.reader.notify.DailySummaryWorker
 import com.intent.reader.notify.NotificationChannels
+import com.intent.reader.notify.LiveUpdate
+import com.intent.reader.data.repo.ReadingTracker
 import com.intent.reader.sync.SyncWorker
 import com.intent.reader.widget.IntentWidgets
 import kotlinx.coroutines.CoroutineScope
@@ -12,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class IntentApplication : Application(), Configuration.Provider {
@@ -30,6 +33,25 @@ class IntentApplication : Application(), Configuration.Provider {
         super.onCreate()
         container = AppContainer(this)
         NotificationChannels.ensure(this)
+
+        // Keep the card in sync with settings, dismissal, day changes and permissions.
+        appScope.launch {
+            combine(
+                container.readingTracker.observeToday(),
+                container.settingsRepository.settings,
+                LiveUpdate.refreshRequests,
+            ) { log, settings, refresh ->
+                val eligible = (log?.elapsedMillis ?: 0L) > 0L &&
+                    settings.liveUpdateEnabled &&
+                    settings.liveUpdateDismissedDate != ReadingTracker.todayKey() &&
+                    LiveUpdate.canPost(this@IntentApplication)
+                Triple(eligible, log?.minutes ?: 0, settings.readingGoalMinutes) to refresh
+            }.distinctUntilChanged().collect { (state, _) ->
+                val (eligible, minutes, goal) = state
+                if (eligible) LiveUpdate.update(this@IntentApplication, minutes, goal)
+                else LiveUpdate.cancel(this@IntentApplication)
+            }
+        }
 
         // Wire periodic sync + daily summary to settings changes
         appScope.launch {

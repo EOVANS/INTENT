@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -23,11 +24,26 @@ import com.intent.reader.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+
+/** Resume the existing task like a launcher tap, retaining a reader on top. */
+internal fun resumeAppIntent(context: Context): Intent {
+    val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+        .setPackage(context.packageName)
+    @Suppress("DEPRECATION")
+    val alias = context.packageManager.queryIntentActivities(launcher, 0)
+        .firstOrNull { it.activityInfo.targetActivity == MainActivity::class.java.name }
+        ?.activityInfo?.name
+    launcher.component = ComponentName(context.packageName, alias ?: MainActivity::class.java.name)
+    return launcher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+}
 
 object NotificationChannels {
     const val SUMMARY = "daily_summary"
@@ -50,9 +66,10 @@ object NotificationChannels {
     }
 
     fun canPostNotifications(context: Context): Boolean =
-        ContextCompat.checkSelfPermission(
+        (ContextCompat.checkSelfPermission(
             context, Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT < 33
+        ) == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT < 33) &&
+            NotificationManagerCompat.from(context).areNotificationsEnabled()
 }
 
 /**
@@ -93,7 +110,7 @@ class DailySummaryWorker(appContext: Context, params: WorkerParameters) :
         if (NotificationChannels.canPostNotifications(context)) {
             val intent = PendingIntent.getActivity(
                 context, 0,
-                Intent(context, MainActivity::class.java),
+                resumeAppIntent(context),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
             val notification = NotificationCompat.Builder(context, NotificationChannels.SUMMARY)
@@ -160,6 +177,21 @@ class LiveUpdateDismissReceiver : BroadcastReceiver() {
     }
 }
 
+class LiveUpdateCompleteReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        val pending = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val container = (context.applicationContext as IntentApplication).container
+                val goal = container.settingsRepository.settings.first().readingGoalMinutes
+                container.readingTracker.completeTodayGoal(goal)
+            } finally {
+                pending.finish()
+            }
+        }
+    }
+}
+
 /**
  * Live Update (promoted ongoing) notification for daily reading progress.
  * Android 16 (API 36) only — all APIs are no-ops below 36 (doc 4.3.3.2).
@@ -167,11 +199,21 @@ class LiveUpdateDismissReceiver : BroadcastReceiver() {
  */
 object LiveUpdate {
     private const val NOTIFICATION_ID = 2001
+    private val _refreshRequests = MutableStateFlow(0L)
+    val refreshRequests = _refreshRequests.asStateFlow()
+
+    fun refreshPermissions() {
+        _refreshRequests.update { it + 1 }
+    }
 
     fun isSupported(): Boolean = Build.VERSION.SDK_INT >= 36
 
     fun canPost(context: Context): Boolean {
         if (!isSupported()) return false
+        if (!NotificationChannels.canPostNotifications(context)) return false
+        val channel = context.getSystemService(NotificationManager::class.java)
+            ?.getNotificationChannel(NotificationChannels.LIVE_UPDATE)
+        if (channel != null && channel.importance < NotificationManager.IMPORTANCE_LOW) return false
         return NotificationManagerCompat.from(context)
             .canPostPromotedNotifications()
     }
@@ -180,6 +222,7 @@ object LiveUpdate {
     fun update(context: Context, minutesToday: Int, goalMinutes: Int) {
         if (!isSupported() || !canPost(context)) return
         if (goalMinutes <= 0) return
+        NotificationChannels.ensure(context)
 
         val achieved = minutesToday >= goalMinutes
         val title = if (achieved) {
@@ -191,15 +234,21 @@ object LiveUpdate {
 
         val progressStyle = NotificationCompat.ProgressStyle()
             .setProgress(percent)
+            .setProgressSegments(listOf(NotificationCompat.ProgressStyle.Segment(100)))
 
         val contentIntent = PendingIntent.getActivity(
             context, 1,
-            Intent(context, MainActivity::class.java),
+            resumeAppIntent(context),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val dismissIntent = PendingIntent.getBroadcast(
             context, 2,
             Intent(context, LiveUpdateDismissReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val completeIntent = PendingIntent.getBroadcast(
+            context, 3,
+            Intent(context, LiveUpdateCompleteReceiver::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
@@ -214,8 +263,21 @@ object LiveUpdate {
             .setOngoing(!achieved)
             .setRequestPromotedOngoing(true)
             .setOnlyAlertOnce(true)
+            .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+            .setShortCriticalText("$minutesToday/$goalMinutes")
             .setDeleteIntent(dismissIntent)
 
+        if (achieved) {
+            // Completion: let the user swipe it away instead of leaving a
+            // permanently pinned card behind.
+            builder.setAutoCancel(true)
+        } else {
+            builder.addAction(
+                0,
+                context.getString(R.string.live_update_complete_goal),
+                completeIntent,
+            )
+        }
         try {
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
         } catch (_: SecurityException) {

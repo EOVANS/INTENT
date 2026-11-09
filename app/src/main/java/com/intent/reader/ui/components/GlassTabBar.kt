@@ -1,87 +1,80 @@
 package com.intent.reader.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Bookmarks
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import com.intent.reader.ui.theme.IntentDimens
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import com.intent.reader.R
 import com.intent.reader.ui.theme.IntentTheme
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.colorControls
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.highlight.Highlight
+import kotlin.math.roundToInt
 
-enum class IntentTab { HOME, SEARCH, SETTINGS }
+enum class IntentTab { HOME, NOTES, SEARCH }
 
-/**
- * Shared duration for the tab bar's colour / label / indicator transitions, so a tap
- * reads as one continuous motion next to the scale spring (which settles in about the
- * same time) instead of the colour landing first while the scale is still travelling.
- */
-private const val TAB_ANIM_MS = 200
-
-/**
- * Floating glass capsule tab bar (doc 9).
- *
- * Two styles share the same layout contract (pill radius, pinned on the main pages):
- *  - classic: theme glass fill + hairline border, 56dp pill;
- *  - [liquidGlass] (Android 13+): taller 64dp pill that draws **nothing** of its own —
- *    no fill, no border — because the AGSL lens on the layer beneath is the only
- *    renderer. Stacking a Compose fill on top of it turns the refraction into a grey
- *    haze, and the hairline border reads as a black capsule outline on light themes.
- */
+/** Main capsule: Home / Notes. Search stays in a separate circular control. */
 @Composable
 fun GlassTabBar(
     selected: IntentTab,
@@ -89,170 +82,287 @@ fun GlassTabBar(
     modifier: Modifier = Modifier,
     hidden: Boolean = false,
     liquidGlass: Boolean = false,
-    onPillBounds: ((Rect) -> Unit)? = null,
-    /** (position in root coordinates, isDown) — drives the pressed-liquid bulge. */
-    onPress: ((Offset, Boolean) -> Unit)? = null,
+    backdrop: Backdrop? = null,
+    clearMaterial: Boolean = false,
+    adaptiveTint: Boolean = true,
+    overLight: Boolean = false,
+    transparency: Float = 0.5f,
+    reduceMotion: Boolean = false,
 ) {
+    // Do not leave invisible, focusable navigation targets over the keyboard.
+    if (hidden) return
+    val advanced = liquidGlass && backdrop != null
     val c = IntentTheme.colors
-    val t = IntentTheme.typography
-    val pillShape = RoundedCornerShape(if (liquidGlass) 32.dp else IntentDimens.radiusTab.dp)
-    var pillTopLeft by remember { mutableStateOf(Offset.Zero) }
-    val pressCb = rememberUpdatedState(onPress)
-
-    val tabs = listOf(
-        Triple(IntentTab.HOME, Icons.Outlined.Home, R.string.tab_home),
-        Triple(IntentTab.SEARCH, Icons.Outlined.Search, R.string.tab_search),
-        Triple(IntentTab.SETTINGS, Icons.Outlined.Settings, R.string.tab_settings),
+    val mainTabs = listOf(IntentTab.HOME, IntentTab.NOTES)
+    val selectedIndex = mainTabs.indexOf(selected)
+    var lastMainIndex by remember { mutableIntStateOf(0) }
+    LaunchedEffect(selectedIndex) { if (selectedIndex >= 0) lastMainIndex = selectedIndex }
+    var dragging by remember { mutableStateOf(false) }
+    var dragPosition by remember { mutableFloatStateOf(0f) }
+    var panelPressed by remember { mutableStateOf(false) }
+    val currentOnSelect by rememberUpdatedState(onSelect)
+    val settledIndex by rememberUpdatedState(if (selectedIndex >= 0) selectedIndex else lastMainIndex)
+    val position by animateFloatAsState(
+        targetValue = if (dragging) dragPosition else settledIndex.toFloat(),
+        animationSpec = if (dragging) snap() else if (advanced) spring(0.78f, 380f) else spring(1f, 900f),
+        label = "tabSliderPosition",
     )
-
-    val barAlpha by animateFloatAsState(
-        targetValue = if (hidden) 0f else 1f,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "tabAlpha",
+    val press by animateFloatAsState(
+        targetValue = if (panelPressed) 1f else 0f,
+        animationSpec = spring(0.7f, 450f), label = "tabPanelPress",
     )
-    val barOffset by animateDpAsState(
-        targetValue = if (hidden) 96.dp else 0.dp,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "tabOffset",
-    )
+    val track = if (advanced) rememberLayerBackdrop() else null
+    val thumbAlpha by animateFloatAsState(if (selectedIndex >= 0 || dragging) 1f else 0f, tween(140), label = "mainTabSelection")
+    val thumbBackdrop = if (advanced && track != null) {
+        rememberCombinedBackdrop(backdrop, track)
+    } else null
+    val density = LocalDensity.current
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-    Box(
-        modifier = modifier
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .graphicsLayer {
-                alpha = barAlpha
-                translationY = barOffset.toPx()
-            },
-        contentAlignment = Alignment.Center,
+    Row(
+        modifier.navigationBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)
+            .widthIn(max = 360.dp).fillMaxWidth().selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier
-                .height(if (liquidGlass) 64.dp else 56.dp)
-                .clip(pillShape)
-                .then(
-                    if (liquidGlass) {
-                        // The AGSL lens behind this layer is the sole renderer. Any
-                        // Compose fill or stroke stacked on top of it (this used to be a
-                        // white gradient plus a 1.2dp black hairline) reads as a grey
-                        // haze, so the pill stays completely see-through and borderless
-                        // and the refraction is the only thing you see.
-                        Modifier
-                    } else {
-                        Modifier
-                            .background(SolidColor(c.glass))
-                            .border(
-                                width = 1.dp,
-                                color = (if (c.isDark) Color.White else Color.Black).copy(
-                                    alpha = if (c.isDark) 0.15f else 0.22f
-                                ),
-                                shape = pillShape,
-                            )
-                    }
-                )
-                .onGloballyPositioned { coords ->
-                    val bounds = coords.boundsInRoot()
-                    pillTopLeft = bounds.topLeft
-                    onPillBounds?.invoke(bounds)
-                }
-                .pointerInput(liquidGlass) {
-                    if (!liquidGlass) return@pointerInput
-                    awaitPointerEventScope {
-                        while (true) {
-                            // Reported once per gesture: the bulge only needs the
-                            // press-down point, and moving it every frame would
-                            // rebuild the shader on each pointer move.
-                            val down = awaitFirstDown(requireUnconsumed = false)
-                            pressCb.value?.invoke(pillTopLeft + down.position, true)
-                            var change = down
-                            while (change.pressed) {
-                                val event = awaitPointerEvent()
-                                change = event.changes.firstOrNull { it.id == down.id } ?: break
+        BoxWithConstraints(Modifier.weight(1f).height(64.dp)) {
+            val slotWidth = (maxWidth - 8.dp) / mainTabs.size
+            val maxPosition = mainTabs.lastIndex.toFloat()
+            val slotPx = with(density) { slotWidth.toPx() }
+            val insetPx = with(density) { 4.dp.toPx() }
+            val displayedPosition = if (dragging) dragPosition else position
+            Box(
+                Modifier.fillMaxSize()
+                    .pointerInput(advanced) {
+                        try {
+                            awaitEachGesture {
+                                awaitFirstDown(requireUnconsumed = false)
+                                panelPressed = true
+                                do { val held = awaitPointerEvent().changes.any { it.pressed } } while (held)
+                                panelPressed = false
                             }
-                            pressCb.value?.invoke(pillTopLeft + change.position, false)
-                        }
+                        } finally { panelPressed = false }
+                    }
+                    .pointerInput(slotPx, rtl) {
+                        try {
+                            detectHorizontalDragGestures(
+                                onDragStart = { point ->
+                                    val x = if (rtl) size.width - point.x else point.x
+                                    dragPosition = ((x - insetPx) / slotPx - 0.5f).coerceIn(0f, maxPosition)
+                                    dragging = true
+                                },
+                                onHorizontalDrag = { change, amount ->
+                                    change.consume()
+                                    dragPosition = (dragPosition + amount / slotPx * if (rtl) -1 else 1)
+                                        .coerceIn(0f, maxPosition)
+                                },
+                                onDragEnd = {
+                                    currentOnSelect(mainTabs[dragPosition.roundToInt()])
+                                    dragging = false
+                                },
+                                onDragCancel = { dragging = false },
+                            )
+                        } finally { dragging = false }
+                    },
+            ) {
+                // Keep the track's clipped glass layer separate from the thumb,
+                // so it cannot clip the thumb where it extends past the track.
+                Box(
+                    Modifier.fillMaxSize().navigationSurface(
+                        advanced, backdrop, clearMaterial, adaptiveTint,
+                        overLight, press, exportedBackdrop = track, transparency = transparency,
+                    ),
+                )
+                // Export only the surface, never the thumb, to avoid sampling itself.
+                Box(
+                    Modifier.padding(4.dp).offset(x = slotWidth * displayedPosition)
+                        .width(slotWidth).height(56.dp)
+                        .graphicsLayer { alpha = thumbAlpha }
+                        .navigationSurface(advanced, thumbBackdrop, clearMaterial,
+                            adaptiveTint, overLight, press, thumb = true, transparency = transparency),
+                )
+                Row(Modifier.fillMaxSize().padding(4.dp)) {
+                    mainTabs.forEach { tab ->
+                        NavigationItem(
+                            tab = tab,
+                            selected = selected == tab,
+                            tintOverride = if (advanced) c.textSecondary else null,
+                            useFilledSelection = !advanced,
+                            reduceMotion = reduceMotion,
+                            onClick = { onSelect(tab) },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
                     }
                 }
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            tabs.forEach { (tab, icon, labelRes) ->
-                val isSelected = tab == selected
-                val label = stringResource(labelRes)
-                val scale by animateFloatAsState(
-                    targetValue = if (isSelected) 1f else 0.94f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMedium,
-                    ),
-                    label = "tabScale",
-                )
-                // 强调色着色（试验）：tab 的图标与标签都取用户当前的强调色，选中态用满色、
-                // 未选中态压到 55% 透明度以保留选中层级。
-                // 回滚方式：把这段 iconTint 删掉，并另建一份 text/textSecondary 的颜色动画
-                // 分别给 Icon 的 tint 与 Text 的 color。
-                val iconTint by animateColorAsState(
-                    targetValue = if (isSelected) c.accent else c.accent.copy(alpha = 0.55f),
-                    animationSpec = tween(TAB_ANIM_MS),
-                    label = "tabIconTint",
-                )
-                // The selected-tab indicator fades along with the rest of the state change
-                // instead of snapping in, so one tap reads as a single continuous motion.
-                val indicator by animateColorAsState(
-                    targetValue = if (liquidGlass && isSelected) {
-                        if (c.isDark) Color.White.copy(alpha = 0.14f)
-                        else Color.Black.copy(alpha = 0.06f)
-                    } else {
-                        Color.Transparent
-                    },
-                    animationSpec = tween(TAB_ANIM_MS),
-                    label = "tabIndicator",
-                )
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(if (liquidGlass) 26.dp else IntentDimens.radiusTab.dp))
-                        .background(indicator)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) { onSelect(tab) }
-                        .padding(horizontal = 18.dp, vertical = 6.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .scale(scale),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                if (advanced) {
+                    // Draw an accent-colored copy only where the moving glass overlaps it.
+                    Row(
+                        Modifier.fillMaxSize().padding(4.dp)
+                            .clearAndSetSemantics { }
+                            .graphicsLayer { alpha = thumbAlpha }
+                            .drawWithContent {
+                                val scale = 1f + press * 0.30f
+                                val center = if (rtl) size.width - slotPx * (displayedPosition + 0.5f)
+                                    else slotPx * (displayedPosition + 0.5f)
+                                val width = slotPx * scale
+                                val height = size.height * scale
+                                val top = (size.height - height) / 2f
+                                val radius = height / 2f
+                                val path = Path().apply {
+                                    addRoundRect(RoundRect(center - width / 2f, top, center + width / 2f, top + height,
+                                        CornerRadius(radius, radius)))
+                                }
+                                clipPath(path) { this@drawWithContent.drawContent() }
+                            },
                     ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = label,
-                            tint = iconTint,
-                            modifier = Modifier.size(22.dp),
-                        )
-                        // AnimatedVisibility collapses the label's space as it fades, so the
-                        // icon glides between the "icon only" and "icon + label" positions
-                        // instead of jumping — and an unselected tab still measures as a bare
-                        // icon, which keeps it vertically centred in the bar.
-                        AnimatedVisibility(
-                            visible = isSelected,
-                            enter = fadeIn(tween(TAB_ANIM_MS)) +
-                                expandVertically(tween(TAB_ANIM_MS)),
-                            exit = fadeOut(tween(TAB_ANIM_MS)) +
-                                shrinkVertically(tween(TAB_ANIM_MS)),
-                        ) {
-                            Text(
-                                text = label,
-                                style = t.micro,
-                                color = iconTint,
-                                modifier = Modifier.padding(top = 1.dp),
+                        mainTabs.forEach { tab ->
+                            NavigationItem(
+                                tab = tab, selected = false, onClick = {},
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                tintOverride = c.accent, interactive = false,
                             )
                         }
                     }
                 }
             }
+        }
+        val settingsInteraction = remember { MutableInteractionSource() }
+        val settingsPressed by settingsInteraction.collectIsPressedAsState()
+        val settingsPress by animateFloatAsState(if (settingsPressed) 1f else 0f, spring(0.7f, 450f), label = "settingsPress")
+        NavigationItem(
+            tab = IntentTab.SEARCH,
+            selected = selected == IntentTab.SEARCH,
+            onClick = { onSelect(IntentTab.SEARCH) },
+            interactionSource = settingsInteraction,
+            useFilledSelection = !advanced,
+            reduceMotion = reduceMotion,
+            modifier = Modifier.size(64.dp)
+                .navigationSurface(advanced, backdrop, clearMaterial, adaptiveTint, overLight, settingsPress, transparency = transparency)
+                .background(if (selected == IntentTab.SEARCH) c.accent.copy(alpha = 0.12f) else Color.Transparent, CircleShape),
+        )
+    }
+}
+
+/** Scaling belongs to Backdrop's layerBlock so sampled page pixels stay anchored. */
+@Composable
+internal fun Modifier.navigationSurface(
+    advanced: Boolean,
+    backdrop: Backdrop?,
+    clear: Boolean,
+    adaptive: Boolean,
+    overLight: Boolean,
+    press: Float,
+    thumb: Boolean = false,
+    exportedBackdrop: LayerBackdrop? = null,
+    transparency: Float = 0.5f,
+    readableOnPlainBackground: Boolean = false,
+): Modifier {
+    val c = IntentTheme.colors
+    val transform: GraphicsLayerScope.() -> Unit = {
+        val scale = if (advanced) 1f + press * (if (thumb) 0.30f else 0.035f)
+            else 1f - press * 0.025f
+        scaleX = scale
+        scaleY = scale
+    }
+    return if (advanced && backdrop != null) {
+        drawBackdrop(
+            backdrop = backdrop,
+            shape = { CircleShape },
+            exportedBackdrop = exportedBackdrop,
+            effects = {
+                if (!thumb) {
+                    colorControls(saturation = if (clear) 1f else 1.12f)
+                    blur((8.dp - 6.dp * transparency.coerceIn(0f, 1f)).toPx())
+                }
+                lens(12.dp.toPx(),
+                    (if (thumb) 20.dp else 14.dp).toPx(), chromaticAberration = true)
+            },
+            layerBlock = transform,
+            highlight = { Highlight(width = if (thumb) 0.35.dp else 0.6.dp, alpha = if (thumb) 0.5f else 0.55f) },
+            shadow = null,
+            onDrawSurface = {
+                // Header buttons sample the plain page surface. A subtle tint in
+                // the opposite direction keeps their silhouette visible even on
+                // a white or black page, without relying on a heavy outline.
+                val tint = if (thumb) c.accent else if (readableOnPlainBackground) {
+                    if (c.isDark) Color.White else Color.Black
+                } else if (c.isDark) Color.Black else Color.White
+                val opacity = if (thumb) 0.09f else if (readableOnPlainBackground) {
+                    0.14f - 0.08f * transparency.coerceIn(0f, 1f)
+                } else
+                    (0.38f - 0.30f * transparency.coerceIn(0f, 1f) +
+                        if (adaptive && !overLight) 0.06f else 0f).coerceIn(0f, 1f)
+                drawRect(tint.copy(alpha = opacity))
+            },
+        ).then(if (thumb) Modifier else Modifier.border(0.6.dp,
+            (if (c.isDark) Color.White else Color.Black).copy(alpha = 0.12f), CircleShape))
+    } else {
+        graphicsLayer(transform).clip(CircleShape)
+            .background(if (thumb) c.accent.copy(alpha = 0.12f) else c.glass)
+            .border(if (thumb) 0.dp else 1.dp, c.divider, CircleShape)
+    }
+}
+
+@Composable
+private fun NavigationItem(
+    tab: IntentTab,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    tintOverride: Color? = null,
+    interactive: Boolean = true,
+    useFilledSelection: Boolean = false,
+    reduceMotion: Boolean = false,
+) {
+    val c = IntentTheme.colors
+    val label = stringResource(when (tab) {
+        IntentTab.HOME -> R.string.tab_home
+        IntentTab.NOTES -> R.string.nav_notes
+        IntentTab.SEARCH -> R.string.tab_search
+    })
+    val icon: ImageVector = when (tab) {
+        IntentTab.HOME -> Icons.Outlined.Home
+        IntentTab.NOTES -> Icons.Outlined.Bookmarks
+        IntentTab.SEARCH -> Icons.Outlined.Search
+    }
+    val filledIcon: ImageVector = when (tab) {
+        IntentTab.HOME -> Icons.Filled.Home
+        IntentTab.NOTES -> Icons.Filled.Bookmarks
+        IntentTab.SEARCH -> Icons.Filled.Search
+    }
+    val tint by animateColorAsState(if (selected) c.accent else c.textSecondary,
+        animationSpec = tween(160), label = "navigationTint")
+    Column(
+        if (interactive) modifier.then(
+            if (useFilledSelection && !selected) Modifier.semantics { contentDescription = label } else Modifier
+        ).selectable(selected, interactionSource, indication = null,
+            role = Role.Tab, onClick = onClick) else modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Crossfade(
+            targetState = useFilledSelection && selected,
+            animationSpec = tween(if (reduceMotion) 0 else 160),
+            modifier = Modifier.size(23.dp),
+            label = "navigationIconSelection",
+        ) { filled ->
+            Icon(if (filled) filledIcon else icon, contentDescription = null, tint = tintOverride ?: tint)
+        }
+        if (useFilledSelection) {
+            AnimatedVisibility(
+                visible = selected,
+                enter = if (reduceMotion) EnterTransition.None else
+                    expandVertically(animationSpec = tween(160)) + fadeIn(tween(160)),
+                exit = if (reduceMotion) ExitTransition.None else
+                    shrinkVertically(animationSpec = tween(160)) + fadeOut(tween(120)),
+            ) {
+                Text(label, color = tintOverride ?: tint, style = IntentTheme.typography.micro,
+                    maxLines = 1, modifier = Modifier.padding(top = 2.dp))
+            }
+        } else {
+            Text(label, color = tintOverride ?: tint, style = IntentTheme.typography.micro,
+                maxLines = 1, modifier = Modifier.padding(top = 2.dp))
         }
     }
 }

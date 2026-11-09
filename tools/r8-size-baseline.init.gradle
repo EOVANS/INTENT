@@ -1,0 +1,14 @@
+// Opt-in comparison variant: release flags/dependencies without R8 or shrinking.
+// gradle -I tools/r8-size-baseline.init.gradle :app:assembleSizeBaseline :app:assembleRelease
+gradle.beforeProject { project ->
+    project.pluginManager.withPlugin('com.android.application') {
+        project.androidComponents.finalizeDsl { android ->
+            android.buildTypes.create('sizeBaseline') {
+                initWith(android.buildTypes.getByName('release'))
+                matchingFallbacks = ['release']
+                minifyEnabled = false
+                shrinkResources = false
+            }
+        }
+    }
+}

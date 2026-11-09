@@ -1,0 +1,1 @@
+Brand icons adapted from Simple Icons (https://simpleicons.org/), CC0-1.0. Brand names and marks belong to their respective owners.

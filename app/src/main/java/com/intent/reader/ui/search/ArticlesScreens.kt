@@ -26,8 +26,6 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -46,6 +44,7 @@ import com.intent.reader.R
 import com.intent.reader.data.db.Article
 import com.intent.reader.data.db.Source
 import com.intent.reader.ui.components.ArticleImage
+import com.intent.reader.ui.components.HeaderIconButton
 import com.intent.reader.ui.theme.IntentDimens
 import com.intent.reader.ui.theme.IntentTheme
 import com.intent.reader.ui.theme.withCjkSpacing
@@ -133,9 +132,7 @@ fun AllArticlesScreen(
         TopAppBar(
             title = { Text(stringResource(R.string.all_articles), style = t.pageTitle) },
             navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
-                }
+                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = c.bg, titleContentColor = c.text,
@@ -204,9 +201,7 @@ fun SourceDetailScreen(
         TopAppBar(
             title = { Text(source?.title ?: "", style = t.pageTitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
-                }
+                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = c.bg, titleContentColor = c.text,

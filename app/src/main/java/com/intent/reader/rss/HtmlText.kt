@@ -42,13 +42,19 @@ object HtmlText {
     fun toBlocks(html: String?): List<Block> {
         if (html.isNullOrBlank()) return emptyList()
         val out = mutableListOf<Block>()
+        fun appendParagraphs(fragment: String) {
+            val safe = fragment.replace(Regex("(?is)<(script|style)[^>]*>.*?</\\1>"), "")
+            val boundaries = if (safe.contains('<')) "(?i)<br\\s*/?>|</(?:p|div|li|h[1-6]|tr)\\s*>" else "[\\r\\n]+"
+            safe.split(Regex(boundaries))
+                .map { stripTags(it).trim() }.filter { it.isNotBlank() }
+                .forEach { out += Block.Para(it) }
+        }
         val imgRe = Regex("(?is)<img\\b([^>]*)>")
         var cursor = 0
         for (m in imgRe.findAll(html)) {
             // Flush text before this <img>
             val pre = html.substring(cursor, m.range.first)
-            val plain = stripTags(pre).trim()
-            if (plain.isNotEmpty()) out += Block.Para(plain)
+            appendParagraphs(pre)
             // Extract src + alt from the attrs
             val attrs = m.groupValues[1]
             val src = Regex("(?i)src\\s*=\\s*[\"']([^\"']+)[\"']").find(attrs)?.groupValues?.get(1)
@@ -59,8 +65,7 @@ object HtmlText {
             cursor = m.range.last + 1
         }
         // Trailing text
-        val tail = stripTags(html.substring(cursor)).trim()
-        if (tail.isNotEmpty()) out += Block.Para(tail)
+        appendParagraphs(html.substring(cursor))
         return out
     }
 

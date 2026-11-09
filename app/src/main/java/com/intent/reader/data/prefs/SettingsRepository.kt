@@ -17,12 +17,16 @@ enum class ThemeMode { FOLLOW_SYSTEM, LIGHT, DARK }
 
 data class SettingsState(
     val userName: String = "",
+    val greetingEmoji: String = "",
     val avatarPath: String = "",
     val onboardingCompletedVersion: Int = 0,
     val themeMode: ThemeMode = ThemeMode.FOLLOW_SYSTEM,
     val accentColor: Long = 0xFFE02B2B,
+    val dynamicColor: Boolean = false,
+    val dynamicBackground: Boolean = true,
     val widgetStyle: String = "classic",     // "classic" | "image"
     val fontChoice: String = "system",     // "system" | "serif" | "custom:<path>"
+    val fontWeight: Int = 400,
     val languageTag: String = "",           // "" = follow system
     val textScaleLevel: Int = 1,            // 0..3
     val followSystemFontScale: Boolean = true,
@@ -32,6 +36,7 @@ data class SettingsState(
     val reduceAnimations: Boolean = false,
     val glassEffectEnabled: Boolean = false,   // AGSL liquid-glass tab bar (API 33+)
     val glassMaterial: String = "regular",     // "regular" (adaptive / readable) | "clear" (high transparency)
+    val glassTransparency: Float = 0.5f,
     val glassAdaptiveTint: Boolean = true,     // per-pixel backdrop-luminance tinting
     val glassScrollEdgeBlur: Boolean = true,   // progressive blur at the scrolling edge
     val ttsEngine: String = "",
@@ -51,18 +56,27 @@ data class SettingsState(
     val perSourceKeep: Int = 200,
     val disabledCardStyles: Set<String> = emptySet(),
     val liveUpdateDismissedDate: String = "",
+    val clearCacheOnExit: Boolean = false,
 )
 
-class SettingsRepository(private val context: Context) {
+class SettingsRepository(
+    private val context: Context,
+    private val currentDate: () -> java.time.LocalDate = { java.time.LocalDate.now() },
+) {
 
     private object Keys {
         val userName = stringPreferencesKey("user_name")
+        val greetingEmoji = stringPreferencesKey("greeting_emoji")
+        val greetingEmojiDate = stringPreferencesKey("greeting_emoji_date")
         val avatarPath = stringPreferencesKey("avatar_path")
         val onboardingVersion = intPreferencesKey("onboarding_completed_version")
         val themeMode = intPreferencesKey("theme_mode")
         val accentColor = stringPreferencesKey("accent_color")
+        val dynamicColor = booleanPreferencesKey("dynamic_color")
+        val dynamicBackground = booleanPreferencesKey("dynamic_background")
         val widgetStyle = stringPreferencesKey("widget_style")
         val fontChoice = stringPreferencesKey("font_choice")
+        val fontWeight = intPreferencesKey("font_weight")
         val languageTag = stringPreferencesKey("language_tag")
         val textScale = intPreferencesKey("text_scale_level")
         val followFontScale = booleanPreferencesKey("follow_system_font_scale")
@@ -72,6 +86,7 @@ class SettingsRepository(private val context: Context) {
         val reduceAnim = booleanPreferencesKey("reduce_animations")
         val glassEffect = booleanPreferencesKey("glass_effect_enabled")
         val glassMaterial = stringPreferencesKey("glass_material")
+        val glassTransparency = floatPreferencesKey("glass_transparency")
         val glassAdaptiveTint = booleanPreferencesKey("glass_adaptive_tint")
         val glassScrollEdgeBlur = booleanPreferencesKey("glass_scroll_edge_blur")
         val ttsEngine = stringPreferencesKey("tts_engine")
@@ -90,18 +105,24 @@ class SettingsRepository(private val context: Context) {
         val perSourceKeep = intPreferencesKey("per_source_keep")
         val disabledCards = stringSetPreferencesKey("disabled_card_styles")
         val liveUpdateDismissed = stringPreferencesKey("live_update_dismissed_date")
+        val clearCacheOnExit = booleanPreferencesKey("clear_cache_on_exit")
     }
 
     val settings: Flow<SettingsState> = context.dataStore.data.map { p ->
         val time = (p[Keys.dailySummaryTime] ?: "20:00").split(":")
         SettingsState(
             userName = p[Keys.userName] ?: "",
+            greetingEmoji = if (p[Keys.greetingEmojiDate] == currentDate().toString())
+                p[Keys.greetingEmoji].orEmpty() else "",
             avatarPath = p[Keys.avatarPath] ?: "",
             onboardingCompletedVersion = p[Keys.onboardingVersion] ?: 0,
             themeMode = ThemeMode.entries.getOrElse(p[Keys.themeMode] ?: 0) { ThemeMode.FOLLOW_SYSTEM },
             accentColor = p[Keys.accentColor]?.toLongOrNull() ?: 0xFFE02B2B,
+            dynamicColor = p[Keys.dynamicColor] ?: false,
+            dynamicBackground = p[Keys.dynamicBackground] ?: true,
             widgetStyle = p[Keys.widgetStyle] ?: "classic",
             fontChoice = p[Keys.fontChoice] ?: "system",
+            fontWeight = (p[Keys.fontWeight] ?: 400).coerceIn(1, 1000),
             languageTag = p[Keys.languageTag] ?: "",
             textScaleLevel = p[Keys.textScale] ?: 1,
             followSystemFontScale = p[Keys.followFontScale] ?: true,
@@ -111,6 +132,7 @@ class SettingsRepository(private val context: Context) {
             reduceAnimations = p[Keys.reduceAnim] ?: false,
             glassEffectEnabled = p[Keys.glassEffect] ?: false,
             glassMaterial = p[Keys.glassMaterial] ?: "regular",
+            glassTransparency = (p[Keys.glassTransparency] ?: if (p[Keys.glassMaterial] == "clear") 0.85f else 0.5f).coerceIn(0f, 1f),
             glassAdaptiveTint = p[Keys.glassAdaptiveTint] ?: true,
             glassScrollEdgeBlur = p[Keys.glassScrollEdgeBlur] ?: true,
             ttsEngine = p[Keys.ttsEngine] ?: "",
@@ -130,16 +152,40 @@ class SettingsRepository(private val context: Context) {
             perSourceKeep = p[Keys.perSourceKeep] ?: 200,
             disabledCardStyles = p[Keys.disabledCards] ?: emptySet(),
             liveUpdateDismissedDate = p[Keys.liveUpdateDismissed] ?: "",
+            clearCacheOnExit = p[Keys.clearCacheOnExit] ?: false,
         )
     }
 
     suspend fun setUserName(v: String) = edit { it[Keys.userName] = v }
+
+    /** Pick once per local day, atomically across concurrent activity resumes. */
+    suspend fun ensureDailyGreetingEmoji(
+        today: java.time.LocalDate = currentDate(),
+        pick: (Int) -> Int = { kotlin.random.Random.nextInt(it) },
+    ) {
+        context.dataStore.edit { prefs ->
+            val previous = prefs[Keys.greetingEmoji]
+            if (prefs[Keys.greetingEmojiDate] != today.toString() || previous !in GREETING_EMOJIS) {
+                val choices = GREETING_EMOJIS.filter { it != previous }
+                prefs[Keys.greetingEmoji] = choices[pick(choices.size)]
+                prefs[Keys.greetingEmojiDate] = today.toString()
+            }
+        }
+    }
+
+    companion object {
+        val GREETING_EMOJIS = listOf("💪", "👂", "👏", "👋", "💭", "💬", "🗯️", "🗨️", "👁️", "👀")
+    }
     suspend fun setAvatarPath(v: String) = edit { it[Keys.avatarPath] = v }
     suspend fun setOnboardingVersion(v: Int) = edit { it[Keys.onboardingVersion] = v }
+    suspend fun setClearCacheOnExit(v: Boolean) = edit { it[Keys.clearCacheOnExit] = v }
     suspend fun setThemeMode(mode: ThemeMode) = edit { it[Keys.themeMode] = mode.ordinal }
     suspend fun setAccentColor(argb: Long) = edit { it[Keys.accentColor] = argb.toString() }
+    suspend fun setDynamicColor(v: Boolean) = edit { it[Keys.dynamicColor] = v }
+    suspend fun setDynamicBackground(v: Boolean) = edit { it[Keys.dynamicBackground] = v }
     suspend fun setWidgetStyle(v: String) = edit { it[Keys.widgetStyle] = v }
     suspend fun setFontChoice(v: String) = edit { it[Keys.fontChoice] = v }
+    suspend fun setFontWeight(v: Int) = edit { it[Keys.fontWeight] = v.coerceIn(1, 1000) }
     suspend fun setLanguageTag(v: String) = edit { it[Keys.languageTag] = v }
     suspend fun setTextScaleLevel(v: Int) = edit { it[Keys.textScale] = v }
     suspend fun setFollowSystemFontScale(v: Boolean) = edit { it[Keys.followFontScale] = v }
@@ -149,6 +195,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun setReduceAnimations(v: Boolean) = edit { it[Keys.reduceAnim] = v }
     suspend fun setGlassEffectEnabled(v: Boolean) = edit { it[Keys.glassEffect] = v }
     suspend fun setGlassMaterial(v: String) = edit { it[Keys.glassMaterial] = v }
+    suspend fun setGlassTransparency(v: Float) = edit { it[Keys.glassTransparency] = v.coerceIn(0f, 1f) }
     suspend fun setGlassAdaptiveTint(v: Boolean) = edit { it[Keys.glassAdaptiveTint] = v }
     suspend fun setGlassScrollEdgeBlur(v: Boolean) = edit { it[Keys.glassScrollEdgeBlur] = v }
     suspend fun setTtsEngine(v: String) = edit { it[Keys.ttsEngine] = v }

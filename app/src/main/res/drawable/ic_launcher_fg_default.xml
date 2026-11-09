@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Editorial I: a strong reading-column silhouette with a quote underline. -->
+    <path
+        android:fillColor="#171717"
+        android:pathData="M38,31h32v5h-10v32h10v5h-32v-5h10v-32h-10z" />
+    <path
+        android:fillColor="#D94336"
+        android:pathData="M38,78h32v4h-32z" />
+</vector>

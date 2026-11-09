@@ -1,8 +1,9 @@
 package com.intent.reader.data.assets
 
 /**
- * Built-in recommended sources (doc 4.2.2). Static list, ~30 entries with
- * name / feed URL / logo URL / category. Logos use site apple-touch-icons.
+ * Built-in recommended sources (doc 4.2.2). Static list grouped into the six
+ * browse categories shown in the search page's hero strip. Category keys map to
+ * the localized labels in strings.xml (category_news, category_tech, …).
  */
 data class RecommendedSource(
     val name: String,
@@ -13,138 +14,217 @@ data class RecommendedSource(
 
 object RecommendedSources {
 
+    const val CATEGORY_NEWS = "news"
+    const val CATEGORY_TECH = "tech"
+    const val CATEGORY_MEDICINE = "medicine"
+    const val CATEGORY_LAW = "law"
+    const val CATEGORY_HISTORY = "history"
+    const val CATEGORY_CULTURE = "culture"
+
+    /** Hero strip order. */
+    val categories: List<String> = listOf(
+        CATEGORY_NEWS,
+        CATEGORY_TECH,
+        CATEGORY_MEDICINE,
+        CATEGORY_LAW,
+        CATEGORY_HISTORY,
+        CATEGORY_CULTURE,
+    )
+
     val all: List<RecommendedSource> = listOf(
-        // --- News (EN) ---
+        // ---------- 时事 ----------
         RecommendedSource(
             "BBC News", "https://feeds.bbci.co.uk/news/rss.xml",
-            "https://www.bbc.co.uk/apple-touch-icon.png", "News"
+            "https://www.bbc.co.uk/apple-touch-icon.png", CATEGORY_NEWS
         ),
         RecommendedSource(
             "BBC World", "https://feeds.bbci.co.uk/news/world/rss.xml",
-            "https://www.bbc.co.uk/apple-touch-icon.png", "News"
+            "https://www.bbc.co.uk/apple-touch-icon.png", CATEGORY_NEWS
         ),
         RecommendedSource(
             "The Guardian", "https://www.theguardian.com/world/rss",
-            "https://www.theguardian.com/apple-touch-icon.png", "News"
+            "https://www.theguardian.com/apple-touch-icon.png", CATEGORY_NEWS
         ),
         RecommendedSource(
             "The New York Times", "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-            "https://www.nytimes.com/apple-touch-icon.png", "News"
-        ),
-        RecommendedSource(
-            "CNN", "http://rss.cnn.com/rss/edition.rss",
-            "https://www.cnn.com/apple-touch-icon.png", "News"
-        ),
-        RecommendedSource(
-            "NPR News", "https://feeds.npr.org/1001/rss.xml",
-            "https://www.npr.org/apple-touch-icon-precomposed.png", "News"
+            "https://www.nytimes.com/apple-touch-icon.png", CATEGORY_NEWS
         ),
         RecommendedSource(
             "Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml",
-            "https://www.aljazeera.com/apple-touch-icon.png", "News"
+            "https://www.aljazeera.com/apple-touch-icon.png", CATEGORY_NEWS
         ),
         RecommendedSource(
-            "NASA Breaking News", "https://www.nasa.gov/feed/",
-            "https://www.nasa.gov/apple-touch-icon.png", "Science"
+            "NPR News", "https://feeds.npr.org/1001/rss.xml",
+            "https://www.npr.org/apple-touch-icon-precomposed.png", CATEGORY_NEWS
         ),
         RecommendedSource(
-            "Science Daily", "https://www.sciencedaily.com/rss/top/science.xml",
-            "https://www.sciencedaily.com/apple-touch-icon.png", "Science"
+            "NHK ニュース", "https://www3.nhk.or.jp/rss/news/cat0.xml",
+            "https://www3.nhk.or.jp/favicon.ico", CATEGORY_NEWS
         ),
         RecommendedSource(
-            "ESPN Top News", "https://www.espn.com/espn/rss/news",
-            "https://www.espn.com/apple-touch-icon.png", "Sports"
+            "연합뉴스 속보", "https://www.yonhapnewstv.co.kr/rss/news/1",
+            "https://www.yonhapnewstv.co.kr/favicon.ico", CATEGORY_NEWS
         ),
-        // --- Tech (EN) ---
+
+        // ---------- 科技 ----------
         RecommendedSource(
             "The Verge", "https://www.theverge.com/rss/index.xml",
-            "https://www.theverge.com/apple-touch-icon.png", "Tech"
+            "https://www.theverge.com/apple-touch-icon.png", CATEGORY_TECH
         ),
         RecommendedSource(
             "TechCrunch", "https://techcrunch.com/feed/",
-            "https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png", "Tech"
+            "https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png",
+            CATEGORY_TECH
         ),
         RecommendedSource(
             "Hacker News", "https://hnrss.org/frontpage",
-            "https://news.ycombinator.com/favicon.ico", "Tech"
+            "https://news.ycombinator.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "Ars Technica", "https://feeds.arstechnica.com/arstechnica/index",
-            "https://arstechnica.com/favicon.ico", "Tech"
+            "https://arstechnica.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "Wired", "https://www.wired.com/feed/rss",
-            "https://www.wired.com/favicon.ico", "Tech"
+            "https://www.wired.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "Engadget", "https://www.engadget.com/rss.xml",
-            "https://www.engadget.com/favicon.ico", "Tech"
+            "https://www.engadget.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "9to5Mac", "https://9to5mac.com/feed/",
-            "https://9to5mac.com/favicon.ico", "Tech"
+            "https://9to5mac.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "MacRumors", "https://feeds.macrumors.com/MacRumors-All",
-            "https://www.macrumors.com/favicon.ico", "Tech"
+            "https://www.macrumors.com/favicon.ico", CATEGORY_TECH
         ),
-        // --- Design ---
-        RecommendedSource(
-            "Smashing Magazine", "https://www.smashingmagazine.com/feed/",
-            "https://www.smashingmagazine.com/favicon.ico", "Design"
-        ),
-        RecommendedSource(
-            "Design Milk", "https://design-milk.com/feed/",
-            "https://design-milk.com/favicon.ico", "Design"
-        ),
-        // --- Chinese ---
         RecommendedSource(
             "36氪", "https://36kr.com/feed",
-            "https://36kr.com/favicon.ico", "中文"
+            "https://36kr.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "少数派", "https://sspai.com/feed",
-            "https://cdn-static.sspai.com/favicon/sspai.ico", "中文"
-        ),
-        RecommendedSource(
-            "虎嗅", "https://www.huxiu.com/rss/0.xml",
-            "https://www.huxiu.com/favicon.ico", "中文"
+            "https://cdn-static.sspai.com/favicon/sspai.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "爱范儿", "https://www.ifanr.com/feed",
-            "https://www.ifanr.com/favicon.ico", "中文"
-        ),
-        RecommendedSource(
-            "阮一峰的网络日志", "https://www.ruanyifeng.com/blog/atom.xml",
-            "https://www.ruanyifeng.com/favicon.ico", "中文"
-        ),
-        RecommendedSource(
-            "知乎日报", "https://news-at.zhihu.com/api/3/news/latest", // placeholder API, kept for future
-            "https://static.zhihu.com/heifetz/favicon.ico", "中文"
-        ),
-        RecommendedSource(
-            "V2EX", "https://www.v2ex.com/index.xml",
-            "https://www.v2ex.com/favicon.ico", "中文"
-        ),
-        // --- Japanese ---
-        RecommendedSource(
-            "NHK ニュース", "https://www3.nhk.or.jp/rss/news/cat0.xml",
-            "https://www3.nhk.or.jp/favicon.ico", "日本語"
-        ),
-        RecommendedSource(
-            "Yahoo!ニュース 主要", "https://news.yahoo.co.jp/pickup/domestic/rss.xml",
-            "https://s.yimg.jp/images/favicon.ico", "日本語"
+            "https://www.ifanr.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "ITmedia NEWS", "https://rss.itmedia.co.jp/rss/2.0/news.xml",
-            "https://www.itmedia.co.jp/favicon.ico", "日本語"
+            "https://www.itmedia.co.jp/favicon.ico", CATEGORY_TECH
         ),
-        // --- Korean ---
         RecommendedSource(
-            "연합뉴스 속보", "https://www.yonhapnewstv.co.kr/rss/news/1",
-            "https://www.yonhapnewstv.co.kr/favicon.ico", "한국어"
+            "V2EX", "https://www.v2ex.com/index.xml",
+            "https://www.v2ex.com/favicon.ico", CATEGORY_TECH
+        ),
+        RecommendedSource(
+            "阮一峰的网络日志", "https://www.ruanyifeng.com/blog/atom.xml",
+            "https://www.ruanyifeng.com/favicon.ico", CATEGORY_TECH
+        ),
+
+        // ---------- 医学 ----------
+        RecommendedSource(
+            "Nature Medicine", "https://www.nature.com/nm.rss",
+            "https://www.nature.com/apple-touch-icon.png", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "STAT", "https://www.statnews.com/feed/",
+            "https://www.statnews.com/apple-touch-icon.png", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "Medical News Today", "https://www.medicalnewstoday.com/rss",
+            "https://www.medicalnewstoday.com/apple-touch-icon.png", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "MedPage Today", "https://www.medpagetoday.com/rss/headlines.xml",
+            "https://www.medpagetoday.com/apple-touch-icon.png", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "WHO News", "https://www.who.int/rss-feeds/news-english.xml",
+            "https://www.who.int/apple-touch-icon.png", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "ScienceDaily Health", "https://www.sciencedaily.com/rss/health_medicine.xml",
+            "https://www.sciencedaily.com/apple-touch-icon.png", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "NEJM", "https://www.nejm.org/action/showFeed?type=etoc&feed=rss&jc=nejm",
+            "https://www.nejm.org/apple-touch-icon.png", CATEGORY_MEDICINE
+        ),
+
+        // ---------- 法学 ----------
+        RecommendedSource(
+            "SCOTUSblog", "https://www.scotusblog.com/feed/",
+            "https://www.scotusblog.com/apple-touch-icon.png", CATEGORY_LAW
+        ),
+        RecommendedSource(
+            "Above the Law", "https://abovethelaw.com/feed/",
+            "https://abovethelaw.com/apple-touch-icon.png", CATEGORY_LAW
+        ),
+        RecommendedSource(
+            "The Volokh Conspiracy", "https://reason.com/volokh/feed/",
+            "https://reason.com/apple-touch-icon.png", CATEGORY_LAW
+        ),
+        RecommendedSource(
+            "Lawfare", "https://www.lawfaremedia.org/feed",
+            "https://www.lawfaremedia.org/apple-touch-icon.png", CATEGORY_LAW
+        ),
+        RecommendedSource(
+            "JURIST", "https://www.jurist.org/feed/",
+            "https://www.jurist.org/apple-touch-icon.png", CATEGORY_LAW
+        ),
+
+        // ---------- 历史 ----------
+        RecommendedSource(
+            "History Today", "https://www.historytoday.com/rss.xml",
+            "https://www.historytoday.com/apple-touch-icon.png", CATEGORY_HISTORY
+        ),
+        RecommendedSource(
+            "JSTOR Daily", "https://daily.jstor.org/feed/",
+            "https://daily.jstor.org/apple-touch-icon.png", CATEGORY_HISTORY
+        ),
+        RecommendedSource(
+            "Smithsonian History", "https://www.smithsonianmag.com/rss/history/",
+            "https://www.smithsonianmag.com/apple-touch-icon.png", CATEGORY_HISTORY
+        ),
+        RecommendedSource(
+            "The Conversation · History", "https://theconversation.com/uk/history/articles.atom",
+            "https://theconversation.com/apple-touch-icon.png", CATEGORY_HISTORY
+        ),
+        RecommendedSource(
+            "Medievalists.net", "https://www.medievalists.net/feed/",
+            "https://www.medievalists.net/apple-touch-icon.png", CATEGORY_HISTORY
+        ),
+
+        // ---------- 文化 ----------
+        RecommendedSource(
+            "The New Yorker", "https://www.newyorker.com/feed/everything",
+            "https://www.newyorker.com/apple-touch-icon.png", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "Aeon", "https://aeon.co/feed.rss",
+            "https://aeon.co/apple-touch-icon.png", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "Literary Hub", "https://lithub.com/feed/",
+            "https://lithub.com/apple-touch-icon.png", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "The Paris Review", "https://www.theparisreview.org/blog/feed/",
+            "https://www.theparisreview.org/apple-touch-icon.png", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "Design Milk", "https://design-milk.com/feed/",
+            "https://design-milk.com/favicon.ico", CATEGORY_CULTURE
         ),
     )
 
-    fun byCategory(): Map<String, List<RecommendedSource>> = all.groupBy { it.category }
+    fun byCategory(key: String): List<RecommendedSource> = all.filter { it.category == key }
+
+    /** Falls back to the full list when a route carries an unknown key. */
+    fun byCategoryOrAll(key: String): List<RecommendedSource> =
+        byCategory(key).ifEmpty { all }
 }

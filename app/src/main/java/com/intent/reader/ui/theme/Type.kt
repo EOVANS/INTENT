@@ -7,6 +7,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
 import java.io.File
 
@@ -86,17 +87,58 @@ object IntentFonts {
     }
 
     /** Loads a user-imported font file; returns null when unusable. */
-    fun fromFile(path: String): FontFamily? {
+    fun fromFile(path: String, weight: Int = 400): FontFamily? {
         val f = File(path)
         if (!f.exists() || f.length() == 0L) return null
         return try {
             // Sanity check with platform Typeface before creating Compose font
             Typeface.createFromFile(f)
-            FontFamily(Font(f))
+            val axis = weightAxis(f)
+            if (axis != null) FontFamily(Font(f, variationSettings = FontVariation.Settings(FontVariation.weight(weight.coerceIn(axis.first, axis.last)))))
+            else FontFamily(Font(f))
         } catch (_: Exception) {
             null
         }
     }
+
+    /** Reads the OpenType fvar table and returns the supported wght axis, if present. */
+    fun weightAxis(file: File): IntRange? = runCatching {
+        java.io.RandomAccessFile(file, "r").use { input ->
+            if (input.length() < 12) return@use null
+            input.seek(4)
+            val count = input.readUnsignedShort()
+            if (12L + count * 16L > input.length()) return@use null
+            var offset = -1L
+            var length = 0L
+            repeat(count) { index ->
+                input.seek(12L + index * 16L)
+                val tag = input.readInt()
+                input.skipBytes(4)
+                val tableOffset = input.readInt().toLong() and 0xffffffffL
+                val tableLength = input.readInt().toLong() and 0xffffffffL
+                if (tag == 0x66766172) { offset = tableOffset; length = tableLength }
+            }
+            if (offset < 0 || length < 16 || offset + length > input.length()) return@use null
+            input.seek(offset + 4)
+            val axisOffset = input.readUnsignedShort()
+            input.skipBytes(2)
+            val axisCount = input.readUnsignedShort()
+            val axisSize = input.readUnsignedShort()
+            if (axisSize < 20 || axisOffset.toLong() + axisCount.toLong() * axisSize > length) return@use null
+            for (index in 0 until axisCount) {
+                input.seek(offset + axisOffset + index.toLong() * axisSize)
+                if (input.readInt() == 0x77676874) {
+                    val min = input.readInt() / 65536f
+                    input.readInt()
+                    val max = input.readInt() / 65536f
+                    val low = kotlin.math.ceil(min.toDouble()).toInt().coerceAtLeast(1)
+                    val high = kotlin.math.floor(max.toDouble()).toInt().coerceAtMost(1000)
+                    return@use if (low < high) low..high else null
+                }
+            }
+            null
+        }
+    }.getOrNull()
 }
 
 /**

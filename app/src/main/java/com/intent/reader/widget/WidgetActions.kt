@@ -17,10 +17,14 @@ fun openAppAction(context: Context): Action =
     actionStartActivity(Intent(context, MainActivity::class.java))
 
 fun openArticleAction(context: Context, articleId: String): Action =
-    actionStartActivity(
-        Intent(context, MainActivity::class.java)
-            .putExtra(MainActivity.EXTRA_ARTICLE_ID, articleId),
-    )
+    actionStartActivity(articleIntent(context, articleId))
+
+/** Extras do not identify PendingIntents: a distinct data URI keeps each article's tap separate. */
+internal fun articleIntent(context: Context, articleId: String): Intent =
+    Intent(context, MainActivity::class.java)
+        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        .setData(android.net.Uri.Builder().scheme("intent-reader").authority("widget").appendPath(articleId).build())
+        .putExtra(MainActivity.EXTRA_ARTICLE_ID, articleId)
 
 /**
  * Bottom-right chevron: advances the article window by one. The target widget

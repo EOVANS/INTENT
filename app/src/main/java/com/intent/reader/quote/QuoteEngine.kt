@@ -1,15 +1,13 @@
 package com.intent.reader.quote
 
 import kotlin.math.max
-import kotlin.math.min
+import com.intent.reader.rss.HtmlText
 
 /**
  * Rule-based daily quote engine (doc section 6). Pure functions, offline,
  * O(text size) — no ML models. Deterministic for a given article set.
  */
 object QuoteEngine {
-
-    private const val BEST_THRESHOLD = 5
 
     data class CandidateArticle(
         val articleId: String,
@@ -18,6 +16,7 @@ object QuoteEngine {
         val isRecommendedSource: Boolean,
         val title: String,
         val summary: String?, // plain text
+        val contentHtml: String? = null,
     )
 
     data class Highlight(val start: Int, val end: Int) // end exclusive
@@ -43,56 +42,56 @@ object QuoteEngine {
         "Everything should be made as simple as possible.",
     )
 
-    fun generate(articles: List<CandidateArticle>): QuoteResult {
-        data class Scored(
-            val text: String,
-            val score: Int,
-            val articleId: String,
-            val sourceId: String,
-            val sourceTitle: String,
-            val articleSummary: String?,
-        )
+    private data class Scored(
+        val text: String,
+        val score: Int,
+        val articleId: String,
+        val sourceId: String,
+        val sourceTitle: String,
+        val articleSummary: String?,
+    )
 
-        val scored = mutableListOf<Scored>()
+    private fun scoreAll(articles: List<CandidateArticle>): List<Scored> {
+        // Keep provenance ahead of scoring: a catchy headline or summary must
+        // never displace an eligible excerpt from an article's actual body.
+        val body = articles.flatMap { scoreText(it, it.contentHtml.orEmpty()) }
+        return body.ifEmpty {
+            articles.flatMap { scoreText(it, it.summary.orEmpty()) }
+        }
+    }
 
-        for (article in articles) {
-            // Title as candidate (title rewrite bonus +3)
-            val title = article.title.trim()
-            if (isEligible(title, isTitle = true)) {
-                scored += Scored(
-                    text = title,
-                    score = scoreSentence(title, isFirst = true) + 3 +
+    private fun scoreText(article: CandidateArticle, html: String): List<Scored> {
+        return sourceSentences(html).asSequence()
+            .filter { it != article.title.trim() && isEligible(it, isTitle = false) }
+            .mapIndexed { i, sentence ->
+                Scored(
+                    text = sentence,
+                    score = scoreSentence(sentence, isFirst = i == 0) +
+                        (if (i == 0) 3 else 0) +
                         (if (article.isRecommendedSource) 1 else 0),
                     articleId = article.articleId,
                     sourceId = article.sourceId,
                     sourceTitle = article.sourceTitle,
                     articleSummary = article.summary?.take(80),
                 )
-            }
-            val summary = article.summary?.trim().orEmpty()
-            if (summary.isNotEmpty()) {
-                val sentences = splitSentences(summary)
-                sentences.forEachIndexed { i, s ->
-                    val clean = s.trim()
-                    if (isEligible(clean, isTitle = false)) {
-                        val first = i == 0
-                        scored += Scored(
-                            text = clean,
-                            score = scoreSentence(clean, isFirst = first) +
-                                (if (first) 3 else 0) +
-                                (if (article.isRecommendedSource) 1 else 0),
-                            articleId = article.articleId,
-                            sourceId = article.sourceId,
-                            sourceTitle = article.sourceTitle,
-                            articleSummary = article.summary?.take(80),
-                        )
-                    }
-                }
-            }
-        }
+            }.toList()
+    }
 
+    internal fun sourceSentences(html: String): List<String> {
+        // Preserve HTML paragraph boundaries before stripping tags so unrelated
+        // paragraphs cannot be joined into an invented sentence.
+        val paragraphs = html
+            .replace(Regex("(?is)<(script|style)[^>]*>.*?</\\1>"), "")
+            .replace(Regex("(?i)<br\\b[^>]*>|</(?:p|div|li|h[1-6]|tr|blockquote)>"), "\n")
+        return paragraphs.lineSequence()
+            .flatMap { splitSentences(HtmlText.toPlain(it)).asSequence() }
+            .toList()
+    }
+
+    fun generate(articles: List<CandidateArticle>): QuoteResult {
+        val scored = scoreAll(articles)
         val best = scored.maxByOrNull { it.score }
-        if (best != null && best.score >= BEST_THRESHOLD) {
+        if (best != null) {
             val highlights = extractHighlights(best.text)
             return QuoteResult(
                 text = best.text,
@@ -105,8 +104,10 @@ object QuoteEngine {
             )
         }
 
-        // Fallback 1: first article from the highest-weight source, use its title
-        val fallbackArticle = articles.firstOrNull { it.isRecommendedSource } ?: articles.firstOrNull()
+        // Headlines are only a last resort when neither body nor summary has
+        // an eligible sentence, regardless of their keyword score.
+        val titledArticles = articles.filter { it.title.isNotBlank() }
+        val fallbackArticle = titledArticles.firstOrNull { it.isRecommendedSource } ?: titledArticles.firstOrNull()
         if (fallbackArticle != null && fallbackArticle.title.isNotBlank()) {
             val t = truncate(fallbackArticle.title.trim())
             return QuoteResult(
@@ -121,7 +122,7 @@ object QuoteEngine {
         }
 
         // Fallback 2: built-in copy, no source -> UI hides button & meta line
-        val pick = fallbackQuotes[(articles.size + System.currentTimeMillis().toInt()) % fallbackQuotes.size]
+        val pick = fallbackQuotes[Math.floorMod(articles.size + System.currentTimeMillis().toInt(), fallbackQuotes.size)]
         return QuoteResult(
             text = pick,
             highlights = emptyList(),
@@ -133,7 +134,37 @@ object QuoteEngine {
         )
     }
 
-    /** Sentence splitter: CJK and latin terminators, newlines. */
+    /**
+     * Top quotes for home-header rotation: best first, de-duplicated by text,
+     * at most one per article for variety. Only eligible body/summary excerpts
+     * are returned; the list may be empty (callers fall back to
+     * [generate]'s single result).
+     */
+    fun ranked(articles: List<CandidateArticle>, max: Int): List<QuoteResult> {
+        val out = mutableListOf<QuoteResult>()
+        val seenTexts = mutableSetOf<String>()
+        val seenArticles = mutableSetOf<String>()
+        val sorted = scoreAll(articles)
+            .sortedByDescending { it.score }
+        for (s in sorted) {
+            if (s.text in seenTexts || s.articleId in seenArticles) continue
+            seenTexts += s.text
+            seenArticles += s.articleId
+            out += QuoteResult(
+                text = s.text,
+                highlights = extractHighlights(s.text),
+                articleId = s.articleId,
+                sourceId = s.sourceId,
+                sourceTitle = s.sourceTitle,
+                articleSummary = s.articleSummary,
+                isFallback = false,
+            )
+            if (out.size >= max) break
+        }
+        return out
+    }
+
+    /** Split at CJK/Latin terminators and newlines, retaining original punctuation. */
     fun splitSentences(text: String): List<String> {
         val parts = StringBuilder()
         val out = mutableListOf<String>()
@@ -142,13 +173,18 @@ object QuoteEngine {
         while (i < n) {
             val c = text[i]
             when {
-                c == '。' || c == '！' || c == '？' || c == '；' || c == '…' || c == '\n' || c == '！' -> {
+                c == '\n' || c == '\r' -> flush(parts, out)
+                c == '。' || c == '！' || c == '？' || c == '；' || c == '…' -> {
+                    parts.append(c)
+                    while (i + 1 < n && text[i + 1] in "”’\"」』") parts.append(text[++i])
                     flush(parts, out)
                 }
                 c == '.' || c == '!' || c == '?' || c == ';' -> {
                     // Latin terminator only when followed by space/end (avoid U.S., e.g.)
                     val next = if (i + 1 < n) text[i + 1] else ' '
-                    if (next == ' ' || next == '　' || i + 1 >= n) {
+                    if (next.isWhitespace() || next in "”’\"」』" || i + 1 >= n) {
+                        parts.append(c)
+                        while (i + 1 < n && text[i + 1] in "”’\"」』") parts.append(text[++i])
                         flush(parts, out)
                     } else {
                         parts.append(c)

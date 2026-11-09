@@ -13,20 +13,29 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Gavel
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.Memory
+import androidx.compose.material.icons.outlined.Newspaper
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHost
@@ -41,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -49,49 +59,64 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.intent.reader.R
 import com.intent.reader.data.assets.RecommendedSources
+import com.intent.reader.data.repo.SourceRepository.AddSourceError
 import com.intent.reader.domain.CardStyle
 import com.intent.reader.ui.components.ArticleCard
+import com.intent.reader.ui.components.HeaderIconButton
 import com.intent.reader.ui.components.SourceLogo
 import com.intent.reader.ui.theme.IntentDimens
 import com.intent.reader.ui.theme.IntentTheme
 import kotlinx.coroutines.launch
 
-/** Search page: URL adding, recommended hero strip, local article search (doc 4.2). */
+/** Search page: URL adding, category hero strip, local article search (doc 4.2). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     state: SearchUiState,
+    onBack: () -> Unit,
     onQueryChange: (String) -> Unit,
-    onAddSource: (String, (Boolean) -> Unit) -> Unit,
-    onAddRecommended: (String, (Boolean) -> Unit) -> Unit,
+    onAddSource: (String, (AddSourceError?) -> Unit) -> Unit,
+    onOpenCategory: (String) -> Unit,
     onOpenAllArticles: () -> Unit,
     onOpenSources: () -> Unit,
     onOpenSource: (String) -> Unit,
     onOpenArticle: (String) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val successMsg = stringResource(R.string.add_source_success)
-    val failedMsg = stringResource(R.string.add_source_failed)
+    val invalidMsg = stringResource(R.string.add_source_invalid)
+    val notFoundMsg = stringResource(R.string.add_source_not_found)
+    val badFormatMsg = stringResource(R.string.add_source_bad_format)
     var input by remember { mutableStateOf("") }
     // Edge-to-edge: the list has to clear the status bar itself.
     val statusBarTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
+    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    val bottomClearance = if (imeVisible) 12.dp else contentPadding.calculateBottomPadding()
 
     fun submit() {
         val v = input.trim()
         when {
             v.startsWith("http://") || v.startsWith("https://") ||
                 (v.contains(".") && !v.contains(" ")) -> {
-                onAddSource(v) { ok ->
+                onAddSource(v) { error ->
                     scope.launch {
-                        if (ok) {
+                        if (error == null) {
                             input = ""
-                            snackbar.showSnackbar(successMsg)
-                        } else {
-                            snackbar.showSnackbar(failedMsg)
                         }
+                        // Replace any queued message so every attempt shows its own result.
+                        snackbar.currentSnackbarData?.dismiss()
+                        snackbar.showSnackbar(
+                            when (error) {
+                                null -> successMsg
+                                AddSourceError.INVALID -> invalidMsg
+                                AddSourceError.NOT_FOUND -> notFoundMsg
+                                AddSourceError.BAD_FORMAT -> badFormatMsg
+                            }
+                        )
                     }
                 }
             }
@@ -99,19 +124,24 @@ fun SearchScreen(
         }
     }
 
-    Box(Modifier.fillMaxSize().background(c.bg)) {
+    Box(Modifier.fillMaxSize().background(c.bg).imePadding()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 start = IntentDimens.pageHMarginPhone.dp,
                 end = IntentDimens.pageHMarginPhone.dp,
                 top = statusBarTop + 24.dp,
-                bottom = 120.dp,
+                // Keep the viewport full-height; only the scrollable content needs
+                // clearance for the floating bar. Outer padding clips rows early.
+                bottom = bottomClearance + 16.dp,
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                Text(stringResource(R.string.tab_search), style = t.pageTitle)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                    Text(stringResource(R.string.tab_search), style = t.pageTitle)
+                }
             }
             item {
                 OutlinedTextField(
@@ -160,7 +190,7 @@ fun SearchScreen(
                     }
                 }
             } else {
-                // Recommended hero strip (doc 4.2.2)
+                // Category hero strip (doc 4.2.2): each tile opens its preset feeds.
                 item {
                     Text(stringResource(R.string.recommended_sources), style = t.sectionTitle)
                     Spacer(Modifier.height(8.dp))
@@ -175,12 +205,11 @@ fun SearchScreen(
                             Modifier.horizontalScroll(rememberScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
-                            RecommendedSources.all.forEach { rs ->
-                                HeroSource(
-                                    name = rs.name,
-                                    logoUrl = rs.logoUrl,
-                                    subscribed = state.sources.any { it.feedUrl == rs.feedUrl },
-                                    onClick = { onAddRecommended(rs.feedUrl) {} },
+                            RecommendedSources.categories.forEach { key ->
+                                CategoryTile(
+                                    name = categoryLabel(key),
+                                    icon = categoryIcon(key),
+                                    onClick = { onOpenCategory(key) },
                                 )
                             }
                         }
@@ -207,12 +236,41 @@ fun SearchScreen(
                 item { EntryRow(stringResource(R.string.my_sources)) { onOpenSources() } }
             }
         }
-        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
+        // Lift the snackbar clear of the floating glass tab bar, and above the
+        // soft keyboard so an add result is never hidden while the field is focused.
+        SnackbarHost(
+            snackbar,
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = bottomClearance),
+        )
     }
 }
 
+/** Localized label for a RecommendedSources category key. */
 @Composable
-private fun HeroSource(name: String, logoUrl: String, subscribed: Boolean, onClick: () -> Unit) {
+fun categoryLabel(key: String): String = stringResource(
+    when (key) {
+        RecommendedSources.CATEGORY_TECH -> R.string.category_tech
+        RecommendedSources.CATEGORY_MEDICINE -> R.string.category_medicine
+        RecommendedSources.CATEGORY_LAW -> R.string.category_law
+        RecommendedSources.CATEGORY_HISTORY -> R.string.category_history
+        RecommendedSources.CATEGORY_CULTURE -> R.string.category_culture
+        else -> R.string.category_news
+    }
+)
+
+private fun categoryIcon(key: String): ImageVector = when (key) {
+    RecommendedSources.CATEGORY_TECH -> Icons.Outlined.Memory
+    RecommendedSources.CATEGORY_MEDICINE -> Icons.Outlined.MedicalServices
+    RecommendedSources.CATEGORY_LAW -> Icons.Outlined.Gavel
+    RecommendedSources.CATEGORY_HISTORY -> Icons.Outlined.History
+    RecommendedSources.CATEGORY_CULTURE -> Icons.Outlined.Palette
+    else -> Icons.Outlined.Newspaper
+}
+
+@Composable
+private fun CategoryTile(name: String, icon: ImageVector, onClick: () -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Column(
@@ -221,7 +279,15 @@ private fun HeroSource(name: String, logoUrl: String, subscribed: Boolean, onCli
             .width(64.dp)
             .clickable(onClick = onClick),
     ) {
-        SourceLogo(logoUrl, name, 44.dp)
+        Box(
+            Modifier
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(c.surface),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(icon, contentDescription = null, tint = c.accent, modifier = Modifier.size(22.dp))
+        }
         Spacer(Modifier.height(4.dp))
         Text(
             text = name,
@@ -229,12 +295,6 @@ private fun HeroSource(name: String, logoUrl: String, subscribed: Boolean, onCli
             color = c.text,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = stringResource(if (subscribed) R.string.subscribed else R.string.subscribe),
-            style = t.micro,
-            color = c.textSecondary,
-            maxLines = 1,
         )
     }
 }

@@ -56,32 +56,14 @@ class TodaySmallWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val fresh = WidgetLoader.load(context)
-        val size = fresh.articles.size
-        val startIndex = if (size == 0) 0 else Math.floorMod(
-            androidx.glance.appwidget.state.getAppWidgetState(
-                context, PreferencesGlanceStateDefinition, id,
-            )[WidgetKeys.startIndex] ?: 0,
-            size,
-        )
-        updateAppWidgetState(context, id) { prefs ->
-            prefs[WidgetKeys.accentColor] = fresh.accentColor
-            prefs[WidgetKeys.themeMode] = fresh.themeMode
-            prefs[WidgetKeys.style] = fresh.style
-            prefs[WidgetKeys.articlesJson] = WidgetStateCodec.encodeArticles(fresh.articles)
-            prefs[WidgetKeys.startIndex] = startIndex
-        }
-        if (fresh.style == "image") {
-            val featured = fresh.articles.getOrNull(startIndex)
-            val bg = WidgetLoader.loadBitmap(context, featured?.imageUrl, 640, 320)
-            val logo = WidgetLoader.loadBitmap(context, featured?.sourceLogoUrl, 96, 96)
-                ?.let { WidgetLoader.circleCrop(it, 96) }
-            provideContent {
-                ImageStyleContent(currentState<Preferences>().toWidgetSnapshot(), bg, logo, large = false)
-            }
-        } else {
-            val thumbs = WidgetLoader.loadThumbs(context, fresh.articles, maxCount = 3, sizePx = 96)
-            provideContent {
-                SmallWidgetContent(currentState<Preferences>().toWidgetSnapshot(), thumbs)
+        updateAppWidgetState(context, id) { it.putWidgetData(fresh) }
+        provideContent {
+            val snapshot = currentState<Preferences>().toWidgetSnapshot()
+            val artwork = widgetArtwork(snapshot, 96, 640, 320)
+            if (snapshot.style == "image") {
+                ImageStyleContent(snapshot, artwork.images, artwork.logos, large = false)
+            } else {
+                SmallWidgetContent(snapshot, artwork.thumbs)
             }
         }
     }

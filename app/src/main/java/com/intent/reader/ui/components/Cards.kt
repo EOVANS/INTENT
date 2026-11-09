@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -164,11 +165,12 @@ private fun buildDescription(sourceTitle: String, article: Article): String =
 
 /** Style A: big image top, white text area below (doc 5.1). */
 @Composable
-fun CardA(article: Article, sourceTitle: String, sourceLogo: String?, onClick: () -> Unit) {
+fun CardA(article: Article, sourceTitle: String, sourceLogo: String?, onClick: () -> Unit, aligned: Boolean = false) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Column(
-        modifier = baseCardModifier(onClick, buildDescription(sourceTitle, article))
+        modifier = (if (aligned) Modifier.fillMaxWidth().aspectRatio(3f / 4f) else Modifier)
+            .then(baseCardModifier(onClick, buildDescription(sourceTitle, article)))
     ) {
         Box(modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)) {
             ArticleImage(article.imageUrl, Modifier.fillMaxSize())
@@ -191,16 +193,17 @@ fun CardA(article: Article, sourceTitle: String, sourceLogo: String?, onClick: (
 
 /** Style B: full-bleed image + gradient scrim + white title (doc 5.2). */
 @Composable
-fun CardB(article: Article, sourceTitle: String, sourceLogo: String?, onClick: () -> Unit) {
+fun CardB(article: Article, sourceTitle: String, sourceLogo: String?, onClick: () -> Unit, aligned: Boolean = false) {
     BoxWithConstraints(
-        modifier = baseCardModifier(onClick, buildDescription(sourceTitle, article))
+        modifier = (if (aligned) Modifier.fillMaxWidth().aspectRatio(3f / 4f) else Modifier)
+            .then(baseCardModifier(onClick, buildDescription(sourceTitle, article)))
     ) {
         // When promoted to the full row (orphan of an odd half-width run) a 3:4
         // portrait crop would be absurdly tall, so widen it to 16:9 instead.
         val imageRatio = if (maxWidth >= 320.dp) 16f / 9f else 3f / 4f
         ArticleImage(
             article.imageUrl,
-            Modifier.fillMaxWidth().aspectRatio(imageRatio),
+            if (aligned) Modifier.fillMaxSize() else Modifier.fillMaxWidth().aspectRatio(imageRatio),
         )
         // Progressive blur: a duplicate of the image sits exactly on top of the
         // base, blurred and masked by a vertical gradient so the blur fades in
@@ -318,24 +321,43 @@ fun CardC(article: Article, sourceTitle: String, sourceLogo: String?, onClick: (
 /** Style D: text-only horizontal card (doc 5.4). */
 @Composable
 fun CardD(article: Article, sourceTitle: String, sourceLogo: String?, onClick: () -> Unit) {
+    TextStoryCard(article.title, article.summary, sourceTitle, sourceLogo, onClick, emphasized = !article.isRead)
+}
+
+/** Shared text card for RSS stories and local notes; both use the same type and surface rules. */
+@Composable
+fun TextStoryCard(
+    title: String,
+    preview: String?,
+    sourceTitle: String,
+    sourceLogo: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    emphasized: Boolean = true,
+    imageUrl: String? = null,
+) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Column(
-        modifier = baseCardModifier(onClick, buildDescription(sourceTitle, article))
+        modifier = modifier.then(baseCardModifier(onClick, "$sourceTitle: $title"))
             .padding(IntentDimens.cardInnerPadding.dp)
     ) {
+        if (!imageUrl.isNullOrBlank()) {
+            ArticleImage(imageUrl, Modifier.fillMaxWidth().height(112.dp), corner = 12)
+            Spacer(Modifier.height(8.dp))
+        }
         SourceBadge(sourceTitle, sourceLogo, dark = false)
         Spacer(Modifier.height(8.dp))
         Text(
-            text = article.title.withCjkSpacing(),
+            text = title.withCjkSpacing(),
             style = t.cardTitle.copy(
-                fontWeight = if (!article.isRead) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (!article.isRead) c.text else c.textSecondary,
+                fontWeight = if (emphasized) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (emphasized) c.text else c.textSecondary,
             ),
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
-        article.summary?.let {
+        preview?.let {
             Spacer(Modifier.height(4.dp))
             Text(
                 text = it.withCjkSpacing(),
@@ -356,9 +378,13 @@ fun CardE(
     items: List<Article>,
     onViewAll: () -> Unit,
     onArticle: (Article) -> Unit,
+    articleTransitionModifier: @Composable (Article) -> Modifier = { Modifier },
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
+    // A LazyGrid virtualizes cards, not the hundreds of rows inside one card.
+    // Keep the aggregate a bounded preview; its source page is already lazy.
+    val preview = items.take(5)
     Column(
         modifier = baseCardModifier(onViewAll, "$sourceTitle, ${items.size}")
             .padding(vertical = 6.dp)
@@ -380,9 +406,9 @@ fun CardE(
                     .padding(horizontal = 10.dp, vertical = 2.dp),
             )
         }
-        items.forEachIndexed { i, a ->
+        preview.forEachIndexed { i, a ->
             Row(
-                Modifier
+                articleTransitionModifier(a)
                     .fillMaxWidth()
                     .clickable { onArticle(a) }
                     .padding(horizontal = IntentDimens.cardInnerPadding.dp, vertical = 10.dp),
@@ -402,7 +428,7 @@ fun CardE(
                 )
                 ArticleImage(a.imageUrl, Modifier.size(56.dp), corner = 8)
             }
-            if (i < items.size - 1) {
+            if (i < preview.lastIndex) {
                 Box(
                     Modifier
                         .padding(horizontal = IntentDimens.cardInnerPadding.dp)
@@ -410,6 +436,11 @@ fun CardE(
                         .height(1.dp)
                         .background(c.divider)
                 )
+            }
+        }
+        if (items.size > preview.size) {
+            TextButton(onClick = onViewAll, modifier = Modifier.align(Alignment.End).padding(end = 8.dp)) {
+                Text(stringResource(R.string.view_all) + " →", style = t.meta, color = c.accent)
             }
         }
         Spacer(Modifier.height(4.dp))
@@ -424,12 +455,13 @@ fun ArticleCard(
     sourceTitle: String,
     sourceLogo: String?,
     onClick: () -> Unit,
+    aligned: Boolean = false,
 ) {
     when (style) {
-        CardStyle.A -> CardA(article, sourceTitle, sourceLogo, onClick)
-        CardStyle.B -> CardB(article, sourceTitle, sourceLogo, onClick)
+        CardStyle.A -> CardA(article, sourceTitle, sourceLogo, onClick, aligned)
+        CardStyle.B -> CardB(article, sourceTitle, sourceLogo, onClick, aligned)
         CardStyle.C -> CardC(article, sourceTitle, sourceLogo, onClick)
         CardStyle.D -> CardD(article, sourceTitle, sourceLogo, onClick)
-        CardStyle.E -> CardE(sourceTitle, sourceLogo, listOf(article), onClick) {}
+        CardStyle.E -> CardE(sourceTitle, sourceLogo, listOf(article), onClick, onArticle = { onClick() })
     }
 }

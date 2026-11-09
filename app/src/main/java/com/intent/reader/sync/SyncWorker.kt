@@ -10,11 +10,20 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import coil.imageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import android.graphics.drawable.BitmapDrawable
 import com.intent.reader.IntentApplication
-import com.intent.reader.data.db.Article
-import com.intent.reader.data.repo.SourceRepository
-import com.intent.reader.rss.HtmlText
 import com.intent.reader.widget.IntentWidgets
+import com.intent.reader.widget.WidgetLoader
+import com.intent.reader.widget.WidgetArtworkStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
@@ -31,55 +40,8 @@ class SyncWorker(appContext: Context, params: WorkerParameters) :
         val sources = db.sourceDao().getAll()
         if (sources.isEmpty()) return Result.success()
 
-        for (source in sources) {
-            when (val r = container.feedFetcher.fetch(source)) {
-                is FeedFetcher.FetchResult.Ok -> {
-                    val now = System.currentTimeMillis()
-                    val entities = r.feed.items.map { item ->
-                        val summaryPlain = item.summaryHtml?.let { HtmlText.toPlain(it) }?.take(400)
-                        val image = item.imageUrl
-                            ?: HtmlText.firstImageUrl(item.contentHtml)
-                            ?: item.summaryHtml?.let { HtmlText.firstImageUrl(it) }
-                        val guid = item.guid.ifBlank { item.link.ifBlank { item.title } }
-                        Article(
-                            id = SourceRepository.idFor(guid),
-                            sourceId = source.id,
-                            guid = guid,
-                            title = item.title,
-                            link = item.link,
-                            author = item.author,
-                            summary = summaryPlain,
-                            contentHtml = item.contentHtml ?: item.summaryHtml,
-                            imageUrl = image,
-                            publishedAt = if (item.publishedAt > 0) item.publishedAt else now,
-                            fetchedAt = now,
-                            cardStyle = null,
-                        )
-                    }
-                    db.articleDao().insertAll(entities)
-                    db.sourceDao().update(
-                        source.copy(
-                            etag = r.etag,
-                            lastModified = r.lastModified,
-                            lastFetchedAt = now,
-                            lastError = null,
-                            title = if (source.title == source.feedUrl && r.feed.title.isNotBlank())
-                                r.feed.title else source.title,
-                            siteUrl = source.siteUrl ?: r.feed.siteUrl,
-                            logoUrl = source.logoUrl ?: r.feed.iconUrl,
-                        )
-                    )
-                }
-                is FeedFetcher.FetchResult.NotModified -> {
-                    db.sourceDao().update(source.copy(lastFetchedAt = System.currentTimeMillis()))
-                }
-                is FeedFetcher.FetchResult.Failed -> {
-                    db.sourceDao().update(
-                        source.copy(lastError = r.message.take(200))
-                    )
-                }
-            }
-        }
+        // Fetch, parse and upsert each feed; lastError/lastFetchedAt live in FeedSyncer.
+        sources.forEach { container.feedSyncer.sync(it) }
 
         // Retention cleanup
         val settings = container.settingsRepository.settings.first()
@@ -99,9 +61,44 @@ class SyncWorker(appContext: Context, params: WorkerParameters) :
         } catch (_: Exception) {
             // quote computation must never fail the sync
         }
-        // Fresh articles are in Room -> re-render any placed home-screen widgets.
+        // Fresh articles are in Room -> cache artwork and save widget snapshots
+        // so the widget can render every page after ordinary caches are cleared.
+        runCatching { prefetchWidgetImages() }
+        // Re-render any placed home-screen widgets.
         runCatching { IntentWidgets.refreshAll(applicationContext) }
         return Result.success()
+    }
+
+    /**
+     * Downloads the artwork of the eight articles the widget shows into Coil's
+     * disk cache and the widget's bounded snapshots. The app may use the network
+     * here; the widget itself only reads local artwork.
+     */
+    private suspend fun prefetchWidgetImages() {
+        val articles = WidgetLoader.load(applicationContext).articles
+        val urls = (articles.mapNotNull { it.imageUrl } + articles.mapNotNull { it.sourceLogoUrl })
+            .distinct()
+        val snapshots = WidgetArtworkStore(applicationContext)
+        coroutineScope {
+            urls.map { url ->
+                async {
+                    val request = ImageRequest.Builder(applicationContext)
+                        .data(url)
+                        .size(640, 640)
+                        .networkCachePolicy(CachePolicy.ENABLED)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .allowHardware(false)
+                        .build()
+                    runCatching {
+                        val result = applicationContext.imageLoader.execute(request) as? SuccessResult
+                        val bitmap = (result?.drawable as? BitmapDrawable)?.bitmap
+                        if (bitmap != null) withContext(Dispatchers.IO) { snapshots.save(url, bitmap) }
+                    }
+                }
+            }.awaitAll()
+        }
+        withContext(Dispatchers.IO) { snapshots.retain(urls.toSet()) }
     }
 
     companion object {

@@ -2,26 +2,60 @@ package com.intent.reader.widget
 
 import android.content.Context
 import android.os.Build
+import androidx.glance.GlanceId
+import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.updateAll
+import androidx.glance.appwidget.state.updateAppWidgetState
 
 /**
  * One entry point for "re-render every home-screen widget now". Called after
- * the accent color / theme mode is saved, and after each feed sync.
+ * the accent color / theme mode is saved, after each feed sync, and when the
+ * user switches the widget style.
+ *
+ * Glance's `update()` only re-runs `provideContent` for a live session, so the
+ * state is written first and the rendering branch reads it from there. That is
+ * what makes a style switch apply immediately instead of after a process
+ * restart.
  */
 object IntentWidgets {
 
     suspend fun refreshAll(context: Context) {
-        // No widgets placed yet -> updateAll is a no-op; failures must never
-        // break the caller (settings save / sync worker).
-        runCatching { TodayLargeWidget().updateAll(context) }
-        runCatching { TodaySmallWidget().updateAll(context) }
+        push(context, WidgetLoader.load(context))
+    }
+
+    /** Switches the style and repaints right away (no app restart needed). */
+    suspend fun setStyle(context: Context, style: String) {
+        push(context, WidgetLoader.load(context).copy(style = style))
+        publishPickerPreviews(context)
+    }
+
+    private suspend fun push(context: Context, fresh: WidgetLoader.FreshState) {
+        // No widgets placed yet -> nothing to push; failures must never break
+        // the caller (settings save / sync worker).
+        runCatching { pushOne(context, TodayLargeWidget(), fresh) }
+        runCatching { pushOne(context, TodaySmallWidget(), fresh) }
+    }
+
+    private suspend fun <W : GlanceAppWidget> pushOne(
+        context: Context,
+        widget: W,
+        fresh: WidgetLoader.FreshState,
+    ) {
+        val ids: List<GlanceId> =
+            runCatching { GlanceAppWidgetManager(context).getGlanceIds(widget.javaClass) }
+                .getOrDefault(emptyList())
+        for (id in ids) {
+            runCatching {
+                updateAppWidgetState(context, id) { it.putWidgetData(fresh) }
+                widget.update(context, id)
+            }
+        }
     }
 
     /**
      * Publishes generated (live RemoteViews) previews to the system widget
      * picker. Only available on API 35+; rate-limited by the system, so this
-     * is called once from application start and failures are ignored.
+     * is called once from application start and after a style switch.
      */
     suspend fun publishPickerPreviews(context: Context) {
         if (Build.VERSION.SDK_INT < 35) return

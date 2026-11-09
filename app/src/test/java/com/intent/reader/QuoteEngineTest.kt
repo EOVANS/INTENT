@@ -21,36 +21,45 @@ class QuoteEngineTest {
         recommended: Boolean = false,
         sourceId: String = "s1",
         sourceTitle: String = "The Verge",
+        contentHtml: String? = null,
     ) = QuoteEngine.CandidateArticle(
         articleId = id, sourceId = sourceId, sourceTitle = sourceTitle,
         isRecommendedSource = recommended, title = title, summary = summary,
+        contentHtml = contentHtml,
     )
 
     // ---------- splitSentences ----------
 
     @Test
     fun `split CJK by full stop`() {
-        // splitter drops terminators (quote card renders without trailing punctuation)
         val s = QuoteEngine.splitSentences("第一句。第二句。第三句")
-        assertEquals(listOf("第一句", "第二句", "第三句"), s)
+        assertEquals(listOf("第一句。", "第二句。", "第三句"), s)
     }
 
     @Test
     fun `split latin by dot only when followed by space`() {
         val s = QuoteEngine.splitSentences("Go to the U.S.A today.")
-        assertEquals(listOf("Go to the U.S.A today"), s)
+        assertEquals(listOf("Go to the U.S.A today."), s)
     }
 
     @Test
     fun `split latin normal sentences`() {
         val s = QuoteEngine.splitSentences("Hello world. Next one! Third?")
-        assertEquals(listOf("Hello world", "Next one", "Third"), s)
+        assertEquals(listOf("Hello world.", "Next one!", "Third?"), s)
     }
 
     @Test
     fun `split on newlines and semicolons`() {
         val s = QuoteEngine.splitSentences("A；B\nC")
-        assertEquals(listOf("A", "B", "C"), s)
+        assertEquals(listOf("A；", "B", "C"), s)
+    }
+
+    @Test
+    fun `split retains closing quotation marks`() {
+        assertEquals(
+            listOf("他说：“自由来自对生活的认真理解。”", "另一句话。"),
+            QuoteEngine.splitSentences("他说：“自由来自对生活的认真理解。”另一句话。"),
+        )
     }
 
     // ---------- isEligible ----------
@@ -226,16 +235,90 @@ class QuoteEngineTest {
     }
 
     @Test
-    fun `recommended source gets weight`() {
-        val rec = QuoteEngine.generate(
-            listOf(article("a1", "T1", "设计的本质是秩序，而非装饰，克制往往比堆砌更有力量。", recommended = true))
-        )
-        val nonRec = QuoteEngine.generate(
-            listOf(article("a1", "T1", "设计的本质是秩序，而非装饰，克制往往比堆砌更有力量。", recommended = false))
-        )
-        // +1 weight lets the recommended run cross the 5-point threshold and pick
-        // the sentence; the non-recommended run (4 points) falls back to the title.
-        assertTrue(rec.text.contains("设计的本质"))
-        assertEquals("T1", nonRec.text)
+    fun `recommended source breaks ties between excerpts`() {
+        val summary = "设计的本质是秩序，而非装饰，克制往往比堆砌更有力量。"
+        val result = QuoteEngine.generate(listOf(
+            article("a1", "T1", summary),
+            article("a2", "T2", summary, recommended = true),
+        ))
+        assertEquals("a2", result.articleId)
+        assertEquals(summary, result.text)
+    }
+
+    @Test
+    fun `body excerpt wins over catchy titles and summaries from all articles`() {
+        val body = "我们沿着河岸慢慢前行，观察两侧建筑与道路之间的细微变化。"
+        val result = QuoteEngine.generate(listOf(
+            article("headline", "自由与未来，改变世界的勇气与希望",
+                "他说：“自由是一种力量”，让我们拥有改变未来和世界的勇气。", recommended = true),
+            article("body", "普通的行走记录", contentHtml = "<p>$body</p>"),
+        ))
+        assertEquals("body", result.articleId)
+        assertEquals(body, result.text)
+    }
+
+    @Test
+    fun `summary excerpt wins over headline even without opinion keywords`() {
+        val summary = "我们沿着河岸慢慢前行，观察两侧建筑与道路之间的细微变化。"
+        assertEquals(summary, QuoteEngine.generate(listOf(
+            article("a1", "自由与未来，改变世界的勇气与希望", summary),
+        )).text)
+    }
+
+    @Test
+    fun `html paragraphs are not joined into fabricated excerpts`() {
+        val summary = "我们沿着河岸慢慢前行，观察两侧建筑与道路之间的细微变化。"
+        val result = QuoteEngine.generate(listOf(article(
+            "a1", "行走记录", summary,
+            contentHtml = "<p>我们沿着河岸慢慢前行</p><p>观察两侧建筑与道路</p>",
+        )))
+        assertEquals(summary, result.text)
+    }
+
+    @Test
+    fun `body parsing removes scripts and decodes entities`() {
+        val sentence = "Knowledge & wisdom grow when we take the time to understand other people."
+        val result = QuoteEngine.generate(listOf(article(
+            "a1", "A headline",
+            contentHtml = "<script>\nFreedom and hope change the world for everyone who believes in the future.\n</script>" +
+                "<p>Knowledge &amp; wisdom grow when we take the <b>time</b> to understand other people.</p>",
+        )))
+        assertEquals(sentence, result.text)
+    }
+
+    @Test
+    fun `body questions exclamations and ads are rejected before fallback`() {
+        val summary = "设计的本质是秩序，而非装饰，克制往往比堆砌更有力量。"
+        val result = QuoteEngine.generate(listOf(article(
+            "a1", "一份普通文章的标题", summary,
+            contentHtml = "<p>我们是否能够通过持续学习改变未来，并让所有人都拥有更多自由与希望？</p>" +
+                "<p>持续学习能够改变未来，让所有人都拥有更多自由与希望！</p>" +
+                "<p>订阅我们的频道，第一时间获取关于未来和自由的深刻观点。</p>",
+        )))
+        assertEquals(summary, result.text)
+    }
+
+    @Test
+    fun `repeated heading is not treated as body excerpt`() {
+        val title = "自由与未来，改变世界的勇气与希望始终来自持续学习"
+        val body = "我们沿着河岸慢慢前行，观察两侧建筑与道路之间的细微变化。"
+        assertEquals(body, QuoteEngine.generate(listOf(article(
+            "a1", title, contentHtml = "<h1>$title</h1><p>$body</p>",
+        ))).text)
+    }
+
+    @Test
+    fun `rotation uses distinct body excerpts instead of titles or summaries`() {
+        val first = "设计的本质是秩序，而非装饰，克制往往比堆砌更有力量。"
+        val second = "我们沿着河岸慢慢前行，观察两侧建筑与道路之间的细微变化。"
+        val summary = "他说：“自由是一种力量”，让我们拥有改变未来和世界的勇气。"
+        val ranked = QuoteEngine.ranked(listOf(
+            article("a1", "自由与未来，改变世界的勇气与希望", summary,
+                contentHtml = "<p>$first</p><p>$second</p>"),
+            article("a2", "自由与未来，改变世界的勇气与希望", summary,
+                contentHtml = "<p>$second</p>"),
+        ), 6)
+        assertEquals(listOf(first, second), ranked.map { it.text })
+        assertEquals(listOf("a1", "a2"), ranked.map { it.articleId })
     }
 }

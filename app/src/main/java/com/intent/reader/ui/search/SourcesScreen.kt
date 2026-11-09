@@ -3,29 +3,25 @@ package com.intent.reader.ui.search
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -45,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.intent.reader.R
 import com.intent.reader.data.db.Source
 import com.intent.reader.ui.components.SourceLogo
+import com.intent.reader.ui.components.HeaderIconButton
 import com.intent.reader.ui.theme.IntentDimens
 import com.intent.reader.ui.theme.IntentTheme
 import java.time.Instant
@@ -53,8 +50,8 @@ import java.time.format.DateTimeFormatter
 
 /**
  * Subscription management: logo, name, unread count, last update.
- * Click opens the source; long-press enters batch selection with pill-shaped
- * 删除 / 取消 actions in the top bar.
+ * Click opens the source; long-press enters batch selection with circular
+ * delete / cancel actions in the top bar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,24 +77,19 @@ fun SourcesScreen(
                 )
             },
             navigationIcon = {
-                IconButton(onClick = { if (sel == null) onBack() else selected = null }) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
-                }
+                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back),
+                    onClick = { if (sel == null) onBack() else selected = null })
             },
             actions = {
                 if (sel != null) {
-                    CapsuleAction(
-                        text = stringResource(R.string.delete),
+                    HeaderIconButton(
+                        icon = Icons.Outlined.DeleteOutline,
+                        label = stringResource(R.string.delete),
                         enabled = sel.isNotEmpty(),
-                    ) {
-                        sel.forEach(onRemove)
-                        selected = null
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    CapsuleAction(text = stringResource(android.R.string.cancel)) {
-                        selected = null
-                    }
-                    Spacer(Modifier.width(12.dp))
+                        onClick = { sel.forEach(onRemove); selected = null },
+                    )
+                    HeaderIconButton(Icons.Outlined.Close, stringResource(android.R.string.cancel),
+                        onClick = { selected = null })
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -132,22 +124,6 @@ fun SourcesScreen(
                 Box(Modifier.fillMaxWidth().height(1.dp).background(c.divider))
             }
         }
-    }
-}
-
-/** Pill-shaped top-bar action used in batch-selection mode. */
-@Composable
-private fun CapsuleAction(text: String, enabled: Boolean = true, onClick: () -> Unit) {
-    val c = IntentTheme.colors
-    val t = IntentTheme.typography
-    Box(
-        Modifier
-            .clip(RoundedCornerShape(50))
-            .background(c.card)
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
-    ) {
-        Text(text, style = t.meta, color = if (enabled) c.text else c.textSecondary)
     }
 }
 
@@ -209,6 +185,15 @@ private fun SourceRow(
                 style = t.meta,
                 color = c.textSecondary,
             )
+            source.lastError?.let { err ->
+                Text(
+                    text = stringResource(R.string.sync_failed_fmt).format(err),
+                    style = t.micro,
+                    color = c.accent,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         if (!selectionMode) Text("→", style = t.body, color = c.textSecondary)
     }

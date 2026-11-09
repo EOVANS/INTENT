@@ -12,18 +12,23 @@ import android.speech.tts.Voice
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,11 +39,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -49,6 +60,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -59,21 +71,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.selectable
+import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.intent.reader.IntentApplication
 import com.intent.reader.R
+import com.intent.reader.ui.components.HeaderIconButton
+import com.intent.reader.data.CacheCleaner
 import com.intent.reader.data.prefs.SettingsState
 import com.intent.reader.data.prefs.ThemeMode
 import com.intent.reader.ui.theme.AccentPresets
 import com.intent.reader.ui.theme.IntentDimens
+import com.intent.reader.ui.theme.IntentFonts
 import com.intent.reader.ui.theme.IntentTheme
 import com.intent.reader.ui.theme.withCjkSpacing
 import com.intent.reader.widget.IntentWidgets
@@ -102,8 +124,11 @@ class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
     // Home-screen widgets mirror accent/theme, so repaint them once the write lands.
     fun setThemeMode(m: ThemeMode) = launch { repo.setThemeMode(m); IntentWidgets.refreshAll(app) }
     fun setAccentColor(argb: Long) = launch { repo.setAccentColor(argb); IntentWidgets.refreshAll(app) }
-    fun setWidgetStyle(v: String) = launch { repo.setWidgetStyle(v); IntentWidgets.refreshAll(app) }
+    fun setDynamicColor(v: Boolean) = launch { repo.setDynamicColor(v) }
+    fun setDynamicBackground(v: Boolean) = launch { repo.setDynamicBackground(v) }
+    fun setWidgetStyle(v: String) = launch { repo.setWidgetStyle(v); IntentWidgets.setStyle(app, v) }
     fun setFontChoice(v: String) = launch { repo.setFontChoice(v) }
+    fun setFontWeight(v: Int) = launch { repo.setFontWeight(v) }
     fun setLanguageTag(v: String) = launch { repo.setLanguageTag(v) }
     fun setTextScaleLevel(v: Int) = launch { repo.setTextScaleLevel(v) }
     fun setFollowSystemFontScale(v: Boolean) = launch { repo.setFollowSystemFontScale(v) }
@@ -113,6 +138,7 @@ class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
     fun setReduceAnimations(v: Boolean) = launch { repo.setReduceAnimations(v) }
     fun setGlassEffectEnabled(v: Boolean) = launch { repo.setGlassEffectEnabled(v) }
     fun setGlassMaterial(v: String) = launch { repo.setGlassMaterial(v) }
+    fun setGlassTransparency(v: Float) = launch { repo.setGlassTransparency(v) }
     fun setGlassAdaptiveTint(v: Boolean) = launch { repo.setGlassAdaptiveTint(v) }
     fun setGlassScrollEdgeBlur(v: Boolean) = launch { repo.setGlassScrollEdgeBlur(v) }
     fun setTtsEngine(v: String) = launch { repo.setTtsEngine(v) }
@@ -121,8 +147,19 @@ class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
     fun setDailySummaryEnabled(v: Boolean) = launch { repo.setDailySummaryEnabled(v) }
     fun setDailySummaryTime(h: Int, m: Int) = launch { repo.setDailySummaryTime(h, m) }
     fun setQuietHours(start: Int, end: Int) = launch { repo.setQuietHours(start, end) }
-    fun setLiveUpdateEnabled(v: Boolean) = launch { repo.setLiveUpdateEnabled(v) }
+    fun setLiveUpdateEnabled(v: Boolean) = launch {
+        repo.setLiveUpdateEnabled(v)
+        // Turning the live activity off should retract the pinned card too.
+        if (!v) com.intent.reader.notify.LiveUpdate.cancel(app)
+    }
     fun setReadingGoalMinutes(v: Int) = launch { repo.setReadingGoalMinutes(v) }
+    fun setClearCacheOnExit(v: Boolean) = launch { repo.setClearCacheOnExit(v) }
+
+    /** Clears image / disk caches off the main thread, then reports the freed bytes. */
+    fun clearCache(onDone: (Long) -> Unit) = viewModelScope.launch {
+        val freed = CacheCleaner.clear(app)
+        onDone(freed)
+    }
     fun setSyncIntervalMin(v: Int) = launch { repo.setSyncIntervalMin(v) }
     fun setSyncWifiOnly(v: Boolean) = launch { repo.setSyncWifiOnly(v) }
     fun setWifiOnlyImages(v: Boolean) = launch { repo.setWifiOnlyImages(v) }
@@ -151,7 +188,7 @@ private fun settingsVm(): SettingsViewModel {
 // ---------- shared widgets ----------
 
 @Composable
-private fun SettingsScaffold(
+internal fun SettingsScaffold(
     title: String,
     onBack: (() -> Unit)? = null,
     content: @Composable () -> Unit,
@@ -179,13 +216,7 @@ private fun SettingsScaffold(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (onBack != null) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = null,
-                        tint = c.text,
-                    )
-                }
+                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
             }
             Text(
                 text = title,
@@ -213,7 +244,7 @@ private fun SettingsScaffold(
 }
 
 @Composable
-private fun SectionLabel(text: String) {
+internal fun SectionLabel(text: String) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Text(
@@ -225,7 +256,7 @@ private fun SectionLabel(text: String) {
 }
 
 @Composable
-private fun EntryRow(title: String, value: String? = null, onClick: () -> Unit) {
+private fun EntryRow(title: String, value: String? = null, icon: ImageVector? = null, iconColor: Color = Color(0xFF438BFF), onClick: () -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Row(
@@ -235,6 +266,10 @@ private fun EntryRow(title: String, value: String? = null, onClick: () -> Unit) 
             .padding(vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(21.dp))
+            Spacer(Modifier.width(14.dp))
+        }
         Text(
             text = title.withCjkSpacing(),
             style = t.body,
@@ -256,7 +291,7 @@ private fun EntryRow(title: String, value: String? = null, onClick: () -> Unit) 
 }
 
 @Composable
-private fun SwitchRow(title: String, checked: Boolean, enabled: Boolean = true, onChange: (Boolean) -> Unit) {
+internal fun SwitchRow(title: String, checked: Boolean, enabled: Boolean = true, icon: ImageVector? = null, iconColor: Color = Color(0xFF438BFF), onChange: (Boolean) -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Row(
@@ -266,6 +301,10 @@ private fun SwitchRow(title: String, checked: Boolean, enabled: Boolean = true, 
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(21.dp))
+            Spacer(Modifier.width(14.dp))
+        }
         Text(
             text = title.withCjkSpacing(),
             style = t.body,
@@ -371,6 +410,7 @@ private val iconAliases = listOf(
     "black" to ".LauncherBlack",
     "white" to ".LauncherWhite",
     "serif" to ".LauncherSerif",
+    "pixel" to ".LauncherPixel",
 )
 
 fun setAppIcon(context: Context, choice: String) {
@@ -386,26 +426,74 @@ fun setAppIcon(context: Context, choice: String) {
             )
         }
     }
+    com.intent.reader.notify.LiveUpdate.refreshPermissions()
+}
+
+/**
+ * Reads the launcher icon actually enabled right now. The choice lives in the
+ * PackageManager (activity-alias states), not in DataStore, so the segmented
+ * control must query it instead of assuming the first option.
+ */
+fun currentAppIcon(context: Context): String {
+    val pm = context.packageManager
+    val pkg = context.packageName
+    var dormantDefault = false
+    for ((key, cls) in iconAliases) {
+        val state = runCatching {
+            pm.getComponentEnabledSetting(ComponentName(pkg, "$pkg$cls"))
+        }.getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
+        when {
+            state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> return key
+            state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && key == "default" ->
+                dormantDefault = true
+        }
+    }
+    return if (dormantDefault) "default" else iconAliases.first().first
+}
+
+@Composable
+private fun SettingsGroup(content: @Composable () -> Unit) {
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(IntentTheme.colors.surface).padding(horizontal = 16.dp, vertical = 4.dp)) {
+        content()
+    }
+}
+
+@Composable
+private fun SettingsControlLabel(title: String, icon: ImageVector, color: Color) {
+    Row(Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(21.dp))
+        Spacer(Modifier.width(14.dp))
+        Text(title.withCjkSpacing(), style = IntentTheme.typography.body, color = IntentTheme.colors.text)
+    }
 }
 
 // ---------- root settings ----------
 
+/** Compact cache size for the storage row ("12.4 MB", "0 B"). */
+private fun formatCacheSize(bytes: Long): String = when {
+    bytes >= 1_073_741_824L -> String.format(Locale.US, "%.1f GB", bytes / 1_073_741_824.0)
+    bytes >= 1_048_576L -> String.format(Locale.US, "%.1f MB", bytes / 1_048_576.0)
+    bytes >= 1024L -> String.format(Locale.US, "%.0f KB", bytes / 1024.0)
+    else -> "$bytes B"
+}
+
 @Composable
 fun SettingsScreen(
+    onBack: () -> Unit,
     onOpenUi: () -> Unit,
     onOpenA11y: () -> Unit,
     onOpenNotify: () -> Unit,
     onOpenUser: () -> Unit,
     onOpenAdvanced: () -> Unit,
     onOpenAbout: () -> Unit,
+    onOpenAi: () -> Unit,
+    onOpenStorage: () -> Unit,
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val vm = settingsVm()
     val s = vm.settings
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     var showLicenses by remember { mutableStateOf(false) }
 
     val opmlImport = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -431,65 +519,97 @@ fun SettingsScreen(
     val syncLabels = listOf("1h", "3h", "6h", "12h", "24h")
     val retainOptions = listOf(7, 30, 90, 180)
 
-    SettingsScaffold(title = stringResource(R.string.settings_title)) {
-        SectionLabel(stringResource(R.string.settings_title))
-        EntryRow(stringResource(R.string.settings_ui), onClick = onOpenUi)
-        EntryRow(stringResource(R.string.settings_a11y), onClick = onOpenA11y)
-        EntryRow(stringResource(R.string.settings_notify), onClick = onOpenNotify)
-        EntryRow(
-            title = stringResource(R.string.settings_user),
-            value = s.userName.ifBlank { null },
-            onClick = onOpenUser,
-        )
-        EntryRow(stringResource(R.string.settings_advanced), onClick = onOpenAdvanced)
-
-        SectionLabel(stringResource(R.string.sync_freq))
-        Segmented(
-            options = syncLabels,
-            selectedIndex = syncOptions.indexOf(s.syncIntervalMin).let { if (it >= 0) it else 1 },
-        ) { vm.setSyncIntervalMin(syncOptions[it]) }
-        SwitchRow(stringResource(R.string.sync_wifi_only), s.syncWifiOnly) { vm.setSyncWifiOnly(it) }
-        SwitchRow(stringResource(R.string.wifi_only_images), s.wifiOnlyImages) { vm.setWifiOnlyImages(it) }
-
-        SectionLabel(stringResource(R.string.retain_settings))
-        Segmented(
-            options = retainOptions.map { "$it 天" },
-            selectedIndex = retainOptions.indexOf(s.retainDays).let { if (it >= 0) it else 1 },
-        ) { vm.setRetainDays(retainOptions[it]) }
-
-        SectionLabel(stringResource(R.string.import_opml) + " / " + stringResource(R.string.export_opml))
-        EntryRow(stringResource(R.string.import_opml)) { opmlImport.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) }
-        EntryRow(stringResource(R.string.export_opml)) { opmlExport.launch("intent-subscriptions.opml") }
-
-        SectionLabel(stringResource(R.string.about))
-        EntryRow(stringResource(R.string.about), onClick = onOpenAbout)
-        EntryRow(stringResource(R.string.licenses)) { showLicenses = true }
+    SettingsScaffold(title = stringResource(R.string.settings_title), onBack = onBack) {
+        SettingsGroup {
+            EntryRow(stringResource(R.string.settings_ui), icon = Icons.Filled.Palette, iconColor = Color(0xFFAE66E9), onClick = onOpenUi)
+            EntryRow(stringResource(R.string.settings_a11y), icon = Icons.Filled.AccessibilityNew, iconColor = Color(0xFF2587FF), onClick = onOpenA11y)
+            EntryRow(stringResource(R.string.settings_notify), icon = Icons.Filled.Notifications, iconColor = Color(0xFF31C76A), onClick = onOpenNotify)
+            EntryRow(stringResource(R.string.ai_settings), icon = Icons.Filled.AutoAwesome, iconColor = Color(0xFF9B70EF), onClick = onOpenAi)
+            EntryRow(stringResource(R.string.settings_user), value = s.userName.ifBlank { null }, icon = Icons.Filled.Person, iconColor = Color(0xFFEC9450), onClick = onOpenUser)
+            EntryRow(stringResource(R.string.settings_advanced), icon = Icons.Filled.Tune, iconColor = Color(0xFF50B7C5), onClick = onOpenAdvanced)
+        }
+        Spacer(Modifier.height(16.dp))
+        SettingsGroup {
+            SettingsControlLabel(stringResource(R.string.sync_freq), Icons.Filled.Sync, Color(0xFF2587FF))
+            Segmented(options = syncLabels, selectedIndex = syncOptions.indexOf(s.syncIntervalMin).let { if (it >= 0) it else 1 }) { vm.setSyncIntervalMin(syncOptions[it]) }
+            SwitchRow(stringResource(R.string.sync_wifi_only), s.syncWifiOnly, icon = Icons.Filled.Wifi, iconColor = Color(0xFF45A4E8)) { vm.setSyncWifiOnly(it) }
+            SwitchRow(stringResource(R.string.wifi_only_images), s.wifiOnlyImages, icon = Icons.Filled.Image, iconColor = Color(0xFF6ABF88)) { vm.setWifiOnlyImages(it) }
+            SettingsControlLabel(stringResource(R.string.retain_settings), Icons.Filled.History, Color(0xFFEA9854))
+            Segmented(options = retainOptions.map { "$it 天" }, selectedIndex = retainOptions.indexOf(s.retainDays).let { if (it >= 0) it else 1 }) { vm.setRetainDays(retainOptions[it]) }
+            Spacer(Modifier.height(8.dp))
+            EntryRow(stringResource(R.string.import_opml), icon = Icons.Filled.FileDownload, iconColor = Color(0xFF56BC83)) { opmlImport.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) }
+            EntryRow(stringResource(R.string.export_opml), icon = Icons.Filled.FileUpload, iconColor = Color(0xFF56A6E9)) { opmlExport.launch("intent-subscriptions.opml") }
+        }
+        Spacer(Modifier.height(16.dp))
+        SettingsGroup {
+            EntryRow(stringResource(R.string.settings_storage), icon = Icons.Filled.Storage, iconColor = Color(0xFFEBA04F), onClick = onOpenStorage)
+        }
+        Spacer(Modifier.height(16.dp))
+        SettingsGroup {
+            EntryRow(stringResource(R.string.about), icon = Icons.Filled.Info, iconColor = Color(0xFF4E9AF4), onClick = onOpenAbout)
+            EntryRow(stringResource(R.string.licenses), icon = Icons.Filled.Description, iconColor = Color(0xFF8B9BAF)) { showLicenses = true }
+        }
     }
 
     if (showLicenses) {
+        val intentLicense = remember(context) {
+            context.assets.open("licenses/INTENT-MIT.txt").bufferedReader().use { it.readText() }
+        }
+        val apacheLicense = remember(context) {
+            context.assets.open("licenses/AndroidLiquidGlass-LICENSE.txt").bufferedReader().use { it.readText() }
+        }
         AlertDialog(
             onDismissRequest = { showLicenses = false },
             confirmButton = {
-                TextButton(onClick = { showLicenses = false }) { Text(stringResource(R.string.filter_all)) }
+                TextButton(onClick = { showLicenses = false }) { Text(stringResource(R.string.close)) }
             },
-            title = { Text("Open Source License of INTENT") },
+            title = { Text(stringResource(R.string.licenses)) },
             text = {
-                Text(
-                    "INTENT is powered by this open-source software.\n\n" +
-                        "Jetpack Compose\n" +
-                        "Jetpack Glance\n" +
-                        "Navigation Compose\n" +
-                        "Room\n" +
-                        "DataStore\n" +
-                        "WorkManager\n" +
-                        "Coil\n" +
-                        "OkHttp\n" +
-                        "kotlinx.serialization\n\n" +
-                        "Apache License 2.0"
-                )
+                Column(Modifier.heightIn(max = 480.dp).verticalScroll(rememberScrollState())) {
+                    Text(stringResource(R.string.license_components_intro), style = t.body)
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        "AndroidX (Core, Lifecycle, Activity, Compose, Navigation, Room, DataStore, WorkManager, Glance)\n" +
+                            "Coil · OkHttp · Okio · Kotlin · kotlinx.coroutines · kotlinx.serialization\n" +
+                            "Android Liquid Glass / Backdrop — Kyant (Apache License 2.0)\n" +
+                            "https://github.com/Kyant0/AndroidLiquidGlass",
+                        style = t.bodySmall,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text("SharedViewKit 1.0.0.5 — ITGSA", style = t.body)
+                    Text(stringResource(R.string.license_sharedview_description), style = t.bodySmall)
+                    Text("https://gitee.com/itgsa_sharedviewkit/SharedViewDemo", style = t.bodySmall)
+                    Spacer(Modifier.height(16.dp))
+                    Text("INTENT — MIT License", style = t.body)
+                    Text(intentLicense, style = t.bodySmall)
+                    Spacer(Modifier.height(16.dp))
+                    Text("Apache License 2.0", style = t.body)
+                    Text(apacheLicense, style = t.bodySmall)
+                }
             },
             containerColor = c.card,
         )
+    }
+}
+
+@Composable
+fun StorageSettingsScreen(onBack: () -> Unit) {
+    val vm = settingsVm()
+    val s = vm.settings
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var cacheBytes by remember { mutableStateOf<Long?>(null) }
+    LaunchedEffect(Unit) { cacheBytes = CacheCleaner.sizeBytes(context) }
+    SettingsScaffold(title = stringResource(R.string.settings_storage), onBack = onBack) {
+        SettingsGroup {
+            SwitchRow(stringResource(R.string.clear_cache_on_exit), s.clearCacheOnExit, icon = Icons.Filled.DeleteSweep, iconColor = Color(0xFFEBA04F)) { vm.setClearCacheOnExit(it) }
+            EntryRow(title = stringResource(R.string.clear_cache_now), value = cacheBytes?.let { formatCacheSize(it) }, icon = Icons.Filled.CleaningServices, iconColor = Color(0xFF50B7C5)) {
+                vm.clearCache { freed ->
+                    Toast.makeText(context, context.getString(R.string.cache_cleared, formatCacheSize(freed)), Toast.LENGTH_SHORT).show()
+                    scope.launch { cacheBytes = CacheCleaner.sizeBytes(context) }
+                }
+            }
+        }
     }
 }
 
@@ -611,8 +731,26 @@ fun AdvancedMaterialScreen(onBack: () -> Unit) {
     // The lens pipeline only runs while the master switch is on, so every
     // sub-option below is gated on it as well.
     val on = supported && s.glassEffectEnabled
+    var transparency by remember { mutableFloatStateOf(s.glassTransparency) }
+    LaunchedEffect(s.glassTransparency) { transparency = s.glassTransparency }
 
     SettingsScaffold(title = stringResource(R.string.settings_advanced), onBack = onBack) {
+        GlassMaterialPreview(transparency = transparency, adaptive = s.glassAdaptiveTint)
+        Text(stringResource(R.string.glass_transparency), style = t.body, color = c.text,
+            modifier = Modifier.padding(top = 20.dp))
+        Slider(
+            value = transparency,
+            onValueChange = { transparency = it },
+            onValueChangeFinished = { vm.setGlassTransparency(transparency) },
+            enabled = supported,
+            valueRange = 0f..1f,
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(stringResource(R.string.glass_transparency_tinted), style = t.micro, color = c.textSecondary)
+            Text(stringResource(R.string.glass_transparency_clear), style = t.micro, color = c.textSecondary)
+        }
+        Text(stringResource(R.string.glass_transparency_note), style = t.micro, color = c.textTertiary,
+            modifier = Modifier.padding(top = 8.dp))
         SectionLabel(stringResource(R.string.settings_advanced))
         SwitchRow(
             title = stringResource(R.string.glass_effect),
@@ -625,26 +763,10 @@ fun AdvancedMaterialScreen(onBack: () -> Unit) {
             color = c.textTertiary,
             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp),
         )
-        // Regular = adaptive, readable glass; Clear = high transparency + a
-        // darkening layer (Apple's two material variants).
-        Text(
-            text = stringResource(R.string.glass_material).withCjkSpacing(),
-            style = t.body,
-            color = if (on) c.text else c.textTertiary,
-            modifier = Modifier.padding(top = 20.dp, bottom = 8.dp),
-        )
-        Segmented(
-            options = listOf(
-                stringResource(R.string.glass_material_regular),
-                stringResource(R.string.glass_material_clear),
-            ),
-            selectedIndex = if (s.glassMaterial == "clear") 1 else 0,
-            onSelect = { vm.setGlassMaterial(if (it == 1) "clear" else "regular") },
-        )
         SwitchRow(
             title = stringResource(R.string.glass_adaptive_tint),
             checked = s.glassAdaptiveTint,
-            enabled = on && s.glassMaterial != "clear",
+            enabled = on,
         ) { vm.setGlassAdaptiveTint(it) }
         Text(
             text = stringResource(R.string.glass_adaptive_tint_note).withCjkSpacing(),
@@ -666,68 +788,40 @@ fun AdvancedMaterialScreen(onBack: () -> Unit) {
     }
 }
 
-// ---------- UI settings (level 1) ----------
+// ---------- theme settings ----------
 
 @Composable
-fun UiSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
+fun ThemeSettingsScreen(onBack: () -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val vm = settingsVm()
     val s = vm.settings
-    val context = LocalContext.current
-
-    val fontImport = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        val dir = java.io.File(context.filesDir, "fonts").apply { mkdirs() }
-        val dest = java.io.File(dir, "custom_font" +
-            (context.contentResolver.getType(uri)?.takeIf { it.contains("otf") }?.let { ".otf" } ?: ".ttf"))
-        runCatching {
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                dest.outputStream().use { input.copyTo(it) }
-            }
-            vm.setFontChoice("custom:${dest.absolutePath}")
-            Toast.makeText(context, R.string.font_imported, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    SettingsScaffold(title = stringResource(R.string.settings_ui), onBack = onBack) {
-        SectionLabel(stringResource(R.string.ui_icon))
-        val iconChoices = listOf(
-            "default" to stringResource(R.string.icon_default),
-            "black" to stringResource(R.string.icon_black),
-            "white" to stringResource(R.string.icon_white),
-            "serif" to stringResource(R.string.icon_serif),
-        )
-        Segmented(
-            options = iconChoices.map { it.second },
-            selectedIndex = 0, // system-level, not persisted in DataStore
-        ) { i ->
-            setAppIcon(context, iconChoices[i].first)
-            Toast.makeText(context, R.string.icon_restart_hint, Toast.LENGTH_LONG).show()
-        }
-
-        SectionLabel(stringResource(R.string.ui_font))
-        Segmented(
-            options = listOf(
-                stringResource(R.string.font_system),
-                stringResource(R.string.font_serif),
-            ),
-            selectedIndex = if (s.fontChoice == "serif") 1 else 0,
-        ) { i ->
-            vm.setFontChoice(if (i == 1) "serif" else "system")
-        }
-        EntryRow(stringResource(R.string.font_import)) { fontImport.launch(arrayOf("font/ttf", "font/otf", "application/x-font-ttf", "application/x-font-otf", "*/*")) }
-        Text(
-            text = stringResource(R.string.font_note).withCjkSpacing(),
-            style = t.micro,
-            color = c.textTertiary,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-
+    SettingsScaffold(title = stringResource(R.string.ui_theme), onBack = onBack) {
         SectionLabel(stringResource(R.string.ui_accent))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        SwitchRow(
+            title = stringResource(R.string.color_follow_system),
+            checked = s.dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+            enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+            onChange = { vm.setDynamicColor(it) },
+        )
+        Text(
+            text = stringResource(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.string.color_system_note else R.string.color_system_unavailable),
+            style = t.micro, color = c.textSecondary,
+        )
+        SwitchRow(
+            title = stringResource(R.string.color_background),
+            checked = s.dynamicBackground,
+            enabled = s.dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+            onChange = { vm.setDynamicBackground(it) },
+        )
+        Text(stringResource(R.string.color_manual), style = t.meta, color = c.textSecondary,
+            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             AccentPresets.forEach { color ->
-                val isSel = s.accentColor == color.toArgbLong()
+                val isSel = !s.dynamicColor && s.accentColor == color.toArgbLong()
                 Box(
                     Modifier
                         .size(36.dp)
@@ -744,7 +838,7 @@ fun UiSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                        ) { vm.setAccentColor(color.toArgbLong()) },
+                        ) { vm.setDynamicColor(false); vm.setAccentColor(color.toArgbLong()) },
                 )
             }
         }
@@ -771,18 +865,305 @@ fun UiSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
             )
         }
 
-        SectionLabel(stringResource(R.string.ui_widget_style))
-        Segmented(
-            options = listOf(
-                stringResource(R.string.widget_style_classic),
-                stringResource(R.string.widget_style_image),
-            ),
-            selectedIndex = if (s.widgetStyle == "image") 1 else 0,
-        ) { i ->
-            vm.setWidgetStyle(if (i == 1) "image" else "classic")
-        }
+    }
+}
 
-        SectionLabel(stringResource(R.string.ui_language))
+// ---------- UI settings (level 1) ----------
+
+@Composable
+fun UiSettingsScreen(onBack: () -> Unit, onOpenIcon: () -> Unit, onOpenFont: () -> Unit, onOpenTheme: () -> Unit, onOpenWidget: () -> Unit, onOpenLanguage: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    SettingsScaffold(title = stringResource(R.string.settings_ui), onBack = onBack) {
+        Column(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.surface).padding(horizontal = 20.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(Modifier.size(64.dp).background(Color(0xFFAE66E9), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.Palette, contentDescription = null, tint = Color.White, modifier = Modifier.size(40.dp))
+            }
+            Spacer(Modifier.height(16.dp))
+            Text(stringResource(R.string.ui_section_interface), style = t.pageTitle, fontWeight = FontWeight.Bold, color = c.text)
+            Spacer(Modifier.height(12.dp))
+            Text(stringResource(R.string.ui_intro).withCjkSpacing(), style = t.bodySmall, color = c.textSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        }
+        SectionLabel(stringResource(R.string.ui_section_interface))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).padding(horizontal = 16.dp)) {
+            EntryRow(stringResource(R.string.ui_icon), onClick = onOpenIcon)
+            EntryRow(stringResource(R.string.ui_font), onClick = onOpenFont)
+            EntryRow(stringResource(R.string.ui_theme), onClick = onOpenTheme)
+            EntryRow(stringResource(R.string.ui_widget_style), onClick = onOpenWidget)
+        }
+        SectionLabel(stringResource(R.string.ui_section_language))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(c.surface).padding(horizontal = 16.dp)) {
+            EntryRow(stringResource(R.string.ui_language), onClick = onOpenLanguage)
+        }
+    }
+}
+
+@Composable
+fun IconSettingsScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val c = IntentTheme.colors
+    var iconChoice by remember { mutableStateOf(currentAppIcon(context)) }
+    val iconChoices = listOf(
+        Triple("default", stringResource(R.string.icon_default), R.mipmap.ic_launcher),
+        Triple("black", stringResource(R.string.icon_black), R.mipmap.ic_launcher_black),
+        Triple("white", stringResource(R.string.icon_white), R.mipmap.ic_launcher_white),
+        Triple("serif", stringResource(R.string.icon_serif), R.mipmap.ic_launcher_serif),
+        Triple("pixel", stringResource(R.string.icon_pixel), R.mipmap.ic_launcher_pixel),
+    )
+    SettingsScaffold(title = stringResource(R.string.ui_icon), onBack = onBack) {
+        Text(
+            text = stringResource(R.string.icon_change_notice).withCjkSpacing(),
+            style = IntentTheme.typography.meta,
+            color = c.textSecondary,
+            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
+        )
+        iconChoices.chunked(3).forEach { choices ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                choices.forEach { (key, label, resource) ->
+                    val selected = iconChoice == key
+                    val preview = remember(resource) {
+                        androidx.core.content.ContextCompat.getDrawable(context, resource)!!
+                            .toBitmap(width = 192, height = 192).asImageBitmap()
+                    }
+                    Column(
+                        modifier = Modifier.weight(1f).selectable(
+                            selected = selected,
+                            role = Role.RadioButton,
+                            onClick = {
+                                if (!selected) {
+                                    iconChoice = key
+                                    setAppIcon(context, key)
+                                    Toast.makeText(context, R.string.icon_restart_hint, Toast.LENGTH_LONG).show()
+                                }
+                            },
+                        ).padding(vertical = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Image(
+                            bitmap = preview,
+                            contentDescription = label,
+                            modifier = Modifier.size(80.dp).clip(RoundedCornerShape(18.dp))
+                                .border(if (selected) 2.dp else 1.dp, if (selected) c.accent else c.divider, RoundedCornerShape(18.dp)),
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(label, style = IntentTheme.typography.meta, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        RadioButton(selected = selected, onClick = null, colors = RadioButtonDefaults.colors(selectedColor = c.accent, unselectedColor = c.textTertiary))
+                    }
+                }
+                repeat(3 - choices.size) { Spacer(Modifier.weight(1f)) }
+            }
+        }
+    }
+}
+
+@Composable
+fun FontSettingsScreen(onBack: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val vm = settingsVm()
+    val s = vm.settings
+    val context = LocalContext.current
+    val dir = remember { java.io.File(context.filesDir, "fonts").apply { mkdirs() } }
+    fun listFonts() = dir.listFiles()?.filter { it.isFile && (it.extension.equals("ttf", true) || it.extension.equals("otf", true)) }?.sortedBy { it.name } ?: emptyList()
+    var fontFiles by remember { mutableStateOf(listFonts()) }
+    val selectedFile = s.fontChoice.takeIf { it.startsWith("custom:") }?.removePrefix("custom:")?.let { java.io.File(it) }
+    val axis = remember(selectedFile?.absolutePath) { selectedFile?.let { IntentFonts.weightAxis(it) } }
+    val previewFamily = remember(s.fontChoice, s.fontWeight) {
+        when {
+            selectedFile != null -> IntentFonts.fromFile(selectedFile.absolutePath, s.fontWeight) ?: IntentFonts.resolveGlobalFamily()
+            s.fontChoice == "serif" -> IntentFonts.serifHeader
+            else -> IntentFonts.resolveGlobalFamily()
+        }
+    }
+    val fontImport = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            var dest: java.io.File? = null
+            val ok = runCatching {
+                val displayName = context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) cursor.getString(0) else null
+                }.orEmpty()
+                val cleanName = displayName.substringAfterLast('/').substringAfterLast('\\').replace(Regex("[^\\p{L}\\p{N}._ -]"), "_").take(100).ifBlank { "font.ttf" }
+                val extension = if (cleanName.endsWith(".otf", true)) ".otf" else ".ttf"
+                val name = cleanName.removeSuffix(extension).removeSuffix(extension.uppercase())
+                dest = java.io.File(dir, java.util.UUID.randomUUID().toString() + "_" + name + extension)
+                val stream = context.contentResolver.openInputStream(uri) ?: error("Unable to open font")
+                stream.use { input -> dest!!.outputStream().use { input.copyTo(it) } }
+                check(IntentFonts.fromFile(dest!!.absolutePath) != null)
+                fontFiles = listFonts()
+                vm.setFontChoice("custom:" + dest!!.absolutePath)
+            }.isSuccess
+            if (!ok) dest?.delete()
+            Toast.makeText(context, if (ok) R.string.font_imported else R.string.font_import_failed, Toast.LENGTH_SHORT).show()
+        }
+    }
+    Column(Modifier.fillMaxSize().background(c.surface).statusBarsPadding()) {
+        Row(
+            Modifier.fillMaxWidth().background(c.surface).padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+            Text(stringResource(R.string.ui_font), style = t.pageTitle, color = c.text)
+        }
+        Column(Modifier.weight(1f).fillMaxWidth().background(c.card).verticalScroll(rememberScrollState())) {
+            Column(Modifier.fillMaxWidth().background(c.surface).heightIn(min = 210.dp).padding(horizontal = 20.dp, vertical = 24.dp)) {
+                Text(stringResource(R.string.font_preview_title), style = t.pageTitle.copy(fontFamily = previewFamily), color = c.text)
+                Spacer(Modifier.height(20.dp))
+                Text(stringResource(R.string.font_preview_text), style = t.body.copy(fontFamily = previewFamily), color = c.text)
+            }
+            Box(Modifier.fillMaxWidth().background(c.surface)) {
+            Column(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .background(c.card).padding(top = 20.dp, bottom = 12.dp),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    @Composable fun FontTile(choice: String, name: String, family: androidx.compose.ui.text.font.FontFamily) {
+                        val selected = s.fontChoice == choice
+                        Column(Modifier.width(88.dp).clip(RoundedCornerShape(12.dp)).clickable { vm.setFontChoice(choice) }, horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(Modifier.fillMaxWidth().height(64.dp).border(if (selected) 2.dp else 1.dp, if (selected) c.accent else c.divider, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                                Text("Aa", style = t.pageTitle.copy(fontFamily = family, fontSize = 28.sp), color = c.text)
+                            }
+                            Text(name, style = t.micro, color = if (selected) c.text else c.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center, modifier = Modifier.padding(top = 8.dp).heightIn(min = 30.dp))
+                        }
+                    }
+                    FontTile("system", stringResource(R.string.font_system_short), IntentFonts.resolveGlobalFamily())
+                    FontTile("serif", stringResource(R.string.font_serif), IntentFonts.serifHeader)
+                    fontFiles.forEach { file ->
+                        val family = remember(file.absolutePath) { IntentFonts.fromFile(file.absolutePath) ?: androidx.compose.ui.text.font.FontFamily.Default }
+                        val name = file.nameWithoutExtension.replace(Regex("^[0-9a-fA-F-]{36}_"), "")
+                        FontTile("custom:" + file.absolutePath, name, family)
+                    }
+                    Column(Modifier.width(88.dp).clip(RoundedCornerShape(12.dp)).clickable { fontImport.launch(arrayOf("font/ttf", "font/otf", "application/x-font-ttf", "application/x-font-otf", "*/*")) }, horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(Modifier.fillMaxWidth().height(64.dp).border(1.dp, c.divider, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                            Text("+", style = t.pageTitle.copy(fontSize = 28.sp), color = c.textSecondary)
+                        }
+                        Text(stringResource(R.string.font_import_short), style = t.micro, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
+                    }
+                }
+                Column(Modifier.padding(horizontal = 20.dp)) {
+                    Box(Modifier.fillMaxWidth().height(1.dp).background(c.divider))
+                    Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.a11y_font_size), style = t.body, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
+                        Text(if (s.followSystemFontScale) stringResource(R.string.font_follow_short) else listOf(stringResource(R.string.size_small), stringResource(R.string.size_default), stringResource(R.string.size_large), stringResource(R.string.size_xlarge))[s.textScaleLevel.coerceIn(0, 3)], style = t.meta, color = c.textSecondary)
+                    }
+                    Slider(
+                        value = s.textScaleLevel.coerceIn(0, 3).toFloat(),
+                        onValueChange = { vm.setTextScaleLevel(kotlin.math.round(it).toInt()) },
+                        enabled = !s.followSystemFontScale,
+                        valueRange = 0f..3f, steps = 2,
+                        colors = SliderDefaults.colors(thumbColor = c.accent, activeTrackColor = c.accent),
+                    )
+                    SwitchRow(stringResource(R.string.a11y_follow_system_font), s.followSystemFontScale) { vm.setFollowSystemFontScale(it) }
+                    if (axis != null) {
+                        Box(Modifier.fillMaxWidth().height(1.dp).background(c.divider))
+                        Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.font_weight), style = t.body, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
+                            Text(s.fontWeight.coerceIn(axis.first, axis.last).toString(), style = t.meta, color = c.textSecondary)
+                        }
+                        Slider(value = s.fontWeight.coerceIn(axis.first, axis.last).toFloat(), onValueChange = { vm.setFontWeight(it.toInt()) }, valueRange = axis.first.toFloat()..axis.last.toFloat(), colors = SliderDefaults.colors(thumbColor = c.accent, activeTrackColor = c.accent))
+                    }
+                    Text(stringResource(R.string.font_note).withCjkSpacing(), style = t.micro, color = c.textTertiary, modifier = Modifier.padding(top = 8.dp, bottom = 20.dp))
+                }
+            }
+            }
+        }
+        Box(Modifier.fillMaxWidth().background(c.card)) {
+        Button(
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 12.dp).height(48.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = c.accent),
+        ) {
+            Text(stringResource(R.string.font_done), color = Color.White)
+        }
+        }
+    }
+}
+
+@Composable
+fun WidgetStyleSettingsScreen(onBack: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val vm = settingsVm()
+    val s = vm.settings
+    val accent = Color(s.accentColor)
+    val onAccent = if (androidx.core.graphics.ColorUtils.calculateContrast(android.graphics.Color.BLACK, s.accentColor.toInt()) >=
+        androidx.core.graphics.ColorUtils.calculateContrast(android.graphics.Color.WHITE, s.accentColor.toInt())) Color.Black else Color.White
+    val sampleTitle = stringResource(R.string.widget_preview_title)
+    val sampleSecond = stringResource(R.string.widget_preview_second)
+    val sampleSource = stringResource(R.string.widget_preview_source)
+    SettingsScaffold(title = stringResource(R.string.ui_widget_style), onBack = onBack) {
+        Text(stringResource(R.string.widget_preview_note), style = t.meta, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
+        listOf("classic" to stringResource(R.string.widget_style_classic), "image" to stringResource(R.string.widget_style_image)).forEach { (style, label) ->
+            val selected = s.widgetStyle == style
+            Column(
+                Modifier.fillMaxWidth().padding(vertical = 8.dp).clip(RoundedCornerShape(20.dp))
+                    .border(if (selected) 2.dp else 1.dp, if (selected) c.accent else c.divider, RoundedCornerShape(20.dp))
+                    .selectable(selected = selected, role = Role.RadioButton, onClick = { vm.setWidgetStyle(style) })
+                    .padding(12.dp),
+            ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(label, style = t.body, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
+                    RadioButton(selected = selected, onClick = null, colors = RadioButtonDefaults.colors(selectedColor = c.accent, unselectedColor = c.textTertiary))
+                }
+                Box(Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(24.dp)).background(if (c.isDark) Color(0xFF1C1C1C) else Color.White)) {
+                    if (style == "classic") {
+                        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.width(64.dp).fillMaxHeight().background(accent), contentAlignment = Alignment.Center) {
+                                Text("INTENT", style = t.micro, fontWeight = FontWeight.Bold, color = onAccent)
+                            }
+                            Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
+                                Text(sampleTitle, style = t.meta, fontWeight = FontWeight.Bold, color = if (c.isDark) Color.White else Color(0xFF171717), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Spacer(Modifier.height(5.dp))
+                                Text(sampleSource + " · 09:30", style = t.micro, color = if (c.isDark) Color.LightGray else Color.Gray, maxLines = 1)
+                            }
+                            Column(Modifier.weight(1f).padding(end = 8.dp)) {
+                                Text(sampleSecond, style = t.meta, color = if (c.isDark) Color.White else Color(0xFF171717), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Spacer(Modifier.height(5.dp))
+                                Text("INTENT · 08:30", style = t.micro, color = if (c.isDark) Color.LightGray else Color.Gray, maxLines = 1)
+                            }
+                            Text("›", style = t.pageTitle, color = accent, modifier = Modifier.padding(end = 10.dp))
+                        }
+                    } else {
+                        Canvas(Modifier.fillMaxSize()) {
+                            drawRect(brush = Brush.verticalGradient(listOf(Color(0xFF8AAAB7), Color(0xFF425C69))))
+                            val mountain = Path().apply {
+                                moveTo(0f, size.height * .75f); lineTo(size.width * .28f, size.height * .32f)
+                                lineTo(size.width * .46f, size.height * .60f); lineTo(size.width * .70f, size.height * .20f)
+                                lineTo(size.width, size.height * .67f); lineTo(size.width, size.height); lineTo(0f, size.height); close()
+                            }
+                            drawPath(mountain, Color(0xFF516F72))
+                            drawRect(brush = Brush.verticalGradient(listOf(Color.Transparent, Color(0xDD000000))))
+                        }
+                        Text(sampleSource, color = Color.White, style = t.micro, modifier = Modifier.align(Alignment.TopStart).padding(10.dp).background(Color(0x66000000), CircleShape).padding(horizontal = 8.dp, vertical = 4.dp))
+                        Row(Modifier.align(Alignment.BottomStart).padding(start = 14.dp, end = 14.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.width(4.dp).height(30.dp).background(accent, RoundedCornerShape(2.dp)))
+                            Spacer(Modifier.width(8.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(sampleTitle, style = t.meta, fontWeight = FontWeight.Bold, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Text("09:30", style = t.micro, color = Color.LightGray)
+                            }
+                            Text("›", style = t.pageTitle, color = Color.White)
+                        }
+                    }
+                }
+            }
+        }
+        Text(stringResource(R.string.widget_style_restart_hint), style = t.micro, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
+    }
+}
+
+@Composable
+fun LanguageSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val vm = settingsVm()
+    val s = vm.settings
+    SettingsScaffold(title = stringResource(R.string.ui_language), onBack = onBack) {
         val langs = listOf(
             "" to stringResource(R.string.lang_auto),
             "zh-CN" to stringResource(R.string.lang_zh),
@@ -836,19 +1217,34 @@ fun AccessibilityScreen(onBack: () -> Unit) {
     // engine changes, so both "试听" and the reader actually use the chosen engine.
     var engines by remember { mutableStateOf<List<TextToSpeech.EngineInfo>>(emptyList()) }
     var previewTts by remember { mutableStateOf<TextToSpeech?>(null) }
-    LaunchedEffect(s.ttsEngine) {
-        previewTts?.shutdown()
-        previewTts = null
-        val tts = TextToSpeech(context, { }, s.ttsEngine.ifBlank { null })
-        delay(400)
+    DisposableEffect(s.ttsEngine) {
+        // Own the engine immediately: leaving during initialization must still
+        // unbind the service. A delay before assigning previewTts leaked it.
+        val tts = TextToSpeech(context.applicationContext, { }, s.ttsEngine.ifBlank { null })
         engines = tts.engines ?: emptyList()
         previewTts = tts
-    }
-    DisposableEffect(Unit) {
-        onDispose { previewTts?.shutdown() }
+        onDispose {
+            previewTts = null
+            tts.stop()
+            tts.shutdown()
+        }
     }
 
     SettingsScaffold(title = stringResource(R.string.settings_a11y), onBack = onBack) {
+        Column(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.surface).padding(horizontal = 20.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(Modifier.size(64.dp).background(Color(0xFF2587FF), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.AccessibilityNew, contentDescription = null, tint = Color.White, modifier = Modifier.size(40.dp))
+            }
+            Spacer(Modifier.height(16.dp))
+            Text(stringResource(R.string.settings_a11y), style = t.pageTitle, fontWeight = FontWeight.Bold, color = c.text)
+            Spacer(Modifier.height(12.dp))
+            Text(stringResource(R.string.a11y_intro).withCjkSpacing(), style = t.bodySmall, color = c.textSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        }
+        Spacer(Modifier.height(16.dp))
+        SettingsGroup {
         SectionLabel(stringResource(R.string.a11y_tts))
         // Every installed engine is listed (the old build only showed two, which
         // made switching impossible on devices with more).
@@ -861,7 +1257,7 @@ fun AccessibilityScreen(onBack: () -> Unit) {
                     Modifier
                         .fillMaxWidth()
                         .background(
-                            if (selected) c.text else c.surface,
+                            if (selected) c.text else c.card,
                             RoundedCornerShape(IntentDimens.radiusInput.dp),
                         )
                         .clickable { vm.setTtsEngine(engineValues[i]) }
@@ -912,24 +1308,11 @@ fun AccessibilityScreen(onBack: () -> Unit) {
             selectedIndex = s.displaySizeLevel,
         ) { vm.setDisplaySizeLevel(it) }
 
-        SectionLabel(stringResource(R.string.a11y_font_size))
-        SwitchRow(stringResource(R.string.a11y_follow_system_font), s.followSystemFontScale) { vm.setFollowSystemFontScale(it) }
-        if (!s.followSystemFontScale) {
-            Segmented(
-                options = listOf(
-                    stringResource(R.string.size_small),
-                    stringResource(R.string.size_default),
-                    stringResource(R.string.size_large),
-                    stringResource(R.string.size_xlarge),
-                ),
-                selectedIndex = s.textScaleLevel,
-            ) { vm.setTextScaleLevel(it) }
-        }
-
         SectionLabel(stringResource(R.string.settings_a11y))
         SwitchRow(stringResource(R.string.a11y_high_contrast), s.highContrast) { vm.setHighContrast(it) }
         SwitchRow(stringResource(R.string.a11y_large_touch), s.largeTouchTargets) { vm.setLargeTouchTargets(it) }
         SwitchRow(stringResource(R.string.a11y_reduce_anim), s.reduceAnimations) { vm.setReduceAnimations(it) }
+        }
     }
 }
 
@@ -944,40 +1327,104 @@ fun NotificationScreen(onBack: () -> Unit) {
     val context = LocalContext.current
 
     val liveSupported = Build.VERSION.SDK_INT >= 36
-    val liveCanPost = liveSupported && com.intent.reader.notify.LiveUpdate.canPost(context)
+    var liveCanPost by remember { mutableStateOf(com.intent.reader.notify.LiveUpdate.canPost(context)) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) {
+        liveCanPost = com.intent.reader.notify.LiveUpdate.canPost(context)
+        com.intent.reader.notify.LiveUpdate.refreshPermissions()
+    }
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                liveCanPost = com.intent.reader.notify.LiveUpdate.canPost(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     SettingsScaffold(title = stringResource(R.string.settings_notify), onBack = onBack) {
         SectionLabel(stringResource(R.string.channel_summary))
-        SwitchRow(stringResource(R.string.notify_daily), s.dailySummaryEnabled) { vm.setDailySummaryEnabled(it) }
-        if (s.dailySummaryEnabled) {
-            StepperRow(
-                stringResource(R.string.notify_daily_time),
-                "%02d:%02d".format(s.dailySummaryHour, s.dailySummaryMinute),
-                { // -30min
-                    var total = s.dailySummaryHour * 60 + s.dailySummaryMinute - 30
-                    if (total < 0) total += 24 * 60
-                    vm.setDailySummaryTime(total / 60, total % 60)
-                },
-                { // +30min
-                    var total = s.dailySummaryHour * 60 + s.dailySummaryMinute + 30
-                    if (total >= 24 * 60) total -= 24 * 60
-                    vm.setDailySummaryTime(total / 60, total % 60)
-                },
-            )
-            StepperRow(
-                stringResource(R.string.notify_quiet),
-                "%02d:00–%02d:00".format(s.quietStartHour, s.quietEndHour),
-                { vm.setQuietHours((s.quietStartHour + 23) % 24, s.quietEndHour) },
-                { vm.setQuietHours((s.quietStartHour + 1) % 24, s.quietEndHour) },
-            )
+        SettingsGroup {
+            SwitchRow(stringResource(R.string.notify_daily), s.dailySummaryEnabled) { vm.setDailySummaryEnabled(it) }
+            if (s.dailySummaryEnabled) {
+                StepperRow(
+                    stringResource(R.string.notify_daily_time),
+                    "%02d:%02d".format(s.dailySummaryHour, s.dailySummaryMinute),
+                    { // -30min
+                        var total = s.dailySummaryHour * 60 + s.dailySummaryMinute - 30
+                        if (total < 0) total += 24 * 60
+                        vm.setDailySummaryTime(total / 60, total % 60)
+                    },
+                    { // +30min
+                        var total = s.dailySummaryHour * 60 + s.dailySummaryMinute + 30
+                        if (total >= 24 * 60) total -= 24 * 60
+                        vm.setDailySummaryTime(total / 60, total % 60)
+                    },
+                )
+                Text(stringResource(R.string.notify_daily_time_hint).withCjkSpacing(), style = t.micro, color = c.textSecondary, modifier = Modifier.padding(bottom = 8.dp))
+                StepperRow(
+                    stringResource(R.string.notify_quiet),
+                    "%02d:00–%02d:00".format(s.quietStartHour, s.quietEndHour),
+                    { vm.setQuietHours((s.quietStartHour + 23) % 24, s.quietEndHour) },
+                    { vm.setQuietHours((s.quietStartHour + 1) % 24, s.quietEndHour) },
+                )
+                Text(stringResource(R.string.notify_quiet_hint).withCjkSpacing(), style = t.micro, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp))
+            }
         }
 
         SectionLabel(stringResource(R.string.channel_live_update))
-        SwitchRow(
-            stringResource(R.string.notify_live),
-            s.liveUpdateEnabled,
-            enabled = liveSupported,
-        ) { vm.setLiveUpdateEnabled(it) }
+        SettingsGroup {
+        Row(
+            Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Filled.NotificationsActive, contentDescription = null, tint = c.text, modifier = Modifier.size(28.dp))
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.notify_live).withCjkSpacing(), style = t.body, color = c.text)
+                Spacer(Modifier.height(4.dp))
+                Text(stringResource(R.string.live_update_trigger_hint).withCjkSpacing(), style = t.micro, color = c.textSecondary)
+            }
+            Spacer(Modifier.width(8.dp))
+            Switch(
+                checked = s.liveUpdateEnabled,
+                enabled = liveSupported,
+                onCheckedChange = { enabled ->
+                    vm.setLiveUpdateEnabled(enabled)
+                    if (enabled && Build.VERSION.SDK_INT >= 33 &&
+                        androidx.core.content.ContextCompat.checkSelfPermission(
+                            context, android.Manifest.permission.POST_NOTIFICATIONS,
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                },
+                colors = SwitchDefaults.colors(
+                    checkedTrackColor = c.text, checkedThumbColor = c.bg,
+                    uncheckedTrackColor = c.divider, uncheckedThumbColor = c.bg, uncheckedBorderColor = c.divider,
+                ),
+            )
+        }
+        // Today's banked reading time, so the counter is visible even on devices
+        // where the system does not promote the live card.
+        val app = context.applicationContext as IntentApplication
+        val todayLog by app.container.readingTracker.observeToday()
+            .collectAsState(initial = null)
+        val todayMinutes = todayLog?.minutes ?: 0
+        Text(
+            text = stringResource(
+                R.string.reading_today_progress,
+                todayMinutes,
+                ((todayLog?.elapsedMillis ?: 0L) / 1_000 % 60).toInt(),
+                s.readingGoalMinutes,
+            ),
+            style = t.meta,
+            color = if (todayMinutes >= s.readingGoalMinutes) c.accent else c.textSecondary,
+            modifier = Modifier.padding(bottom = 6.dp),
+        )
         if (!liveSupported) {
             Text(
                 text = stringResource(R.string.live_update_unsupported).withCjkSpacing(),
@@ -999,10 +1446,11 @@ fun NotificationScreen(onBack: () -> Unit) {
                 modifier = Modifier
                     .clickable {
                         runCatching {
-                            context.startActivity(
-                                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                                    .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                            )
+                            val action = if (com.intent.reader.notify.NotificationChannels.canPostNotifications(context)) {
+                                Settings.ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS
+                            } else Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                            val intent = Intent(action).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                            context.startActivity(intent)
                         }
                     }
                     .padding(vertical = 8.dp),
@@ -1014,5 +1462,7 @@ fun NotificationScreen(onBack: () -> Unit) {
             { vm.setReadingGoalMinutes((s.readingGoalMinutes - 5).coerceAtLeast(5)) },
             { vm.setReadingGoalMinutes((s.readingGoalMinutes + 5).coerceAtMost(120)) },
         )
+        }
     }
 }
+

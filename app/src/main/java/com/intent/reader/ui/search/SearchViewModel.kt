@@ -6,6 +6,7 @@ import com.intent.reader.IntentApplication
 import com.intent.reader.data.assets.RecommendedSources
 import com.intent.reader.data.db.Article
 import com.intent.reader.data.db.Source
+import com.intent.reader.data.repo.SourceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -64,36 +65,41 @@ class SearchViewModel(private val app: IntentApplication) : ViewModel() {
     }
 
     /** Adds by feed URL or site URL (auto-discovery). */
-    fun addSource(raw: String, onDone: (Boolean) -> Unit) {
+    fun addSource(raw: String, onDone: (SourceRepository.AddSourceError?) -> Unit) {
         viewModelScope.launch {
             val r = container.sourceRepository.addFromUrl(raw)
             if (r.isSuccess) {
                 com.intent.reader.sync.SyncWorker.refreshNow(app)
             }
-            onDone(r.isSuccess)
+            onDone(r.errorOrNull())
         }
     }
 
-    fun addRecommended(feedUrl: String, onDone: (Boolean) -> Unit) {
+    fun addRecommended(feedUrl: String, onDone: (SourceRepository.AddSourceError?) -> Unit) {
         val rs = RecommendedSources.all.firstOrNull { it.feedUrl == feedUrl } ?: run {
-            onDone(false); return
+            onDone(SourceRepository.AddSourceError.INVALID); return
         }
         viewModelScope.launch {
             val r = container.sourceRepository.addRecommended(rs)
             if (r.isSuccess) com.intent.reader.sync.SyncWorker.refreshNow(app)
-            onDone(r.isSuccess)
+            onDone(r.errorOrNull())
         }
     }
 
-    /** Hero tap: subscribe when not subscribed, unsubscribe when already subscribed. */
-    fun toggleRecommended(feedUrl: String, onDone: (Boolean) -> Unit) {
+    /** Tap-to-toggle: subscribe when not subscribed, unsubscribe when already subscribed. */
+    fun toggleRecommended(feedUrl: String, onDone: (SourceRepository.AddSourceError?) -> Unit) {
         val existing = state.value.sources.firstOrNull { it.feedUrl == feedUrl }
         if (existing != null) {
-            removeSource(existing.id) { onDone(true) }
+            removeSource(existing.id) { onDone(null) }
         } else {
             addRecommended(feedUrl, onDone)
         }
     }
+
+    private fun <T> Result<T>.errorOrNull(): SourceRepository.AddSourceError? =
+        if (isSuccess) null
+        else (exceptionOrNull() as? SourceRepository.AddSourceException)?.error
+            ?: SourceRepository.AddSourceError.INVALID
 
     fun removeSource(id: String, onDone: (Boolean) -> Unit = {}) {
         viewModelScope.launch {

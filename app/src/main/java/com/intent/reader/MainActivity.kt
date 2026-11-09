@@ -21,11 +21,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.foundation.layout.Column
+import androidx.lifecycle.lifecycleScope
+import com.intent.reader.data.CacheCleaner
 import com.intent.reader.data.prefs.SettingsState
 import com.intent.reader.data.prefs.ThemeMode
 import com.intent.reader.ui.IntentNavHost
@@ -33,22 +36,48 @@ import com.intent.reader.ui.theme.IntentFonts
 import com.intent.reader.ui.theme.IntentTheme
 import com.intent.reader.ui.theme.IntentTypography
 import com.intent.reader.ui.theme.TextScaleLevel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Locale
 
-class MainActivity : ComponentActivity() {
+open class MainActivity : ComponentActivity() {
 
     companion object {
         /** Extra carrying an article id, e.g. tapped from a home-screen widget. */
         const val EXTRA_ARTICLE_ID = "articleId"
+        const val EXTRA_NOTES = "articleNotes"
     }
 
     /** Article deep-link pending navigation; consumed by IntentNavHost. */
     private val pendingArticleId = mutableStateOf<String?>(null)
 
+    /** Mirrors the "clear cache on exit" setting for the onStop hook. */
+    private var clearCacheOnExit = false
+    internal var openingKitReader = false
+
+    override fun onResume() {
+        super.onResume()
+        openingKitReader = false
+        com.intent.reader.notify.LiveUpdate.refreshPermissions()
+        lifecycleScope.launch {
+            (application as IntentApplication).container.settingsRepository.ensureDailyGreetingEmoji()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (!clearCacheOnExit || isChangingConfigurations || openingKitReader || this is ReaderActivity) return
+        val ctx = applicationContext
+        lifecycleScope.launch(Dispatchers.IO) {
+            runCatching { CacheCleaner.clear(ctx) }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pendingArticleId.value = intent?.getStringExtra(EXTRA_ARTICLE_ID)
+        val standaloneArticleId = if (this is ReaderActivity) intent?.getStringExtra(EXTRA_ARTICLE_ID) else null
+        pendingArticleId.value = if (this is ReaderActivity) null else intent?.getStringExtra(EXTRA_ARTICLE_ID)
         // Guard: on some API 35/36 ROMs (MIUI/ColorOS/OneUI) enableEdgeToEdge
         // can throw during window inset setup; failing open keeps the app alive.
         try {
@@ -64,6 +93,7 @@ class MainActivity : ComponentActivity() {
                 Box(Modifier.fillMaxSize().background(Color.White))
                 return@setContent
             }
+            clearCacheOnExit = s.clearCacheOnExit
 
             // In-app language override (doc: 4 languages + CJK typesetting)
             val ctx = remember(s.languageTag) {
@@ -103,13 +133,6 @@ class MainActivity : ComponentActivity() {
                 // Sync window background with the effective theme so any
                 // framework-level surface (transitions / predictive back / scrims)
                 // does not flash the system dark color under light content.
-                androidx.compose.runtime.SideEffect {
-                    window.setBackgroundDrawable(
-                        android.graphics.drawable.ColorDrawable(
-                            if (dark) android.graphics.Color.BLACK else android.graphics.Color.WHITE
-                        )
-                    )
-                }
                 // System bar icon appearance must follow the in-app theme, not the
                 // system one: in light mode the status/navigation bar icons have to
                 // turn dark, otherwise the clock stays white on a light background.
@@ -122,7 +145,7 @@ class MainActivity : ComponentActivity() {
                 val accent = Color(s.accentColor and 0xFFFFFFFF)
                 val sans = when {
                     s.fontChoice.startsWith("custom:") ->
-                        IntentFonts.fromFile(s.fontChoice.removePrefix("custom:"))
+                        IntentFonts.fromFile(s.fontChoice.removePrefix("custom:"), s.fontWeight)
                             ?: IntentFonts.resolveGlobalFamily()
                     s.fontChoice == "serif" -> IntentFonts.serifHeader
                     else -> IntentFonts.resolveGlobalFamily()
@@ -136,13 +159,21 @@ class MainActivity : ComponentActivity() {
                 )
                 val widthClass = calculateWindowSizeClass(this)
 
-                IntentTheme(darkTheme = dark, accent = accent, typography = typo, highContrast = highContrast) {
+                IntentTheme(darkTheme = dark, accent = accent, typography = typo, highContrast = highContrast,
+                    dynamicColor = s.dynamicColor, dynamicBackground = s.dynamicBackground) {
+                    val windowBackground = IntentTheme.colors.bg
+                    androidx.compose.runtime.SideEffect {
+                        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(windowBackground.toArgb()))
+                    }
                     androidx.compose.foundation.layout.Box(
                         Modifier
                             .fillMaxSize()
                             .background(IntentTheme.colors.bg)
                     ) {
                         IntentNavHost(
+                            activity = this@MainActivity,
+                            standaloneArticleId = standaloneArticleId,
+                            standaloneNotes = this@MainActivity is ReaderActivity && intent.getBooleanExtra(EXTRA_NOTES, false),
                             startOnOnboarding = s.onboardingCompletedVersion == 0,
                             widthSizeClass = widthClass.widthSizeClass,
                             startArticleId = pendingArticleId.value,
@@ -154,7 +185,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // singleTask: widget taps re-deliver here instead of creating a new task.
+    // Explicit article links can return to this activity via CLEAR_TOP / SINGLE_TOP.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)

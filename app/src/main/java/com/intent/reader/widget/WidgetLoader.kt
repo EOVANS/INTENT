@@ -15,8 +15,8 @@ import java.time.ZoneId
 
 /**
  * Loads fresh widget data straight from Room + DataStore. The widget never
- * touches the network — thumbnails only resolve when Coil already has them
- * cached locally from an in-app load.
+ * touches the network — artwork comes from Coil's local cache or the widget's
+ * own small snapshots, which survive ordinary cache clearing.
  */
 object WidgetLoader {
 
@@ -59,7 +59,7 @@ object WidgetLoader {
 
     /**
      * Resolves thumbnails for the first [maxCount] articles at [sizePx] pixels.
-     * Network is disabled: a miss simply means "no thumbnail on the widget".
+     * Network is disabled: use local caches and widget snapshots only.
      * Bitmaps are kept small because they cross a Binder transaction.
      */
     suspend fun loadThumbs(
@@ -68,20 +68,10 @@ object WidgetLoader {
         maxCount: Int,
         sizePx: Int,
     ): Map<String, Bitmap> {
-        val loader = context.imageLoader
         val out = LinkedHashMap<String, Bitmap>(maxCount)
         for (article in articles.take(maxCount)) {
             val url = article.imageUrl ?: continue
-            val request = ImageRequest.Builder(context)
-                .data(url)
-                .networkCachePolicy(CachePolicy.DISABLED)
-                .diskCachePolicy(CachePolicy.ENABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .allowHardware(false)
-                .size(sizePx)
-                .build()
-            val bitmap = ((loader.execute(request) as? SuccessResult)?.drawable
-                as? BitmapDrawable)?.bitmap
+            val bitmap = loadBitmap(context, url, sizePx, sizePx)
             if (bitmap != null) out[article.articleId] = bitmap
         }
         return out
@@ -98,9 +88,61 @@ object WidgetLoader {
             .allowHardware(false)
             .size(widthPx, heightPx)
             .build()
-        return ((context.imageLoader.execute(request) as? SuccessResult)?.drawable
+        val bitmap = ((context.imageLoader.execute(request) as? SuccessResult)?.drawable
             as? BitmapDrawable)?.bitmap
+        val snapshots = WidgetArtworkStore(context)
+        if (bitmap != null) {
+            runCatching { snapshots.save(url, bitmap) }
+            return bitmap
+        }
+        return snapshots.read(url, widthPx, heightPx)
     }
+
+    /**
+     * Bitmaps for every article, keyed by article id. The image style needs the
+     * artwork of whichever article the state points at; loading all of them up
+     * front keeps the picture in sync when the chevron advances the window,
+     * because the composition can pick from the map by id.
+     */
+    suspend fun loadBitmaps(
+        context: Context,
+        articles: List<WidgetArticle>,
+        widthPx: Int,
+        heightPx: Int,
+    ): Map<String, Bitmap> {
+        val out = LinkedHashMap<String, Bitmap>()
+        val byUrl = HashMap<String, Bitmap>()
+        for (article in articles) {
+            val url = article.imageUrl ?: continue
+            val bitmap = byUrl.getOrPut(url) {
+                loadBitmap(context, url, widthPx, heightPx) ?: NULL_BITMAP
+            }
+            if (bitmap !== NULL_BITMAP) out[article.articleId] = bitmap
+        }
+        return out
+    }
+
+    /** Logos for every article, keyed by article id. */
+    suspend fun loadLogos(
+        context: Context,
+        articles: List<WidgetArticle>,
+        sizePx: Int,
+    ): Map<String, Bitmap> {
+        val out = LinkedHashMap<String, Bitmap>()
+        val byUrl = HashMap<String, Bitmap>()
+        for (article in articles) {
+            val url = article.sourceLogoUrl ?: continue
+            val cropped = byUrl.getOrPut(url) {
+                loadBitmap(context, url, sizePx, sizePx)?.let { circleCrop(it, sizePx) }
+                    ?: NULL_BITMAP
+            }
+            if (cropped !== NULL_BITMAP) out[article.articleId] = cropped
+        }
+        return out
+    }
+
+    /** Placeholder marking a URL that resolved to nothing, so it is tried once. */
+    private val NULL_BITMAP = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
 
     /** Circle-crops a logo bitmap for the image style's top-left badge. */
     fun circleCrop(src: Bitmap, sizePx: Int): Bitmap {

@@ -49,14 +49,18 @@ private val ChevronBg = ColorProvider(Color(0x59000000))
 @Composable
 fun ImageStyleContent(
     state: WidgetSnapshot,
-    bg: Bitmap?,
-    logo: Bitmap?,
+    images: Map<String, Bitmap>,
+    logos: Map<String, Bitmap>,
     large: Boolean,
 ) {
     val context = LocalContext.current
     val colors = WidgetColors(state.accentColor, state.themeMode)
     val size = state.articles.size
     val article = if (size == 0) null else state.articles[Math.floorMod(state.startIndex, size)]
+    // Pick the artwork from the map by article id so advancing the chevron also
+    // swaps the picture: the state drives recomposition, the bitmap follows it.
+    val bg = article?.let { images[it.articleId] }
+    val logo = article?.let { logos[it.articleId] }
 
     if (article == null) {
         // Empty: fall back to the classic empty state (no artwork to show).

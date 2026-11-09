@@ -4,11 +4,15 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import android.os.Build
 import androidx.compose.ui.text.font.FontFamily
 
 /** Design tokens per doc section 3. Shapes live in IntentDimens. */
@@ -62,10 +66,27 @@ fun IntentTheme(
     accent: Color = QuoteUnderline,
     typography: IntentTypography? = null,
     highContrast: Boolean = false,
+    dynamicColor: Boolean = false,
+    dynamicBackground: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val base = if (darkTheme) DarkScheme else LightScheme
-    val colors0 = base.copy(accent = accent)
+    val context = LocalContext.current
+    val dynamicScheme = if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    } else null
+    val colors0 = if (dynamicScheme != null) base.copy(
+        bg = if (dynamicBackground) dynamicScheme.background else base.bg,
+        card = dynamicScheme.surfaceContainerLow,
+        text = dynamicScheme.onSurface,
+        textSecondary = dynamicScheme.onSurfaceVariant,
+        textTertiary = dynamicScheme.onSurfaceVariant.copy(alpha = 0.7f),
+        divider = dynamicScheme.outlineVariant,
+        heroBg = dynamicScheme.surfaceContainer,
+        surface = dynamicScheme.surfaceContainerHigh,
+        accent = dynamicScheme.primary,
+        glass = dynamicScheme.surfaceContainerHigh.copy(alpha = if (darkTheme) 0.85f else 0.9f),
+    ) else base.copy(accent = accent)
     // High-contrast accessibility: pull secondary/tertiary text toward full
     // contrast and make dividers clearly visible.
     val colors = if (highContrast) colors0.copy(
@@ -73,7 +94,7 @@ fun IntentTheme(
         textTertiary = colors0.textSecondary,
         divider = colors0.text.copy(alpha = 0.4f),
     ) else colors0
-    val m3Scheme = if (darkTheme) {
+    val m3Scheme = dynamicScheme ?: if (darkTheme) {
         darkColorScheme(
             background = colors.bg, surface = colors.bg, surfaceVariant = colors.card,
             onBackground = colors.text, onSurface = colors.text, onSurfaceVariant = colors.textSecondary,

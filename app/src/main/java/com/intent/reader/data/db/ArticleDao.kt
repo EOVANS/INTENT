@@ -15,6 +15,9 @@ interface ArticleDao {
     @Query("SELECT * FROM articles ORDER BY publishedAt DESC LIMIT :limit")
     fun observeRecent(limit: Int = 800): Flow<List<Article>>
 
+    @Query("SELECT * FROM articles ORDER BY publishedAt DESC LIMIT :limit")
+    suspend fun getRecent(limit: Int = 200): List<Article>
+
     @Query("SELECT * FROM articles WHERE id = :id")
     suspend fun getById(id: String): Article?
 
@@ -85,6 +88,9 @@ interface ArticleDao {
 
     @Query("SELECT COUNT(*) FROM articles")
     suspend fun count(): Int
+
+    @Query("SELECT COUNT(*) FROM articles WHERE sourceId = :sourceId")
+    suspend fun countBySource(sourceId: String): Int
 
     @Query(
         """

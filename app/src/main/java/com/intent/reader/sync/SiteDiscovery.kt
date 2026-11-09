@@ -9,6 +9,11 @@ import okhttp3.Request
  */
 object SiteDiscovery {
 
+    /** Why a URL could not be turned into a feed subscription. */
+    enum class FeedFailure { UNREACHABLE, NO_FEED, BAD_FORMAT }
+
+    class FeedException(val kind: FeedFailure, message: String) : Exception(message)
+
     data class SiteInfo(
         val feedUrl: String?,
         val siteUrl: String?,
@@ -21,7 +26,9 @@ object SiteDiscovery {
             Request.Builder().url(normalizeUrl(url)).header("User-Agent", FeedFetcher.USER_AGENT).build()
         ).execute()
         resp.use { r ->
-            if (!r.isSuccessful) return Result.failure(IllegalStateException("HTTP ${r.code}"))
+            if (!r.isSuccessful) {
+                return Result.failure(FeedException(FeedFailure.UNREACHABLE, "HTTP ${r.code}"))
+            }
             val contentType = r.header("Content-Type") ?: ""
             val body = r.body?.string().orEmpty()
             if (contentType.contains("html") || body.contains("<html", ignoreCase = true) ||
@@ -38,13 +45,23 @@ object SiteDiscovery {
                             ?: defaultFavicon(normalizeUrl(url)),
                     )
                 )
-            } else {
-                // Probably already a feed
+            } else if (looksLikeFeed(body)) {
+                // Already a feed document.
                 Result.success(SiteInfo(feedUrl = normalizeUrl(url), siteUrl = null, title = null, iconUrl = null))
+            } else {
+                Result.failure(FeedException(FeedFailure.BAD_FORMAT, "not a feed"))
             }
         }
-    } catch (e: Exception) {
+    } catch (e: FeedException) {
         Result.failure(e)
+    } catch (e: Exception) {
+        Result.failure(FeedException(FeedFailure.UNREACHABLE, e.message ?: "unreachable"))
+    }
+
+    /** RSS 2.0 / Atom / RDF documents, tolerant of BOM and leading whitespace. */
+    fun looksLikeFeed(body: String): Boolean {
+        val head = body.take(2048).lowercase()
+        return head.contains("<rss") || head.contains("<feed") || head.contains("<rdf:rdf")
     }
 
     /** Finds <link rel="alternate" type="application/rss+xml|atom+xml"> */

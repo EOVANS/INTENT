@@ -88,6 +88,7 @@ fun GlassTabBar(
     overLight: Boolean = false,
     transparency: Float = 0.5f,
     reduceMotion: Boolean = false,
+    split: Boolean = false,
 ) {
     // Do not leave invisible, focusable navigation targets over the keyboard.
     if (hidden) return
@@ -119,13 +120,17 @@ fun GlassTabBar(
     val density = LocalDensity.current
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
+    // On wide screens the bar spans the whole width so the primary tabs sit under the
+    // left thumb and search under the right one; compact phones keep the centred pill.
     Row(
-        modifier.navigationBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)
-            .widthIn(max = 360.dp).fillMaxWidth().selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier.navigationBarsPadding()
+            .padding(horizontal = if (split) 24.dp else 20.dp, vertical = 12.dp)
+            .then(if (split) Modifier.fillMaxWidth() else Modifier.widthIn(max = 360.dp).fillMaxWidth())
+            .selectableGroup(),
+        horizontalArrangement = if (split) Arrangement.SpaceBetween else Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BoxWithConstraints(Modifier.weight(1f).height(64.dp)) {
+        BoxWithConstraints(Modifier.then(if (split) Modifier.width(284.dp) else Modifier.weight(1f)).height(64.dp)) {
             val slotWidth = (maxWidth - 8.dp) / mainTabs.size
             val maxPosition = mainTabs.lastIndex.toFloat()
             val slotPx = with(density) { slotWidth.toPx() }

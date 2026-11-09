@@ -882,6 +882,8 @@ fun IntentNavHost(
                 overLight = glassOverLight,
                 transparency = settings.glassTransparency,
                 reduceMotion = settings.reduceAnimations,
+                // Tablets and unfolded foldables split the bar to the two lower corners.
+                split = widthSizeClass != WindowWidthSizeClass.Compact,
             )
             }
         }

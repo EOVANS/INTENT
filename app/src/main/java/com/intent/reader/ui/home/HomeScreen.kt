@@ -44,6 +44,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -164,6 +166,9 @@ fun HomeScreen(
     val spans = remember(state.rows, widthClass) { computeSpans(state.rows, widthClass) }
     val gridState = rememberLazyGridState()
     val scope = rememberCoroutineScope()
+    val refreshState = rememberPullToRefreshState()
+    val pull = refreshState.distanceFraction.coerceIn(0f, 3f)
+    val density = LocalDensity.current
 
     // Re-tapping the Home tab (or tapping the status-bar area) scrolls the feed
     // back to the greeting header.
@@ -178,9 +183,32 @@ fun HomeScreen(
     PullToRefreshBox(
         isRefreshing = state.refreshing,
         onRefresh = onRefresh,
+        state = refreshState,
         modifier = Modifier.fillMaxSize(),
+        indicator = {
+            if (pull > 0f || state.refreshing) {
+                Column(
+                    modifier = Modifier.align(Alignment.TopCenter)
+                        .padding(top = statusBarTop + 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    if (state.refreshing) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = c.textSecondary, strokeWidth = 2.dp)
+                    } else {
+                        Box(Modifier.width(24.dp).height((24f + 52f * pull).dp)
+                            .border(2.dp, c.textSecondary.copy(alpha = (0.35f + pull * 0.35f).coerceAtMost(0.75f)), RoundedCornerShape(50)))
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        stringResource(if (state.refreshing) R.string.home_refreshing else if (pull >= 1f) R.string.home_release_refresh else R.string.home_pull_refresh),
+                        style = IntentTheme.typography.bodySmall,
+                        color = c.textSecondary,
+                    )
+                }
+            }
+        },
     ) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().graphicsLayer { translationY = with(density) { (pull * 100.dp.toPx()) } }) {
             if (state.rows.isEmpty() && state.loaded) {
             Column(
                 modifier = Modifier

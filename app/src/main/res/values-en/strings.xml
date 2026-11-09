@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="home_pull_refresh">Pull to refresh</string>
+    <string name="home_release_refresh">Release to refresh</string>
+    <string name="home_refreshing">Refreshing</string>
     <string name="app_name">INTENT</string>
 
     <string name="tab_home">Home</string>

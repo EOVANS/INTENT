@@ -2,7 +2,14 @@
 
 **INTENT — 一款专注于阅读的、由 AI 轻量赋能的 RSS 阅读器**
 
+[![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-7F52FF)](https://kotlinlang.org/)
+[![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 适用版本：INTENT 1.5.2 · Android 11 及以上
+
+![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)
+
 手册内容：添加订阅 · 找 RSS 源 · 管理与阅读 · 桌面小组件 · 个性化设置 · 常见问题
 
 近期功能与实现记录：[更新日志](changelog.md)

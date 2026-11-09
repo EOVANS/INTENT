@@ -470,7 +470,7 @@ fun currentAppIcon(context: Context): String {
 }
 
 @Composable
-private fun SettingsGroup(content: @Composable () -> Unit) {
+internal fun SettingsGroup(content: @Composable () -> Unit) {
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(IntentTheme.colors.surface).padding(horizontal = 16.dp, vertical = 4.dp)) {
         content()
     }
@@ -503,6 +503,7 @@ fun SettingsScreen(
     onOpenNotify: () -> Unit,
     onOpenUser: () -> Unit,
     onOpenPrivacy: () -> Unit,
+    onOpenPermissions: () -> Unit,
     onOpenAdvanced: () -> Unit,
     onOpenAbout: () -> Unit,
     onOpenAi: () -> Unit,
@@ -546,6 +547,7 @@ fun SettingsScreen(
             EntryRow(stringResource(R.string.ai_settings), icon = Icons.Filled.AutoAwesome, iconColor = Color(0xFF9B70EF), onClick = onOpenAi)
             EntryRow(stringResource(R.string.settings_user), value = s.userName.ifBlank { null }, icon = Icons.Filled.Person, iconColor = Color(0xFFEC9450), onClick = onOpenUser)
             EntryRow(stringResource(R.string.settings_privacy), icon = Icons.Filled.PrivacyTip, iconColor = Color(0xFF5A64D8), onClick = onOpenPrivacy)
+            EntryRow(stringResource(R.string.settings_permissions), icon = Icons.Filled.Security, iconColor = Color(0xFF3D7BEA), onClick = onOpenPermissions)
             EntryRow(stringResource(R.string.settings_advanced), icon = Icons.Filled.Tune, iconColor = Color(0xFF50B7C5), onClick = onOpenAdvanced)
         }
         Spacer(Modifier.height(16.dp))

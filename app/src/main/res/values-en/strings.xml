@@ -212,6 +212,21 @@
 
     <string name="settings_user">User profile</string>
     <string name="settings_privacy">Privacy</string>
+    <string name="settings_permissions">Device &amp; permissions</string>
+    <string name="permissions_intro">INTENT holds the principle that privacy should never be compromised. Permission requests follow a strict minimum-necessary rule: a permission is requested only when its feature is used, and never for anything unrelated.</string>
+    <string name="permissions_runtime_section">Can be switched on or off anytime</string>
+    <string name="permissions_install_section">Granted by the system at install</string>
+    <string name="permissions_granted">Granted</string>
+    <string name="permissions_notify_title">Notifications</string>
+    <string name="permissions_notify_details">What: lets INTENT reach you while you are not using the app. Why: sync reminders, the daily reading summary and reading activity need to notify you.</string>
+    <string name="permissions_notify_off">When off: no notifications arrive, the daily summary and update reminders stop silently, and reading in the app is unaffected.</string>
+    <string name="permissions_notify_denied">Notifications are still off. You can enable them later in system settings.</string>
+    <string name="permissions_network_title">Network access</string>
+    <string name="permissions_network_details">What: fetching RSS feeds, downloading articles and images, and calling the AI service you configured. Why: a reader needs the network for fresh content.</string>
+    <string name="permissions_network_off">Cannot be turned off here: the system grants it at install. To disconnect fully, restrict its network access in system settings or uninstall the app.</string>
+    <string name="permissions_background_title">Background sync</string>
+    <string name="permissions_background_details">What: wake lock, boot-completed receiver and foreground service. Why: keeps refreshing feeds at your chosen interval after you leave the app.</string>
+    <string name="permissions_background_off">Cannot be turned off here: also granted at install. Lengthen the sync interval in Settings to reduce background activity.</string>
     <string name="privacy_intro">We believe privacy is a fundamental human right, and it should never be compromised. Control over data belongs to the people using the product, not to the product provider. On this page you can manage how all data is stored and transmitted.</string>
     <string name="privacy_data_section">Data storage and transmission</string>
     <string name="privacy_sandbox_title">Data stored locally (app sandbox)</string>

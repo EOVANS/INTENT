@@ -27,7 +27,7 @@ import com.kyant.backdrop.Backdrop
 /** Every page the right pane can host. */
 private enum class SettingsPane {
     UI, ICON, FONT, WIDGET, LANGUAGE, THEME,
-    A11Y, NOTIFY, USER, PRIVACY, READING, ADVANCED, DEVELOPER, ABOUT, AI, STORAGE,
+    A11Y, NOTIFY, USER, PRIVACY, PERMISSIONS, READING, ADVANCED, DEVELOPER, ABOUT, AI, STORAGE,
 }
 
 /**
@@ -69,6 +69,7 @@ fun SettingsSplitScreen(
                 onOpenNotify = { select(SettingsPane.NOTIFY) },
                 onOpenUser = { select(SettingsPane.USER) },
                 onOpenPrivacy = { select(SettingsPane.PRIVACY) },
+                onOpenPermissions = { select(SettingsPane.PERMISSIONS) },
                 onOpenAdvanced = { select(SettingsPane.ADVANCED) },
                 onOpenAbout = { select(SettingsPane.ABOUT) },
                 onOpenAi = { select(SettingsPane.AI) },
@@ -117,6 +118,7 @@ fun SettingsSplitScreen(
                             onOpenAi = { push(SettingsPane.AI) },
                         )
                         SettingsPane.READING -> ReadingHistoryScreen(onBack = pop)
+                        SettingsPane.PERMISSIONS -> DevicePermissionScreen(onBack = pop)
                         SettingsPane.ADVANCED -> AdvancedMaterialScreen(onBack = pop)
                         SettingsPane.DEVELOPER -> DeveloperScreen(onBack = pop)
                         SettingsPane.ABOUT -> AboutScreen(

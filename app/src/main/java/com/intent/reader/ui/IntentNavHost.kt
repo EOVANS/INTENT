@@ -104,6 +104,7 @@ import com.intent.reader.ui.settings.UiSettingsScreen
 import com.intent.reader.ui.settings.ThemeSettingsScreen
 import com.intent.reader.ui.settings.UserSettingsScreen
 import com.intent.reader.ui.settings.PrivacyScreen
+import com.intent.reader.ui.settings.DevicePermissionScreen
 import com.intent.reader.ui.settings.SettingsSplitScreen
 import com.intent.reader.ui.settings.ReadingHistoryScreen
 import com.intent.reader.ui.settings.WebPageScreen
@@ -138,6 +139,7 @@ object Routes {
     const val SETTINGS_NOTIFY = "settings_notify"
     const val SETTINGS_USER = "settings_user"
     const val SETTINGS_PRIVACY = "settings_privacy"
+    const val SETTINGS_PERMISSIONS = "settings_permissions"
     const val SETTINGS_PRIVACY_READING = "settings_privacy_reading"
     const val SETTINGS_ADVANCED = "settings_advanced"
     const val SETTINGS_DEVELOPER = "settings_developer"
@@ -635,6 +637,7 @@ fun IntentNavHost(
                         onOpenNotify = { navController.navigate(Routes.SETTINGS_NOTIFY) },
                         onOpenUser = { navController.navigate(Routes.SETTINGS_USER) },
                         onOpenPrivacy = { navController.navigate(Routes.SETTINGS_PRIVACY) },
+                        onOpenPermissions = { navController.navigate(Routes.SETTINGS_PERMISSIONS) },
                         onOpenAdvanced = { navController.navigate(Routes.SETTINGS_ADVANCED) },
                         onOpenAbout = { navController.navigate(Routes.SETTINGS_ABOUT) },
                         onOpenAi = { navController.navigate(Routes.SETTINGS_AI) },
@@ -655,6 +658,10 @@ fun IntentNavHost(
 
             framedComposable(Routes.SETTINGS_STORAGE) {
                 StorageSettingsScreen(onBack = { navController.popBackStack() })
+            }
+
+            framedComposable(Routes.SETTINGS_PERMISSIONS) {
+                DevicePermissionScreen(onBack = { navController.popBackStack() })
             }
 
             framedComposable(Routes.SETTINGS_AI) {

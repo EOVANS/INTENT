@@ -96,7 +96,7 @@ import java.util.Locale
 
 /** Grid columns per window size class (doc 8). */
 fun articleColumns(widthClass: WindowWidthSizeClass): Int = when (widthClass) {
-    WindowWidthSizeClass.Medium -> 3
+    WindowWidthSizeClass.Medium -> 2
     WindowWidthSizeClass.Expanded -> 4
     else -> 2
 }
@@ -111,22 +111,23 @@ private fun isHalfWidthStyle(style: CardStyle): Boolean =
  * - Phones (2 columns): A/B take one column, C/D/E take the whole row. A trailing
  *   orphan A/B — i.e. the last card of an odd-length run of half-width cards —
  *   is promoted to the full row so the right column is never left empty.
- * - Tablets: A/B take one column, everything else spans two.
+ * - Medium screens: every card takes one of two columns.
+ * - Expanded screens: A/B take one of four columns, other cards span two.
  */
 fun computeSpans(rows: List<HomeRowUi>, widthClass: WindowWidthSizeClass): List<Int> {
     val total = articleColumns(widthClass)
     val compact = widthClass == WindowWidthSizeClass.Compact
     val spans = rows.map { row ->
         when (row) {
-            is HomeRowUi.Aggregate -> if (compact) total else 2.coerceAtMost(total)
+            is HomeRowUi.Aggregate -> if (compact) total else if (total == 2) 1 else 2
             is HomeRowUi.Single ->
                 if (isHalfWidthStyle(row.a.style)) 1
-                else if (compact) total else 2.coerceAtMost(total)
+                else if (compact) total else if (total == 2) 1 else 2
         }
     }.toMutableList()
 
     // Odd run of half-width cards would leave the second column empty.
-    if (total == 2) {
+    if (compact && total == 2) {
         var i = 0
         while (i < spans.size) {
             if (spans[i] == 1) {

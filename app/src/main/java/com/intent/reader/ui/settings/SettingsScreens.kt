@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -203,6 +204,8 @@ internal fun SettingsScaffold(
     ) {
         Row(
             Modifier
+                .align(Alignment.CenterHorizontally)
+                .widthIn(max = 720.dp)
                 .fillMaxWidth()
                 // Same top offset as the search page title (status bar + 24dp),
                 // and the same 16dp gap above the first row (8dp here + the 8dp
@@ -231,7 +234,10 @@ internal fun SettingsScaffold(
         val bottomReserve = if (onBack == null) 84.dp else 16.dp
         Column(
             Modifier
-                .fillMaxSize()
+                .align(Alignment.CenterHorizontally)
+                .widthIn(max = 720.dp)
+                .fillMaxWidth()
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(horizontal = IntentDimens.pageHMarginPhone.dp),

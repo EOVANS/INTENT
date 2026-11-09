@@ -33,6 +33,27 @@ class IslandNotesTest {
     private val paragraph = NoteParagraph("paragraph:0", "读书让我们看见更大的世界。")
     private val timestamp = 1793097600000L
 
+    @Test fun textAndHandwritingCommitTogether() = runBlocking {
+        val directory = temporary.newFolder()
+        val repository = NotesRepository(directory) { timestamp }
+        val ink = com.intent.reader.notes.Handwriting(width = 100f, height = 200f, strokes = listOf(
+            com.intent.reader.notes.InkStroke(listOf(com.intent.reader.notes.InkPoint(2f, 3f)))
+        ))
+        repository.saveWithHandwriting(article, "来源", paragraph, "第一版", ink)
+        val id = repository.state.value.notes.single().id
+        try {
+            repository.updateWithHandwriting(id, "不应保存", ink.copy(version = 2))
+            fail("invalid drawing must fail")
+        } catch (_: IllegalArgumentException) { }
+        val reopened = NotesRepository(directory)
+        reopened.load()
+        assertEquals("第一版", reopened.state.value.notes.single().remark)
+        assertEquals(ink, reopened.loadHandwriting(reopened.state.value.notes.single()))
+        reopened.updateWithHandwriting(id, "第二版", null)
+        assertEquals("第二版", reopened.state.value.notes.single().remark)
+        assertNull(reopened.loadHandwriting(reopened.state.value.notes.single()))
+    }
+
     @Test fun handwritingRoundTripKeepsTextAndCanBeRemovedIndependently() = runBlocking {
         val directory = temporary.newFolder()
         val repository = NotesRepository(directory) { timestamp }

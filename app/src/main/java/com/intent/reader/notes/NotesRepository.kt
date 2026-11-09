@@ -57,6 +57,33 @@ class NotesRepository(private val directory: File, private val now: () -> Long =
         mutex.withLock {
             loadLocked()
             val note = state.value.notes.first { it.id == id }
+            writeWithHandwritingLocked(note, drawing)
+        }
+    }
+
+    /** Commit the text and handwriting together, retaining both old values if writing fails. */
+    suspend fun saveWithHandwriting(article: Article, sourceTitle: String, paragraph: NoteParagraph, remark: String, drawing: Handwriting?) =
+        withContext(Dispatchers.IO) {
+            mutex.withLock {
+                loadLocked()
+                require(paragraph.text.isNotBlank() && paragraph.key.isNotBlank())
+                val existing = state.value.notes.firstOrNull { it.articleId == article.id && it.paragraphKey == paragraph.key }
+                val timestamp = now()
+                val note = existing?.copy(remark = remark, updatedAt = maxOf(timestamp, existing.updatedAt), imageUrl = existing.imageUrl ?: article.imageUrl)
+                    ?: IslandNote(UUID.randomUUID().toString(), article.id, article.title, article.link, sourceTitle, paragraph.key, timestamp, timestamp, paragraph.text, remark, imageUrl = article.imageUrl)
+                writeWithHandwritingLocked(note, drawing)
+            }
+        }
+
+    suspend fun updateWithHandwriting(id: String, remark: String, drawing: Handwriting?) = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            loadLocked()
+            val note = state.value.notes.first { it.id == id }
+            writeWithHandwritingLocked(note.copy(remark = remark), drawing)
+        }
+    }
+
+    private fun writeWithHandwritingLocked(note: IslandNote, drawing: Handwriting?) {
             val revision = drawing?.let {
                 val bytes = HandwritingFormat.encode(it)
                 val id = UUID.randomUUID().toString()
@@ -75,7 +102,6 @@ class NotesRepository(private val directory: File, private val now: () -> Long =
                 throw error
             }
             note.handwritingRevision?.let { runCatching { inkFile(note, it).delete() } }
-        }
     }
 
     suspend fun loadHandwriting(note: IslandNote): Handwriting? = withContext(Dispatchers.IO) {

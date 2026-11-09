@@ -206,6 +206,7 @@
     <string name="license_components_intro">このアプリでは、Apache License 2.0 の以下のオープンソースコンポーネントを使用しています。</string>
     <string name="license_sharedview_description">独立した SDK です。ライセンス条件は提供元の説明をご確認ください。SharedViewDemo の MIT ライセンスが SDK に適用されるとは限りません。</string>
     <string name="retain_settings">記事の保持</string>
+    <string name="retain_days">%1$d 日</string>
     <string name="settings_storage">ストレージ</string>
     <string name="clear_cache_on_exit">終了時にキャッシュを削除</string>
     <string name="clear_cache_now">キャッシュを今すぐ削除</string>

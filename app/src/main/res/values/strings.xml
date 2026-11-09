@@ -217,6 +217,7 @@
     <string name="license_components_intro">本应用使用以下开源组件，均采用 Apache License 2.0：</string>
     <string name="license_sharedview_description">独立 SDK，其许可条款以发布方说明为准。SharedViewDemo 的 MIT 许可不代表适用于该 SDK。</string>
     <string name="retain_settings">文章保留</string>
+    <string name="retain_days">%1$d 天</string>
     <string name="settings_storage">存储</string>
     <string name="clear_cache_on_exit">退出时清理缓存</string>
     <string name="clear_cache_now">一键清理缓存</string>

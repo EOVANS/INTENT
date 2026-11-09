@@ -557,7 +557,7 @@ fun SettingsScreen(
             SwitchRow(stringResource(R.string.sync_wifi_only), s.syncWifiOnly, icon = Icons.Filled.Wifi, iconColor = Color(0xFF45A4E8)) { vm.setSyncWifiOnly(it) }
             SwitchRow(stringResource(R.string.wifi_only_images), s.wifiOnlyImages, icon = Icons.Filled.Image, iconColor = Color(0xFF6ABF88)) { vm.setWifiOnlyImages(it) }
             SettingsControlLabel(stringResource(R.string.retain_settings), Icons.Filled.History, Color(0xFFEA9854))
-            Segmented(options = retainOptions.map { "$it 天" }, selectedIndex = retainOptions.indexOf(s.retainDays).let { if (it >= 0) it else 1 }) { vm.setRetainDays(retainOptions[it]) }
+            Segmented(options = retainOptions.map { stringResource(R.string.retain_days, it) }, selectedIndex = retainOptions.indexOf(s.retainDays).let { if (it >= 0) it else 1 }) { vm.setRetainDays(retainOptions[it]) }
             Spacer(Modifier.height(8.dp))
             EntryRow(stringResource(R.string.import_opml), icon = Icons.Filled.FileDownload, iconColor = Color(0xFF56BC83)) { opmlImport.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) }
             EntryRow(stringResource(R.string.export_opml), icon = Icons.Filled.FileUpload, iconColor = Color(0xFF56A6E9)) { opmlExport.launch("intent-subscriptions.opml") }
@@ -1823,7 +1823,7 @@ fun NotificationScreen(onBack: () -> Unit) {
         }
         StepperRow(
             stringResource(R.string.notify_goal),
-            "${s.readingGoalMinutes} min",
+            s.readingGoalMinutes.toString(),
             { vm.setReadingGoalMinutes((s.readingGoalMinutes - 5).coerceAtLeast(5)) },
             { vm.setReadingGoalMinutes((s.readingGoalMinutes + 5).coerceAtMost(120)) },
         )

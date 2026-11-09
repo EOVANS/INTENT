@@ -206,6 +206,7 @@
     <string name="license_components_intro">이 앱은 Apache License 2.0을 따르는 다음 오픈소스 구성 요소를 사용합니다.</string>
     <string name="license_sharedview_description">별도로 라이선스가 적용되는 SDK입니다. 제공자의 조건을 확인하세요. SharedViewDemo의 MIT 라이선스가 SDK에 적용된다는 의미는 아닙니다.</string>
     <string name="retain_settings">기사 보관</string>
+    <string name="retain_days">%1$d일</string>
     <string name="settings_storage">저장 공간</string>
     <string name="clear_cache_on_exit">종료 시 캐시 정리</string>
     <string name="clear_cache_now">캐시 즉시 정리</string>

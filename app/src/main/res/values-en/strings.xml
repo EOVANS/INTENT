@@ -126,6 +126,7 @@
     <string name="license_components_intro">This app uses the following open-source components under Apache License 2.0:</string>
     <string name="license_sharedview_description">An independently licensed SDK; see its publisher’s terms. The SharedViewDemo MIT license does not establish the SDK license.</string>
     <string name="retain_settings">Article retention</string>
+    <string name="retain_days">%1$d days</string>
     <string name="settings_storage">Storage</string>
     <string name="clear_cache_on_exit">Clear cache on exit</string>
     <string name="clear_cache_now">Clear cache now</string>

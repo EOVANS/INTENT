@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 data class InkPoint(val x: Float, val y: Float)
 
 @Serializable
-data class InkStroke(val points: List<InkPoint>)
+data class InkStroke(val points: List<InkPoint>, val color: Long = 0xFF000000L)
 
 @Serializable
 data class Handwriting(val version: Int = 1, val width: Float, val height: Float, val strokes: List<InkStroke>)
@@ -39,6 +39,7 @@ object HandwritingFormat {
         require(drawing.strokes.size <= MAX_STROKES)
         var total = 0L
         for (stroke in drawing.strokes) {
+            require(stroke.color in 0L..0xFFFFFFFFL)
             require(stroke.points.isNotEmpty())
             total += stroke.points.size
             require(total <= MAX_POINTS)

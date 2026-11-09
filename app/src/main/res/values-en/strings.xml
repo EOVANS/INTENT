@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_black">Black</string><string name="ink_blue">Blue</string><string name="ink_red">Red</string><string name="ink_green">Green</string>
     <string name="ink_pen">Pen</string><string name="ink_eraser">Eraser</string>
     <string name="ink_extend">Extend canvas</string>
     <string name="ink_add">Add handwriting</string><string name="ink_edit">Edit handwriting</string><string name="ink_load_error">Handwriting or draft could not be read. The original file is preserved.</string>

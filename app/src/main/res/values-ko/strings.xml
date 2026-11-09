@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_black">검정</string><string name="ink_blue">파랑</string><string name="ink_red">빨강</string><string name="ink_green">초록</string>
     <string name="ink_pen">펜</string><string name="ink_eraser">지우개</string>
     <string name="ink_extend">캔버스 늘리기</string>
     <string name="ink_add">손글씨 추가</string><string name="ink_edit">손글씨 편집</string><string name="ink_load_error">손글씨 또는 임시 저장을 읽을 수 없습니다. 원본 파일은 보존됩니다.</string>

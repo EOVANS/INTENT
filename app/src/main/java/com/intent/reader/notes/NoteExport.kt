@@ -49,6 +49,7 @@ object NoteExport {
             canvas.drawColor(Color.WHITE)
             val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK; strokeWidth = 2.5f * scale; strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND; style = Paint.Style.STROKE }
             drawing.strokes.forEach { stroke ->
+                paint.color = stroke.color.toInt()
                 val points = stroke.points
                 if (points.size == 1) canvas.drawPoint(points[0].x * scale, points[0].y * scale, paint)
                 else for (i in 1 until points.size) canvas.drawLine(points[i - 1].x * scale, points[i - 1].y * scale, points[i].x * scale, points[i].y * scale, paint)

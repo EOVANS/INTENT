@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_black">黑色</string><string name="ink_blue">蓝色</string><string name="ink_red">红色</string><string name="ink_green">绿色</string>
     <string name="ink_add">添加手写</string>
     <string name="ink_pen">画笔</string><string name="ink_eraser">橡皮擦</string>
     <string name="ink_extend">延长画布</string>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_black">黒</string><string name="ink_blue">青</string><string name="ink_red">赤</string><string name="ink_green">緑</string>
     <string name="ink_pen">ペン</string><string name="ink_eraser">消しゴム</string>
     <string name="ink_extend">キャンバスを延長</string>
     <string name="ink_add">手書きを追加</string><string name="ink_edit">手書きを編集</string><string name="ink_load_error">手書きまたは下書きを読み込めません。元のファイルは保持されています。</string>

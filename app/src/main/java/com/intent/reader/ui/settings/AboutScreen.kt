@@ -107,7 +107,7 @@ private const val URL_LATEST_RELEASE =
 private data class LatestRelease(val tag: String, val url: String)
 
 /**
- * About: app logo, the INTENT wordmark in AgibotDisplay, a Beta capsule tag,
+ * About: app logo, the INTENT wordmark in AgibotDisplay, a Release capsule tag,
  * the current version, an update check, and legal entries that open in an
  * in-app WebView (never an external browser).
  */
@@ -188,7 +188,7 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
                         .background(c.accent.copy(alpha = 0.12f))
                         .padding(horizontal = 12.dp, vertical = 4.dp),
                 ) {
-                    Text("Beta", style = t.meta, color = c.accent)
+                    Text("Release", style = t.meta, color = c.accent)
                 }
             }
             Spacer(Modifier.height(10.dp))

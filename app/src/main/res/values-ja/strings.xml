@@ -91,7 +91,7 @@
     <string name="settings_user_name">ユーザー名</string>
     <string name="settings_user">ユーザー設定</string>
     <string name="settings_privacy">プライバシー</string>
-    <string name="privacy_intro">私たちは、プライバシーは基本的人権であり、妥協されるべきではないと考えています。データの管理権は製品提供者ではなく、利用者にあるべきです。このページでは、RSS 購読記録、閲覧データ、カスタム API キーなど、すべてのデータの保存・送信ルールを自分で管理し、何を端末内だけに残し、何を外部に送信できるかを決められます。INTENT はデータ最小化とローカルファーストを既定の方針とし、強制的なアップロードや隠れた収集は行いません。すべてのデータ処理は、あなたの明示的な許可に基づいて行われます。</string>
+    <string name="privacy_intro">私たちは、プライバシーは基本的人権であり、妥協されるべきではないと考えています。データの管理権は製品提供者ではなく、利用者にあるべきです。このページでは、すべてのデータの保存・送信ルールを自分で管理できます。</string>
     <string name="privacy_data_section">データの保存と送信の管理</string>
     <string name="privacy_sandbox_title">端末内に保存されるデータ（アプリサンドボックス）</string>
     <string name="privacy_sandbox_description">説明：アプリ専用のサンドボックスに保存され、本アプリだけが読み取れます。他のアプリはアクセスできません。アプリを削除するとデータも完全に消去され、いかなるサーバーにも自動で送信されません。</string>

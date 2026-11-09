@@ -212,7 +212,7 @@
 
     <string name="settings_user">User profile</string>
     <string name="settings_privacy">Privacy</string>
-    <string name="privacy_intro">We believe privacy is a fundamental human right, and it should never be compromised. Control over data belongs to the people using the product, not to the product provider. On this page you can manage how all data is stored and transmitted — RSS subscriptions, reading data, custom API keys and other core information — and decide what stays on this device and what may be sent elsewhere. INTENT follows data minimization and local-first principles by default: no forced uploads, no hidden collection. Every data action happens only with your explicit permission.</string>
+    <string name="privacy_intro">We believe privacy is a fundamental human right, and it should never be compromised. Control over data belongs to the people using the product, not to the product provider. On this page you can manage how all data is stored and transmitted.</string>
     <string name="privacy_data_section">Data storage and transmission</string>
     <string name="privacy_sandbox_title">Data stored locally (app sandbox)</string>
     <string name="privacy_sandbox_description">Details: Stored in the app\'s private sandbox directory, readable only by this app; other apps have no access. The data is permanently removed when the app is uninstalled and is never uploaded to any server.</string>

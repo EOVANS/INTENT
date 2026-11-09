@@ -102,7 +102,7 @@
     <string name="settings_user_name">用户名</string>
     <string name="settings_user">用户设置</string>
     <string name="settings_privacy">隐私</string>
-    <string name="privacy_intro">我们认为，隐私权是一项基本人权，隐私权不应被妥协。数据的控制权理应掌握在使用者手中，而非产品提供方。在本页面，你可以自主管理所有数据的保存与上传规则，包括 RSS 订阅记录、阅读数据、自定义 API 密钥等核心信息，决定哪些内容仅留存于本地设备、哪些数据可被对外传输。INTENT 默认奉行数据最小化与本地优先原则，无强制上传、无隐秘采集，所有数据行为均以你的主动授权为准。</string>
+    <string name="privacy_intro">我们认为，隐私权是一项基本人权，隐私权不应被妥协。数据的控制权理应掌握在使用者手中，而非产品提供方。在本页面，你可以自主管理所有数据的保存与上传规则。</string>
     <string name="privacy_data_section">数据存储与上传管理</string>
     <string name="privacy_sandbox_title">保存在本地的数据（应用沙箱）</string>
     <string name="privacy_sandbox_description">说明：存储于应用专属沙箱目录，仅本应用可读取，第三方应用无权访问；数据随应用卸载一并彻底清除，全程不会主动上传至任何服务器。</string>

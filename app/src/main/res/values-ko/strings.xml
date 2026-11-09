@@ -1,5 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_pen">펜</string><string name="ink_eraser">지우개</string>
+    <string name="ink_extend">캔버스 늘리기</string>
+    <string name="ink_add">손글씨 추가</string><string name="ink_edit">손글씨 편집</string><string name="ink_load_error">손글씨 또는 임시 저장을 읽을 수 없습니다. 원본 파일은 보존됩니다.</string>
+    <string name="ink_undo">실행 취소</string><string name="ink_redo">다시 실행</string><string name="ink_finger_on">손가락 쓰기: 켬</string><string name="ink_finger_off">손가락 쓰기: 끔</string><string name="ink_clear">모두 지우기</string><string name="ink_clear_confirm">모든 손글씨를 지울까요?</string><string name="ink_hint">펜으로 쓰고 손가락으로 스크롤합니다. 필요하면 손가락 쓰기를 켜세요.</string>
     <string name="home_pull_refresh">당겨서 새로고침</string>
     <string name="home_release_refresh">놓아서 새로고침</string>
     <string name="home_refreshing">새로고침 중</string>
@@ -290,11 +294,11 @@
     <string name="notes_delete_title">이 노트를 삭제할까요?</string>
     <string name="notes_delete_message">발췌문, 메모 및 해당 강조 표시가 함께 삭제됩니다.</string>
     <string name="notes_save_error">저장 또는 삭제하지 못했습니다. 입력 내용은 유지됩니다. 다시 시도해 주세요.</string>
-    <string name="notes_export">노트 공유 (Markdown)</string>
+    <string name="notes_export">노트 공유</string>
     <string name="notes_report_placeholder">정보 소비 보고서 (추후 지원)</string>
     <string name="notes_exported">Markdown을 내보냈습니다</string>
     <string name="notes_export_error">공유하지 못했습니다. 원본 노트는 기기에 남아 있습니다.</string>
-    <string name="notes_local_hint">이 기기에만 저장하며 Ai 호출이나 클라우드 백업을 하지 않습니다. 앱 삭제 전에 기기의 폴더로 내보내세요.</string>
+    <string name="notes_local_hint">텍스트와 손글씨는 이 기기에만 저장됩니다. 삭제 전에 공유하세요. 손글씨 ZIP은 아직 가져올 수 없습니다.</string>
     <string name="notes_load_error">일부 노트를 읽지 못했습니다. 원본 파일은 유지됩니다. 저장 공간을 확인한 후 다시 열어 주세요.</string>
     <string name="notes_empty">아직 노트가 없습니다. 글을 읽으며 문단을 길게 눌러 강조하거나 메모를 남기세요.</string>
     <string name="notes_reader_hint">문단을 길게 눌러 강조하거나 메모 추가</string>

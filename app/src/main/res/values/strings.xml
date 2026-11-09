@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_add">添加手写</string>
+    <string name="ink_pen">画笔</string><string name="ink_eraser">橡皮擦</string>
+    <string name="ink_extend">延长画布</string>
+    <string name="ink_edit">编辑手写</string>
+    <string name="ink_load_error">手写内容或草稿无法读取，原文件已保留。</string>
+    <string name="ink_undo">撤销</string><string name="ink_redo">重做</string>
+    <string name="ink_finger_on">手指书写：开</string><string name="ink_finger_off">手指书写：关</string>
+    <string name="ink_clear">清空</string><string name="ink_clear_confirm">清空全部手写？</string>
+    <string name="ink_hint">使用手写笔书写；手指可滚动。无笔时可开启手指书写。</string>
     <string name="home_pull_refresh">下拉刷新</string>
     <string name="home_release_refresh">松开刷新</string>
     <string name="home_refreshing">正在刷新</string>
@@ -307,11 +316,11 @@
     <string name="notes_delete_title">删除这条笔记？</string>
     <string name="notes_delete_message">摘录、备注和对应高亮将一起删除。</string>
     <string name="notes_save_error">保存或删除失败，内容仍在这里，请重试。</string>
-    <string name="notes_export">分享笔记（Markdown）</string>
+    <string name="notes_export">分享笔记</string>
     <string name="notes_report_placeholder">信息饮食报告（暂不支持）</string>
     <string name="notes_exported">Markdown 已导出</string>
     <string name="notes_export_error">分享失败，请重试。原笔记仍保存在本机。</string>
-    <string name="notes_local_hint">仅保存在本机，不调用 Ai、不参与云备份。卸载前请导出，导出时选择本机目录。</string>
+    <string name="notes_local_hint">文字与手写仅保存在本机，不参与云备份。卸载前请分享保存；含手写时导出 ZIP，暂不支持导入恢复。</string>
     <string name="notes_load_error">部分笔记无法读取，原文件已保留。请检查存储空间后重新进入。</string>
     <string name="notes_empty">还没有笔记。阅读时长按一个段落，保存高亮或写下备注。</string>
     <string name="notes_reader_hint">长按段落，留下高亮或备注</string>

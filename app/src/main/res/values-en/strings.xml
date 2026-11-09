@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_pen">Pen</string><string name="ink_eraser">Eraser</string>
+    <string name="ink_extend">Extend canvas</string>
+    <string name="ink_add">Add handwriting</string><string name="ink_edit">Edit handwriting</string><string name="ink_load_error">Handwriting or draft could not be read. The original file is preserved.</string>
+    <string name="ink_undo">Undo</string><string name="ink_redo">Redo</string><string name="ink_finger_on">Finger drawing: on</string><string name="ink_finger_off">Finger drawing: off</string><string name="ink_clear">Clear</string><string name="ink_clear_confirm">Clear all handwriting?</string><string name="ink_hint">Write with a stylus and scroll with a finger. Enable finger drawing when needed.</string>
     <string name="home_pull_refresh">Pull to refresh</string>
     <string name="home_release_refresh">Release to refresh</string>
     <string name="home_refreshing">Refreshing</string>
@@ -291,11 +295,11 @@
     <string name="notes_delete_title">Delete this note?</string>
     <string name="notes_delete_message">The excerpt, note and corresponding highlight will be removed.</string>
     <string name="notes_save_error">Could not save or delete. Your draft is still here; please retry.</string>
-    <string name="notes_export">Share notes (Markdown)</string>
+    <string name="notes_export">Share notes</string>
     <string name="notes_report_placeholder">Information diet report (coming later)</string>
     <string name="notes_exported">Markdown exported</string>
     <string name="notes_export_error">Sharing failed. Please retry; your original notes are still on this device.</string>
-    <string name="notes_local_hint">Stored on this device only, with no Ai calls or cloud backup. Export before uninstalling and choose a local folder.</string>
+    <string name="notes_local_hint">Text and handwriting stay on this device without cloud backup. Share before uninstalling; handwriting is exported as a ZIP that cannot yet be imported.</string>
     <string name="notes_load_error">Some notes could not be read. Original files were kept. Check storage space and reopen this screen.</string>
     <string name="notes_empty">No notes yet. Long-press a paragraph while reading to save a highlight or add a note.</string>
     <string name="notes_reader_hint">Long-press a paragraph to highlight or add a note</string>

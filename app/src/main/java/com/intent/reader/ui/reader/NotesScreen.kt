@@ -35,6 +35,7 @@ import com.intent.reader.notes.IslandNote
 import com.intent.reader.notes.NoteArticle
 import com.intent.reader.notes.NoteArticles
 import com.intent.reader.notes.NoteMarkdown
+import com.intent.reader.notes.NoteExport
 import com.intent.reader.rss.HtmlText
 import com.intent.reader.ui.components.HeaderIconButton
 import com.intent.reader.ui.components.LocalHeaderMaterial
@@ -121,13 +122,15 @@ fun NotesScreen(
                 exporting = true
                 try {
                     repository.load()
-                    val snapshot = repository.state.value.notes.filter { articleId == null || it.articleId == articleId }
+                    val exportItems = repository.exportSnapshot(articleId)
+                    val snapshot = exportItems.map { it.note }
                     if (snapshot.isEmpty()) throw java.io.IOException("No notes to share")
+                    val hasInk = exportItems.any { it.handwriting != null }
                     val file = withContext(Dispatchers.IO) {
                         val directory = java.io.File(context.cacheDir, "note-shares")
                         if (!directory.exists() && !directory.mkdirs()) throw java.io.IOException("Cannot create share directory")
-                        val file = java.io.File.createTempFile("INTENT-notes-${LocalDate.now()}-", ".md", directory)
-                        file.bufferedWriter(Charsets.UTF_8).use { writer ->
+                        val file = java.io.File.createTempFile("INTENT-notes-${LocalDate.now()}-", if (hasInk) ".zip" else ".md", directory)
+                        if (hasInk) NoteExport.writeZip(file, exportItems) else file.bufferedWriter(Charsets.UTF_8).use { writer ->
                             NoteArticles.group(snapshot).forEachIndexed { index, group ->
                                 if (index > 0) writer.write("\n\n---\n\n")
                                 val source = (context.applicationContext as IntentApplication).container.database.articleDao().getById(group.articleId)
@@ -138,7 +141,7 @@ fun NotesScreen(
                     }
                     val uri = FileProvider.getUriForFile(context, "${context.packageName}.notes-share", file)
                     val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/markdown"
+                        type = if (hasInk) "application/zip" else "text/markdown"
                         putExtra(Intent.EXTRA_STREAM, uri)
                         clipData = ClipData.newRawUri("Markdown", uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -229,6 +232,7 @@ fun NotesScreen(
                             Text(note.remark.ifBlank { stringResource(R.string.notes_add_remark) }.withCjkSpacing(),
                                 style = t.bodySmall, color = c.textSecondary)
                         }
+                        if (note.handwritingRevision != null) Text(stringResource(R.string.ink_edit), style = t.meta, color = c.textSecondary)
                     }
                 }
                 if (ordered.isNotEmpty()) item(key = "footer") {
@@ -310,8 +314,9 @@ fun NotesScreen(
     }
     state.notes.firstOrNull { it.id == editingId }?.let { note ->
         key(note.id) {
-            NoteEditor(note.quote, note.remark, onDismiss = { editingId = null },
-                onSave = { repository.update(note.id, it) }, onDelete = { repository.delete(note.id) })
+            NoteEditor(note.quote, note.remark, note = note, draftKey = "${note.articleId}:${note.paragraphKey}", repository = repository,
+                onDismiss = { editingId = null },
+                onSave = { remark, ink -> repository.updateWithHandwriting(note.id, remark, ink) }, onDelete = { repository.delete(note.id) })
         }
     }
 }

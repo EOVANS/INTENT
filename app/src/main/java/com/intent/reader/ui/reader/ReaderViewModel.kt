@@ -99,10 +99,10 @@ class ReaderViewModel(private val app: IntentApplication) : ViewModel() {
         container.readingTracker.setReadingForeground(active)
     }
 
-    suspend fun saveNote(paragraph: com.intent.reader.notes.NoteParagraph, remark: String) {
+    suspend fun saveNote(paragraph: com.intent.reader.notes.NoteParagraph, remark: String, drawing: com.intent.reader.notes.Handwriting?) {
         val current = state.value
         val article = current.article ?: error("Article unavailable")
-        container.notesRepository.save(article, current.source?.title.orEmpty(), paragraph, remark)
+        container.notesRepository.saveWithHandwriting(article, current.source?.title.orEmpty(), paragraph, remark, drawing)
     }
 
     suspend fun deleteNote(id: String) { container.notesRepository.delete(id) }

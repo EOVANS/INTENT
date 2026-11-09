@@ -79,7 +79,7 @@ fun ReaderScreen(
     onRegenerateSummary: () -> Unit,
     onDismissSummary: () -> Unit,
     onOpenNotes: () -> Unit,
-    onSaveNote: suspend (com.intent.reader.notes.NoteParagraph, String) -> Unit,
+    onSaveNote: suspend (com.intent.reader.notes.NoteParagraph, String, com.intent.reader.notes.Handwriting?) -> Unit,
     onDeleteNote: suspend (String) -> Unit,
 ) {
     val c = IntentTheme.colors
@@ -371,8 +371,11 @@ fun ReaderScreen(
     selectedParagraph?.let { paragraph ->
         val note = notesByParagraph[paragraph.key]
         key(article?.id, paragraph.key) {
-            NoteEditor(paragraph.text, note?.remark.orEmpty(), onDismiss = { selectedParagraph = null },
-                onSave = { onSaveNote(paragraph, it) },
+            NoteEditor(paragraph.text, note?.remark.orEmpty(), note = note,
+                draftKey = "${article?.id}:${paragraph.key}",
+                repository = (context.applicationContext as com.intent.reader.IntentApplication).container.notesRepository,
+                onDismiss = { selectedParagraph = null },
+                onSave = { remark, ink -> onSaveNote(paragraph, remark, ink) },
                 onDelete = note?.let { { onDeleteNote(it.id) } },
             )
         }

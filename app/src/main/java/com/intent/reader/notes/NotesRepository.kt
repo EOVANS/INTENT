@@ -16,8 +16,14 @@ import java.time.ZoneOffset
 import java.util.UUID
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 data class NotesState(val notes: List<IslandNote> = emptyList(), val loaded: Boolean = false, val unreadableFiles: Int = 0)
+data class NoteExportItem(val note: IslandNote, val handwriting: Handwriting?)
+@Serializable data class NoteDraft(val remark: String, val handwriting: Handwriting?)
 
 /** App-owned local Markdown, excluded from ordinary caches and Android backup by its caller. */
 class NotesRepository(private val directory: File, private val now: () -> Long = System::currentTimeMillis) {
@@ -26,6 +32,53 @@ class NotesRepository(private val directory: File, private val now: () -> Long =
     val state = mutableState.asStateFlow()
 
     suspend fun load() = withContext(Dispatchers.IO) { mutex.withLock { loadLocked() } }
+
+    private fun draftFile(key: String): File {
+        val digest = java.security.MessageDigest.getInstance("SHA-256").digest(key.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
+        return File(File(directory, "drafts"), "$digest.json")
+    }
+
+    suspend fun readDraft(key: String): NoteDraft? = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            val file = draftFile(key)
+            if (!file.exists()) null else {
+                require(file.length() <= HandwritingFormat.MAX_BYTES + 65536L)
+                val draft = Json.decodeFromString<NoteDraft>(file.readText(Charsets.UTF_8))
+                draft.handwriting?.let { HandwritingFormat.encode(it) }
+                draft
+            }
+        }
+    }
+
+    suspend fun writeDraft(key: String, draft: NoteDraft) = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            draft.handwriting?.let { HandwritingFormat.encode(it) }
+            val bytes = Json.encodeToString(draft).toByteArray(Charsets.UTF_8)
+            require(bytes.size <= HandwritingFormat.MAX_BYTES + 65536)
+            val target = draftFile(key)
+            if (!target.parentFile!!.isDirectory && !target.parentFile!!.mkdirs()) throw IOException("Cannot create draft directory")
+            val temp = File(target.parentFile, ".${target.name}.${UUID.randomUUID()}.tmp")
+            try {
+                temp.outputStream().use { it.write(bytes); it.fd.sync() }
+                Files.move(temp.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+            } finally { temp.delete() }
+        }
+    }
+
+    suspend fun deleteDraft(key: String) = withContext(Dispatchers.IO) {
+        mutex.withLock { val file = draftFile(key); if (file.exists() && !file.delete()) throw IOException("Cannot delete draft") }
+    }
+
+    /** Capture note metadata and attachments together so an export cannot mix revisions. */
+    suspend fun exportSnapshot(articleId: String?): List<NoteExportItem> = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            loadLocked()
+            state.value.notes.filter { articleId == null || it.articleId == articleId }.map { note ->
+                NoteExportItem(note, note.handwritingRevision?.let { revision -> readInkLocked(note, revision) })
+            }
+        }
+    }
 
     suspend fun save(article: Article, sourceTitle: String, paragraph: NoteParagraph, remark: String) =
         withContext(Dispatchers.IO) {
@@ -107,11 +160,25 @@ class NotesRepository(private val directory: File, private val now: () -> Long =
     suspend fun loadHandwriting(note: IslandNote): Handwriting? = withContext(Dispatchers.IO) {
         mutex.withLock {
             note.handwritingRevision?.let { revision ->
-                val file = inkFile(note, revision)
-                require(file.length() <= HandwritingFormat.MAX_BYTES)
-                HandwritingFormat.decode(AtomicFile(file).openRead().use { it.readBytes() })
+                readInkLocked(note, revision)
             }
         }
+    }
+
+    private fun readInkLocked(note: IslandNote, revision: String): Handwriting {
+        val file = inkFile(note, revision)
+        require(file.length() <= HandwritingFormat.MAX_BYTES)
+        return HandwritingFormat.decode(AtomicFile(file).openRead().use { input ->
+            val output = java.io.ByteArrayOutputStream()
+            val buffer = ByteArray(8192)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                require(output.size().toLong() + count <= HandwritingFormat.MAX_BYTES)
+                output.write(buffer, 0, count)
+            }
+            output.toByteArray()
+        })
     }
 
     private fun inkFile(note: IslandNote, revision: String): File {

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ink_pen">ペン</string><string name="ink_eraser">消しゴム</string>
+    <string name="ink_extend">キャンバスを延長</string>
+    <string name="ink_add">手書きを追加</string><string name="ink_edit">手書きを編集</string><string name="ink_load_error">手書きまたは下書きを読み込めません。元のファイルは保持されています。</string>
+    <string name="ink_undo">元に戻す</string><string name="ink_redo">やり直す</string><string name="ink_finger_on">指で描く：オン</string><string name="ink_finger_off">指で描く：オフ</string><string name="ink_clear">消去</string><string name="ink_clear_confirm">手書きをすべて消去しますか？</string><string name="ink_hint">ペンで書き、指でスクロールします。必要に応じて指での描画を有効にします。</string>
     <string name="home_pull_refresh">下に引いて更新</string>
     <string name="home_release_refresh">離して更新</string>
     <string name="home_refreshing">更新中</string>
@@ -290,11 +294,11 @@
     <string name="notes_delete_title">このノートを削除しますか？</string>
     <string name="notes_delete_message">抜粋、メモ、対応するハイライトを削除します。</string>
     <string name="notes_save_error">保存または削除に失敗しました。入力内容は残っています。再試行してください。</string>
-    <string name="notes_export">ノートを共有（Markdown）</string>
+    <string name="notes_export">ノートを共有</string>
     <string name="notes_report_placeholder">情報摂取レポート（近日対応）</string>
     <string name="notes_exported">Markdown を保存しました</string>
     <string name="notes_export_error">共有に失敗しました。元のノートは端末に残っています。</string>
-    <string name="notes_local_hint">端末内のみ保存し、Ai 通信やクラウドバックアップは行いません。アンインストール前に端末内のフォルダへ書き出してください。</string>
+    <string name="notes_local_hint">文字と手書きは端末内にのみ保存されます。削除前に共有してください。手書きを含む ZIP はまだインポートできません。</string>
     <string name="notes_load_error">一部のノートを読み込めませんでした。元のファイルは保持しています。空き容量を確認して開き直してください。</string>
     <string name="notes_empty">ノートはまだありません。本文の段落を長押ししてハイライトやメモを保存できます。</string>
     <string name="notes_reader_hint">段落を長押ししてハイライトやメモを保存</string>

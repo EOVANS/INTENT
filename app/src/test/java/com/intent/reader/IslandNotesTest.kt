@@ -33,6 +33,28 @@ class IslandNotesTest {
     private val paragraph = NoteParagraph("paragraph:0", "读书让我们看见更大的世界。")
     private val timestamp = 1793097600000L
 
+    @Test fun draftAndExportSnapshotPreserveInkAndText() = runBlocking {
+        val directory = temporary.newFolder()
+        val repository = NotesRepository(directory) { timestamp }
+        val ink = com.intent.reader.notes.Handwriting(width = 100f, height = 200f, strokes = listOf(com.intent.reader.notes.InkStroke(listOf(com.intent.reader.notes.InkPoint(2f, 3f)))))
+        val draft = com.intent.reader.notes.NoteDraft("草稿", ink)
+        repository.writeDraft("article:paragraph", draft)
+        assertEquals(draft, NotesRepository(directory).readDraft("article:paragraph"))
+        repository.saveWithHandwriting(article, "来源", paragraph, "备注", ink)
+        val snapshot = repository.exportSnapshot(article.id)
+        assertEquals(ink, snapshot.single().handwriting)
+        val archive = File(directory, "export.zip")
+        com.intent.reader.notes.NoteExport.writeZip(archive, snapshot)
+        java.util.zip.ZipFile(archive).use { zip ->
+            assertNotNull(zip.getEntry("notes.md"))
+            assertNotNull(zip.getEntry("handwriting/${snapshot.single().note.id}.json"))
+            assertNotNull(zip.getEntry("handwriting/${snapshot.single().note.id}.png"))
+            assertTrue(zip.getInputStream(zip.getEntry("notes.md")).bufferedReader().readText().contains("备注"))
+        }
+        repository.deleteDraft("article:paragraph")
+        assertNull(repository.readDraft("article:paragraph"))
+    }
+
     @Test fun textAndHandwritingCommitTogether() = runBlocking {
         val directory = temporary.newFolder()
         val repository = NotesRepository(directory) { timestamp }

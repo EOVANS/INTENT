@@ -2,6 +2,7 @@ package com.intent.reader.data.repo
 
 import android.os.SystemClock
 import com.intent.reader.data.db.AppDatabase
+import com.intent.reader.data.db.ReadingEvent
 import com.intent.reader.data.db.ReadingLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
+/** Article context used to attribute accumulated reading time in the privacy history. */
+data class ReadingArticle(val id: String, val title: String, val sourceTitle: String)
+
 /** Application-owned timer: navigation cannot cancel the final database write. */
 class ReadingTracker(
     private val db: AppDatabase,
@@ -30,6 +34,8 @@ class ReadingTracker(
     private val mutex = Mutex()
     private var sessionStart: Long? = null
     private var timerJob: Job? = null
+    private var activeArticle: ReadingArticle? = null
+    private var pendingArticleMillis = 0L
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeToday(): Flow<ReadingLog?> = flow {
@@ -58,13 +64,42 @@ class ReadingTracker(
         }
     }
 
+    /** Registers the article on screen so reading minutes can be attributed to it. */
+    fun setReadingArticle(article: ReadingArticle?) {
+        if (activeArticle?.id != article?.id) pendingArticleMillis = 0L
+        activeArticle = article
+    }
+
     private fun checkpoint() {
         val start = sessionStart ?: return
         val now = elapsedRealtime()
         sessionStart = now
         val elapsed = (now - start).coerceAtLeast(0L)
         val endedAt = wallTimeMillis()
-        if (elapsed > 0) scope.launch { addElapsed(elapsed, endedAt) }
+        if (elapsed > 0) {
+            scope.launch { addElapsed(elapsed, endedAt) }
+            recordArticleReading(elapsed, endedAt)
+        }
+    }
+
+    /** Writes one history row per full minute of foreground reading. */
+    private fun recordArticleReading(elapsed: Long, endedAt: Long) {
+        val article = activeArticle ?: return
+        pendingArticleMillis += elapsed
+        val minutes = (pendingArticleMillis / 60_000L).toInt()
+        if (minutes < 1) return
+        pendingArticleMillis -= minutes * 60_000L
+        scope.launch {
+            val dao = db.readingEventDao()
+            dao.insert(ReadingEvent(
+                articleId = article.id,
+                articleTitle = article.title,
+                sourceTitle = article.sourceTitle,
+                at = endedAt,
+                minutes = minutes,
+            ))
+            dao.trimBefore(endedAt - 60L * 24 * 60 * 60 * 1000)
+        }
     }
 
     /** Raise today's recorded time to the goal without reducing existing progress. */

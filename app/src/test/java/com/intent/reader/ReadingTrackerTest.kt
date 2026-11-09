@@ -121,7 +121,7 @@ class ReadingTrackerTest {
             it.version = 1
         }
         val migrated = Room.databaseBuilder(context, AppDatabase::class.java, name)
-            .addMigrations(AppDatabase.MIGRATION_1_2).build()
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3).build()
         try {
             val log = migrated.readingLogDao().getByDate(date.toString())!!
             assertEquals(7, log.minutes)

@@ -31,7 +31,7 @@ class AppContainer(context: Context) {
         com.intent.reader.ai.AiRepository(
             { aiConfigStore.config.value }, com.intent.reader.ai.AiClient(client),
             java.io.File(appContext.noBackupFilesDir, "ai-results"),
-        )
+        ) { settingsRepository.incrementAiUsage(it) }
     }
 
     val database: AppDatabase by lazy { AppDatabase.get(appContext) }

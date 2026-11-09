@@ -89,6 +89,12 @@ interface ArticleDao {
     @Query("SELECT COUNT(*) FROM articles")
     suspend fun count(): Int
 
+    @Query("SELECT COUNT(*) FROM articles")
+    fun observeCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM articles WHERE isFavorite = 1")
+    fun observeFavoriteCount(): Flow<Int>
+
     @Query("SELECT COUNT(*) FROM articles WHERE sourceId = :sourceId")
     suspend fun countBySource(sourceId: String): Int
 

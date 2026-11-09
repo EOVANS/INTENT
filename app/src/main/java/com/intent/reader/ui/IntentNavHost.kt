@@ -104,6 +104,7 @@ import com.intent.reader.ui.settings.UiSettingsScreen
 import com.intent.reader.ui.settings.ThemeSettingsScreen
 import com.intent.reader.ui.settings.UserSettingsScreen
 import com.intent.reader.ui.settings.PrivacyScreen
+import com.intent.reader.ui.settings.ReadingHistoryScreen
 import com.intent.reader.ui.settings.WebPageScreen
 import com.intent.reader.ui.theme.IntentTheme
 import com.intent.reader.ui.theme.IntentDimens
@@ -136,6 +137,7 @@ object Routes {
     const val SETTINGS_NOTIFY = "settings_notify"
     const val SETTINGS_USER = "settings_user"
     const val SETTINGS_PRIVACY = "settings_privacy"
+    const val SETTINGS_PRIVACY_READING = "settings_privacy_reading"
     const val SETTINGS_ADVANCED = "settings_advanced"
     const val SETTINGS_DEVELOPER = "settings_developer"
     const val SETTINGS_ABOUT = "settings_about"
@@ -831,7 +833,16 @@ fun IntentNavHost(
             }
 
             framedComposable(Routes.SETTINGS_PRIVACY) {
-                PrivacyScreen(onBack = { navController.popBackStack() })
+                PrivacyScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenSources = { navController.navigate(Routes.SOURCES) },
+                    onOpenReadingHistory = { navController.navigate(Routes.SETTINGS_PRIVACY_READING) },
+                    onOpenAi = { navController.navigate(Routes.SETTINGS_AI) },
+                )
+            }
+
+            framedComposable(Routes.SETTINGS_PRIVACY_READING) {
+                ReadingHistoryScreen(onBack = { navController.popBackStack() })
             }
 
             framedComposable(Routes.SETTINGS_ADVANCED) {

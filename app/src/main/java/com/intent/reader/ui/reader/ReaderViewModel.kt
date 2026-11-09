@@ -10,6 +10,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import com.intent.reader.data.db.Article
 import com.intent.reader.data.db.Source
+import com.intent.reader.data.repo.ReadingArticle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -89,6 +90,7 @@ class ReaderViewModel(private val app: IntentApplication) : ViewModel() {
             catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) { _state.update { it.copy(notesError = true) } }
             if (!article.isRead) container.database.articleDao().setRead(article.id, true)
+            container.readingTracker.setReadingArticle(ReadingArticle(article.id, article.title, source?.title.orEmpty()))
             container.database.articleDao().observeById(articleId).collect { updated ->
                 if (updated != null) _state.update { it.copy(article = updated) }
             }
@@ -96,6 +98,11 @@ class ReaderViewModel(private val app: IntentApplication) : ViewModel() {
     }
 
     fun setReadingForeground(active: Boolean) {
+        val current = state.value
+        val article = current.article
+        container.readingTracker.setReadingArticle(
+            if (active && article != null) ReadingArticle(article.id, article.title, current.source?.title.orEmpty()) else null
+        )
         container.readingTracker.setReadingForeground(active)
     }
 

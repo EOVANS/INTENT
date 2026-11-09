@@ -44,6 +44,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -103,6 +105,8 @@ import com.intent.reader.widget.IntentWidgets
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 /** Settings ViewModel: single source of truth over SettingsState. */
@@ -1213,10 +1217,54 @@ private fun Color.toArgbLong(): Long = 0xFFFFFFFFL and android.graphics.Color.ar
 
 // ---------- Privacy settings (level 1) ----------
 
+class PrivacyViewModel(private val app: IntentApplication) : ViewModel() {
+    private val db = app.container.database
+    private val repo = app.container.settingsRepository
+
+    var sources by mutableStateOf<List<com.intent.reader.data.db.Source>>(emptyList())
+        private set
+    var readingEvents by mutableStateOf<List<com.intent.reader.data.db.ReadingEvent>>(emptyList())
+        private set
+    var readingCount by mutableStateOf(0)
+        private set
+    var cachedArticles by mutableStateOf(0)
+        private set
+    var savedArticles by mutableStateOf(0)
+        private set
+    var settings by mutableStateOf(SettingsState())
+        private set
+    var aiConfig by mutableStateOf(com.intent.reader.ai.AiConfig())
+        private set
+
+    init {
+        viewModelScope.launch { app.container.sourceRepository.observeSources().collect { sources = it } }
+        viewModelScope.launch { db.readingEventDao().observeRecent(300).collect { readingEvents = it } }
+        viewModelScope.launch { db.readingEventDao().observeCount().collect { readingCount = it } }
+        viewModelScope.launch { db.articleDao().observeCount().collect { cachedArticles = it } }
+        viewModelScope.launch { db.articleDao().observeFavoriteCount().collect { savedArticles = it } }
+        viewModelScope.launch { repo.settings.collect { settings = it } }
+        viewModelScope.launch { app.container.aiConfigStore.config.collect { aiConfig = it } }
+    }
+
+    fun clearReadingHistory() = viewModelScope.launch { db.readingEventDao().clear() }
+}
+
 @Composable
-fun PrivacyScreen(onBack: () -> Unit) {
+private fun privacyVm(): PrivacyViewModel {
+    val app = LocalContext.current.applicationContext as IntentApplication
+    return viewModel(initializer = { PrivacyViewModel(app) })
+}
+
+@Composable
+fun PrivacyScreen(
+    onBack: () -> Unit,
+    onOpenSources: () -> Unit,
+    onOpenReadingHistory: () -> Unit,
+    onOpenAi: () -> Unit,
+) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
+    val vm = privacyVm()
 
     SettingsScaffold(title = stringResource(R.string.settings_privacy), onBack = onBack) {
         Column(
@@ -1237,37 +1285,262 @@ fun PrivacyScreen(onBack: () -> Unit) {
             )
         }
         SectionLabel(stringResource(R.string.privacy_data_section))
-        PrivacyBlock(Icons.Filled.PhoneAndroid, Color(0xFF50B7C5), R.string.privacy_sandbox_title, R.string.privacy_sandbox_contents, R.string.privacy_sandbox_description)
+
+        // 1. App sandbox: real local data the user can inspect or clear.
+        PrivacyGroup(title = stringResource(R.string.privacy_sandbox_title)) {
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_sources),
+                value = stringResource(R.string.privacy_count_sources, vm.sources.size),
+                onClick = onOpenSources,
+            )
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_reading),
+                value = stringResource(R.string.privacy_count_records, vm.readingCount),
+                onClick = onOpenReadingHistory,
+            )
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_preferences),
+                value = stringResource(R.string.privacy_local_only),
+            )
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_cache),
+                value = stringResource(R.string.privacy_count_articles, vm.cachedArticles),
+            )
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_saved),
+                value = stringResource(R.string.privacy_count_saved, vm.savedArticles),
+            )
+            PrivacyNote(stringResource(R.string.privacy_sandbox_description))
+        }
+
         Spacer(Modifier.height(10.dp))
-        PrivacyBlock(Icons.Filled.Folder, Color(0xFFEC9450), R.string.privacy_export_title, R.string.privacy_export_contents, R.string.privacy_export_description)
+
+        // 2. Public storage only receives files the user exports explicitly.
+        PrivacyGroup(title = stringResource(R.string.privacy_export_title)) {
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_opml),
+                value = stringResource(R.string.privacy_export_on_demand),
+                active = false,
+            )
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_article_export),
+                value = stringResource(R.string.privacy_export_on_demand),
+                active = false,
+            )
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_logs),
+                value = stringResource(R.string.privacy_export_on_demand),
+                active = false,
+            )
+            PrivacyNote(stringResource(R.string.privacy_export_description))
+        }
+
         Spacer(Modifier.height(10.dp))
-        PrivacyBlock(Icons.Filled.Lock, Color(0xFF2587FF), R.string.privacy_secure_title, R.string.privacy_secure_contents, R.string.privacy_secure_description)
+
+        // 3. Encrypted local credentials; tapping goes to AI settings to manage them.
+        PrivacyGroup(title = stringResource(R.string.privacy_secure_title)) {
+            PrivacyDataRow(
+                label = stringResource(R.string.privacy_row_api_key),
+                value = stringResource(
+                    if (vm.aiConfig.apiKey.isNotBlank()) R.string.privacy_api_configured else R.string.privacy_api_missing
+                ),
+                icon = Icons.Filled.Lock,
+                tint = Color(0xFF2587FF),
+                onClick = onOpenAi,
+            )
+            PrivacyNote(stringResource(R.string.privacy_secure_description))
+        }
+
         Spacer(Modifier.height(10.dp))
-        PrivacyBlock(Icons.Filled.CloudUpload, Color(0xFF9B70EF), R.string.privacy_ai_title, R.string.privacy_ai_contents, R.string.privacy_ai_description)
+
+        // 4. AI requests actually made from this device, counted locally by feature.
+        PrivacyGroup(title = stringResource(R.string.privacy_ai_title)) {
+            AiUsageBars(
+                quickRead = vm.settings.aiQuickReadCount,
+                quote = vm.settings.aiQuoteCount,
+                test = vm.settings.aiTestCount,
+            )
+            PrivacyNote(stringResource(R.string.privacy_ai_description))
+        }
     }
 }
 
 @Composable
-private fun PrivacyBlock(icon: ImageVector, iconColor: Color, titleRes: Int, contentsRes: Int, descriptionRes: Int) {
+private fun PrivacyGroup(title: String, content: @Composable () -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     SettingsGroup {
         Row(Modifier.fillMaxWidth().padding(top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(21.dp))
-            Spacer(Modifier.width(14.dp))
-            Text(stringResource(titleRes).withCjkSpacing(), style = t.body, fontWeight = FontWeight.SemiBold, color = c.text)
+            Text(title.withCjkSpacing(), style = t.body, fontWeight = FontWeight.SemiBold, color = c.text)
         }
-        Text(
-            stringResource(contentsRes).withCjkSpacing(),
-            style = t.bodySmall,
-            color = c.textSecondary,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        Text(
-            stringResource(descriptionRes).withCjkSpacing(),
-            style = t.bodySmall,
-            color = c.textTertiary,
-            modifier = Modifier.padding(top = 6.dp, bottom = 14.dp),
+        content()
+    }
+}
+
+@Composable
+private fun PrivacyDataRow(
+    label: String,
+    value: String,
+    onClick: (() -> Unit)? = null,
+    active: Boolean = true,
+    icon: ImageVector? = null,
+    tint: Color = Color(0xFF35B26B),
+) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    Row(
+        Modifier.fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
+        } else {
+            Icon(
+                if (active) Icons.Filled.CheckCircle else Icons.Outlined.RadioButtonUnchecked,
+                contentDescription = null,
+                tint = if (active) tint else c.textTertiary,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        Spacer(Modifier.width(11.dp))
+        Text(label.withCjkSpacing(), style = t.body, color = c.text, modifier = Modifier.weight(1f))
+        Text(value, style = t.bodySmall, color = c.textSecondary)
+        if (onClick != null) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = c.textTertiary, modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
+@Composable
+private fun PrivacyNote(text: String) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    Text(
+        text.withCjkSpacing(),
+        style = t.bodySmall,
+        color = c.textTertiary,
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 14.dp),
+    )
+}
+
+/** Local AI usage: a big total on the left and one bar per feature on the right. */
+@Composable
+private fun AiUsageBars(quickRead: Int, quote: Int, test: Int) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val total = quickRead + quote + test
+    val max = maxOf(quickRead, quote, test, 1)
+    Row(
+        Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.privacy_ai_total_label), style = t.micro, color = c.textTertiary)
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text("$total", style = t.pageTitle, fontWeight = FontWeight.Bold, color = c.text)
+                Text(stringResource(R.string.privacy_ai_times_unit), style = t.bodySmall, color = c.textSecondary,
+                    modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Bottom) {
+            AiUsageBar(quickRead, max, Icons.Filled.AutoAwesome, Color(0xFF9B70EF), stringResource(R.string.privacy_ai_quick_read))
+            AiUsageBar(quote, max, Icons.Filled.FormatQuote, Color(0xFFDD8A3C), stringResource(R.string.privacy_ai_quote))
+            AiUsageBar(test, max, Icons.Filled.Bolt, Color(0xFF2587FF), stringResource(R.string.privacy_ai_test))
+        }
+    }
+}
+
+@Composable
+private fun AiUsageBar(count: Int, max: Int, icon: ImageVector, tint: Color, label: String) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val height = 44.dp + (56.dp * (count.toFloat() / max))
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            Modifier.width(44.dp).height(height).clip(RoundedCornerShape(14.dp)).background(tint.copy(alpha = 0.16f)),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.padding(bottom = 10.dp).size(18.dp))
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(stringResource(R.string.privacy_ai_times, count), style = t.bodySmall, fontWeight = FontWeight.SemiBold, color = c.text)
+        Text(label, style = t.micro, color = c.textTertiary)
+    }
+}
+
+@Composable
+fun ReadingHistoryScreen(onBack: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val vm = privacyVm()
+    var confirmClear by remember { mutableStateOf(false) }
+    val formatter = remember { SimpleDateFormat("yyyy/MM/dd a h:mm", Locale.getDefault()) }
+
+    SettingsScaffold(title = stringResource(R.string.privacy_reading_title), onBack = onBack) {
+        if (vm.readingEvents.isEmpty()) {
+            SettingsGroup {
+                Text(
+                    stringResource(R.string.privacy_reading_empty),
+                    style = t.bodySmall,
+                    color = c.textSecondary,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                )
+            }
+        } else {
+            SettingsGroup {
+                vm.readingEvents.forEachIndexed { index, event ->
+                    if (index > 0) {
+                        Box(Modifier.fillMaxWidth().height(1.dp).background(c.divider))
+                    }
+                    Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(formatter.format(Date(event.at)), style = t.micro, color = c.textTertiary, modifier = Modifier.weight(1f))
+                            Text(
+                                stringResource(R.string.privacy_reading_minutes, event.minutes),
+                                style = t.micro,
+                                color = Color(0xFF35B26B),
+                            )
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text(event.articleTitle.withCjkSpacing(), style = t.body, color = c.text)
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            stringResource(R.string.privacy_reading_from, event.sourceTitle).withCjkSpacing(),
+                            style = t.bodySmall,
+                            color = c.textSecondary,
+                        )
+                    }
+                }
+            }
+            Text(
+                stringResource(R.string.privacy_reading_note),
+                style = t.bodySmall,
+                color = c.textTertiary,
+                modifier = Modifier.padding(top = 12.dp),
+            )
+            Box(Modifier.fillMaxWidth().padding(top = 8.dp), contentAlignment = Alignment.Center) {
+                TextButton(onClick = { confirmClear = true }) {
+                    Text(stringResource(R.string.privacy_reading_clear), color = Color(0xFFE05B5B))
+                }
+            }
+        }
+    }
+
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            title = { Text(stringResource(R.string.privacy_reading_clear)) },
+            text = { Text(stringResource(R.string.privacy_reading_clear_confirm)) },
+            confirmButton = {
+                TextButton(onClick = { vm.clearReadingHistory(); confirmClear = false }) {
+                    Text(stringResource(R.string.privacy_reading_clear), color = Color(0xFFE05B5B))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmClear = false }) { Text(stringResource(R.string.privacy_cancel)) }
+            },
         )
     }
 }

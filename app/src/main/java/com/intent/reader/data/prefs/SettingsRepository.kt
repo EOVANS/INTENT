@@ -15,6 +15,9 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 
 enum class ThemeMode { FOLLOW_SYSTEM, LIGHT, DARK }
 
+/** AI features counted locally for the privacy page; never uploaded. */
+enum class AiUsageFeature { QUICK_READ, QUOTE, TEST }
+
 data class SettingsState(
     val userName: String = "",
     val greetingEmoji: String = "",
@@ -57,6 +60,9 @@ data class SettingsState(
     val disabledCardStyles: Set<String> = emptySet(),
     val liveUpdateDismissedDate: String = "",
     val clearCacheOnExit: Boolean = false,
+    val aiQuickReadCount: Int = 0,
+    val aiQuoteCount: Int = 0,
+    val aiTestCount: Int = 0,
 )
 
 class SettingsRepository(
@@ -106,6 +112,9 @@ class SettingsRepository(
         val disabledCards = stringSetPreferencesKey("disabled_card_styles")
         val liveUpdateDismissed = stringPreferencesKey("live_update_dismissed_date")
         val clearCacheOnExit = booleanPreferencesKey("clear_cache_on_exit")
+        val aiQuickReadCount = intPreferencesKey("ai_quick_read_count")
+        val aiQuoteCount = intPreferencesKey("ai_quote_count")
+        val aiTestCount = intPreferencesKey("ai_test_count")
     }
 
     val settings: Flow<SettingsState> = context.dataStore.data.map { p ->
@@ -153,6 +162,9 @@ class SettingsRepository(
             disabledCardStyles = p[Keys.disabledCards] ?: emptySet(),
             liveUpdateDismissedDate = p[Keys.liveUpdateDismissed] ?: "",
             clearCacheOnExit = p[Keys.clearCacheOnExit] ?: false,
+            aiQuickReadCount = p[Keys.aiQuickReadCount] ?: 0,
+            aiQuoteCount = p[Keys.aiQuoteCount] ?: 0,
+            aiTestCount = p[Keys.aiTestCount] ?: 0,
         )
     }
 
@@ -220,6 +232,15 @@ class SettingsRepository(
         it[Keys.disabledCards] = if (disabled) cur + style else cur - style
     }
     suspend fun setLiveUpdateDismissedDate(v: String) = edit { it[Keys.liveUpdateDismissed] = v }
+
+    suspend fun incrementAiUsage(feature: AiUsageFeature) = edit {
+        val key = when (feature) {
+            AiUsageFeature.QUICK_READ -> Keys.aiQuickReadCount
+            AiUsageFeature.QUOTE -> Keys.aiQuoteCount
+            AiUsageFeature.TEST -> Keys.aiTestCount
+        }
+        it[key] = (it[key] ?: 0) + 1
+    }
 
     private suspend fun edit(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
         context.dataStore.edit { block(it) }

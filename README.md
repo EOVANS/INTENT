@@ -2,10 +2,25 @@
 
 **INTENT — 一款专注于阅读的、由 AI 轻量赋能的 RSS 阅读器**
 
-适用版本：INTENT v1.5 · Android 11 及以上
+[![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-7F52FF)](https://kotlinlang.org/)
+[![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+适用版本：INTENT v1.6 · Android 11 及以上
+
+![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)
+
 手册内容：添加订阅 · 找 RSS 源 · 管理与阅读 · 桌面小组件 · 个性化设置 · 常见问题
 
 近期功能与实现记录：[更新日志](CHANGELOG.md)
+
+快来网站看看：[官网](https://intentread.pages.dev/#features)
+
+欢迎到访直男之家：[帮助中心](https://intentsonnet.pages.dev/help.html)
+
+软件安全性检查：https://www.virustotal.com/gui/
+
+<img width="1215" height="555" alt="image" src="https://github.com/user-attachments/assets/94bc9d77-8e91-4cf9-98ff-103af8b49bcf" />
 
 ---
 
@@ -359,7 +374,7 @@ A：检查是否开启了仅 Wi-Fi 加载图片；图片失效时会自动切换
 A：AI 默认关闭，普通金句在本机生成，优先摘录正文，其次摘要，最后才使用标题。启用 BYOK 并使用 AI 功能时，相关文章文字会直接发送到你配置的服务，费用由你的 API 账户承担。密钥加密保存在本机，AI 配置和结果缓存不参与系统备份；其他本地数据遵循 Android 系统备份设置。
 
 **Q：AI 功能有哪些限制？**
-A：首版使用普通非流式 Chat Completions 文本接口，速读输出中文。只分析 App 已获取的文字，不读取图片或额外抓取网页；只有 RSS 摘要时会标明。超过 24,000 字符的文章不会发送；金句最多选取三篇、总计不超过该限制的候选正文。密钥错误、额度不足或服务异常时会显示提示，不自动反复重试。
+A：首版使用普通非流式 Chat Completions 文本接口，速读输出中文。只分析 App 已获取的文字，不读取图片或额外抓取网页；只有 RSS 摘要时会标明。超过 24000 字符的文章不会发送；金句最多选取三篇、总计不超过该限制的候选正文。密钥错误、额度不足或服务异常时会显示提示，不自动反复重试。
 
 **Q：换手机怎么办？**
 A：先用"OPML 导出"备份订阅，在新手机安装 INTENT 后导入即可。

@@ -58,12 +58,32 @@ object RecommendedSources {
             "https://www.npr.org/apple-touch-icon-precomposed.png", CATEGORY_NEWS
         ),
         RecommendedSource(
-            "NHK ニュース", "https://www3.nhk.or.jp/rss/news/cat0.xml",
+            "NHK ニュース", "https://www.nhk.or.jp/rss/news/cat0.xml",
             "https://www3.nhk.or.jp/favicon.ico", CATEGORY_NEWS
         ),
         RecommendedSource(
-            "연합뉴스 속보", "https://www.yonhapnewstv.co.kr/rss/news/1",
-            "https://www.yonhapnewstv.co.kr/favicon.ico", CATEGORY_NEWS
+            "The Conversation", "https://theconversation.com/uk/articles.atom",
+            "https://theconversation.com/favicon.ico", CATEGORY_NEWS
+        ),
+        RecommendedSource(
+            "DW", "https://rss.dw.com/rdf/rss-en-all",
+            "https://www.dw.com/favicon.ico", CATEGORY_NEWS
+        ),
+        RecommendedSource(
+            "France 24", "https://www.france24.com/en/rss",
+            "https://www.france24.com/favicon.ico", CATEGORY_NEWS
+        ),
+        RecommendedSource(
+            "CNBC", "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+            "https://www.cnbc.com/favicon.ico", CATEGORY_NEWS
+        ),
+        RecommendedSource(
+            "朝日新聞", "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
+            "https://www.asahi.com/favicon.ico", CATEGORY_NEWS
+        ),
+        RecommendedSource(
+            "中央社 CNA", "https://feeds.feedburner.com/rsscna/intworld",
+            "https://www.cna.com.tw/favicon.ico", CATEGORY_NEWS
         ),
 
         // ---------- 科技 ----------
@@ -101,8 +121,28 @@ object RecommendedSources {
             "https://www.macrumors.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
-            "36氪", "https://36kr.com/feed",
-            "https://36kr.com/favicon.ico", CATEGORY_TECH
+            "MIT Technology Review", "https://www.technologyreview.com/feed/",
+            "https://www.technologyreview.com/favicon.ico", CATEGORY_TECH
+        ),
+        RecommendedSource(
+            "IEEE Spectrum", "https://spectrum.ieee.org/feeds/feed.rss",
+            "https://spectrum.ieee.org/favicon.ico", CATEGORY_TECH
+        ),
+        RecommendedSource(
+            "The Register", "https://www.theregister.com/headlines.atom",
+            "https://www.theregister.com/favicon.ico", CATEGORY_TECH
+        ),
+        RecommendedSource(
+            "Android Authority", "https://www.androidauthority.com/feed/",
+            "https://www.androidauthority.com/favicon.ico", CATEGORY_TECH
+        ),
+        RecommendedSource(
+            "Tom's Hardware", "https://www.tomshardware.com/feeds/all",
+            "https://www.tomshardware.com/favicon.ico", CATEGORY_TECH
+        ),
+        RecommendedSource(
+            "InfoQ 中文", "https://www.infoq.cn/feed",
+            "https://www.infoq.cn/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
             "少数派", "https://sspai.com/feed",
@@ -113,7 +153,7 @@ object RecommendedSources {
             "https://www.ifanr.com/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
-            "ITmedia NEWS", "https://rss.itmedia.co.jp/rss/2.0/news.xml",
+            "ITmedia NEWS", "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
             "https://www.itmedia.co.jp/favicon.ico", CATEGORY_TECH
         ),
         RecommendedSource(
@@ -135,8 +175,16 @@ object RecommendedSources {
             "https://www.statnews.com/apple-touch-icon.png", CATEGORY_MEDICINE
         ),
         RecommendedSource(
-            "Medical News Today", "https://www.medicalnewstoday.com/rss",
-            "https://www.medicalnewstoday.com/apple-touch-icon.png", CATEGORY_MEDICINE
+            "The Lancet", "https://www.thelancet.com/rssfeed/lancet_current.xml",
+            "https://www.thelancet.com/favicon.ico", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "Healthline", "https://www.healthline.com/rss/health-news",
+            "https://www.healthline.com/favicon.ico", CATEGORY_MEDICINE
+        ),
+        RecommendedSource(
+            "Medical Xpress", "https://medicalxpress.com/rss-feed/",
+            "https://medicalxpress.com/favicon.ico", CATEGORY_MEDICINE
         ),
         RecommendedSource(
             "MedPage Today", "https://www.medpagetoday.com/rss/headlines.xml",
@@ -176,6 +224,22 @@ object RecommendedSources {
             "JURIST", "https://www.jurist.org/feed/",
             "https://www.jurist.org/apple-touch-icon.png", CATEGORY_LAW
         ),
+        RecommendedSource(
+            "ABA Journal", "https://www.abajournal.com/rss/",
+            "https://www.abajournal.com/favicon.ico", CATEGORY_LAW
+        ),
+        RecommendedSource(
+            "Legal Cheek", "https://www.legalcheek.com/feed/",
+            "https://www.legalcheek.com/favicon.ico", CATEGORY_LAW
+        ),
+        RecommendedSource(
+            "EJIL:Talk!", "https://www.ejiltalk.org/feed/",
+            "https://www.ejiltalk.org/favicon.ico", CATEGORY_LAW
+        ),
+        RecommendedSource(
+            "Verfassungsblog", "https://verfassungsblog.de/feed/",
+            "https://verfassungsblog.de/favicon.ico", CATEGORY_LAW
+        ),
 
         // ---------- 历史 ----------
         RecommendedSource(
@@ -191,8 +255,12 @@ object RecommendedSources {
             "https://www.smithsonianmag.com/apple-touch-icon.png", CATEGORY_HISTORY
         ),
         RecommendedSource(
-            "The Conversation · History", "https://theconversation.com/uk/history/articles.atom",
-            "https://theconversation.com/apple-touch-icon.png", CATEGORY_HISTORY
+            "History Extra", "https://www.historyextra.com/feed/",
+            "https://www.historyextra.com/favicon.ico", CATEGORY_HISTORY
+        ),
+        RecommendedSource(
+            "Lapham's Quarterly", "https://www.laphamsquarterly.org/rss.xml",
+            "https://www.laphamsquarterly.org/favicon.ico", CATEGORY_HISTORY
         ),
         RecommendedSource(
             "Medievalists.net", "https://www.medievalists.net/feed/",
@@ -219,6 +287,26 @@ object RecommendedSources {
         RecommendedSource(
             "Design Milk", "https://design-milk.com/feed/",
             "https://design-milk.com/favicon.ico", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "The Atlantic", "https://www.theatlantic.com/feed/all/",
+            "https://www.theatlantic.com/favicon.ico", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "Hyperallergic", "https://hyperallergic.com/feed/",
+            "https://hyperallergic.com/favicon.ico", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "The Public Domain Review", "https://publicdomainreview.org/rss.xml",
+            "https://publicdomainreview.org/favicon.ico", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "Pitchfork", "https://pitchfork.com/feed/feed-news/rss",
+            "https://pitchfork.com/favicon.ico", CATEGORY_CULTURE
+        ),
+        RecommendedSource(
+            "ARTnews", "https://www.artnews.com/feed/",
+            "https://www.artnews.com/favicon.ico", CATEGORY_CULTURE
         ),
     )
 

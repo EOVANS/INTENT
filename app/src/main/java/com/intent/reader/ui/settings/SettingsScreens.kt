@@ -758,6 +758,12 @@ fun AdvancedMaterialScreen(onBack: () -> Unit) {
 
     SettingsScaffold(title = stringResource(R.string.settings_advanced), onBack = onBack) {
         GlassMaterialPreview(transparency = transparency, adaptive = s.glassAdaptiveTint)
+        Text(
+            text = stringResource(R.string.glass_preview_motto).withCjkSpacing(),
+            style = t.bodySmall,
+            color = c.textSecondary,
+            modifier = Modifier.padding(top = 14.dp),
+        )
         Text(stringResource(R.string.glass_transparency), style = t.body, color = c.text,
             modifier = Modifier.padding(top = 20.dp))
         Slider(

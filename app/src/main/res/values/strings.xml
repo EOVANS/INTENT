@@ -10,6 +10,7 @@
     <string name="ink_black">黑色</string><string name="ink_blue">蓝色</string><string name="ink_red">红色</string><string name="ink_green">绿色</string>
     <string name="ink_add">添加手写</string>
     <string name="ink_pen">画笔</string><string name="ink_eraser">橡皮擦</string>
+    <string name="ink_width">笔迹粗细</string><string name="ink_width_thin">细</string><string name="ink_width_medium">中</string><string name="ink_width_thick">粗</string><string name="ink_width_extra">特粗</string>
     <string name="ink_edit">编辑手写</string>
     <string name="ink_load_error">手写内容或草稿无法读取，原文件已保留。</string>
     <string name="ink_undo">撤销</string><string name="ink_redo">重做</string>
@@ -112,7 +113,7 @@
     <string name="permissions_notify_off">关闭后：不再收到任何通知，每日摘要与更新提醒静默失效，应用内阅读功能不受影响。</string>
     <string name="permissions_notify_denied">通知权限未开启，可稍后在系统设置中打开。</string>
     <string name="permissions_network_title">网络访问</string>
-    <string name="permissions_network_details">是什么：读取 RSS 订阅源、下载文章与图片、调用你自行配置的 AI 服务。申请原因：阅读器需要联网获取最新内容。</string>
+    <string name="permissions_network_details">是什么：读取 RSS 订阅源、下载文章与图片、调用你自行配置的 Ai 服务。申请原因：阅读器需要联网获取最新内容。</string>
     <string name="permissions_network_off">无法在应用内关闭：该权限在安装时由系统授予。如需彻底断开，可在系统设置中限制联网，或卸载应用。</string>
     <string name="permissions_background_title">后台同步</string>
     <string name="permissions_background_details">是什么：唤醒锁、开机自启与前台服务。申请原因：按你设定的频率在退出应用后继续刷新订阅。</string>
@@ -124,9 +125,9 @@
     <string name="privacy_export_title">保存在本地公共存储的数据（用户主动导出）</string>
     <string name="privacy_export_description">说明：存储于设备公共存储路径，可通过系统文件管理器查看、移动或手动删除；该类数据仅由您的主动操作产生，应用不会自动写入或上传。</string>
     <string name="privacy_secure_title">设备端加密保存在本地的数据</string>
-    <string name="privacy_secure_description">说明：采用系统级加密机制安全存储，密钥明文仅在您发起 AI 请求时于内存中短暂调用，无法被直接读取或导出，全程不会上传至 INTENT 服务器。</string>
-    <string name="privacy_ai_title">上传至 AI 服务商云端的数据</string>
-    <string name="privacy_ai_description">说明：该类数据由您的设备直接发送至您指定的第三方 AI 服务商接口，INTENT 不做任何截留、存储或转发；数据的处理、留存规则以对应服务商的隐私政策为准，相关责任由服务商承担。</string>
+    <string name="privacy_secure_description">说明：采用系统级加密机制安全存储，密钥明文仅在您发起 Ai 请求时于内存中短暂调用，无法被直接读取或导出，全程不会上传至 INTENT 服务器。</string>
+    <string name="privacy_ai_title">上传至 Ai 服务商云端的数据</string>
+    <string name="privacy_ai_description">说明：该类数据由您的设备直接发送至您指定的第三方 Ai 服务商接口，INTENT 不做任何截留、存储或转发；数据的处理、留存规则以对应服务商的隐私政策为准，相关责任由服务商承担。</string>
     <string name="privacy_row_sources">RSS 订阅列表</string>
     <string name="privacy_row_reading">阅读进度与历史记录</string>
     <string name="privacy_row_island_notes">孤岛笔记</string>
@@ -136,7 +137,7 @@
     <string name="privacy_row_opml">OPML 订阅备份</string>
     <string name="privacy_row_article_export">文章导出文件</string>
     <string name="privacy_row_logs">应用日志文件</string>
-    <string name="privacy_row_api_key">第三方 AI 服务 API 密钥</string>
+    <string name="privacy_row_api_key">第三方 Ai 服务 API 密钥</string>
     <string name="privacy_count_sources">%1$d 个订阅源</string>
     <string name="privacy_count_records">%1$d 条记录</string>
     <string name="privacy_count_notes">%1$d 条笔记</string>
@@ -149,8 +150,8 @@
     <string name="privacy_ai_total_label">本地记录的调用次数</string>
     <string name="privacy_ai_times_unit">次</string>
     <string name="privacy_ai_times">%1$d 次</string>
-    <string name="privacy_ai_quick_read">AI 速读</string>
-    <string name="privacy_ai_quote">AI 金句</string>
+    <string name="privacy_ai_quick_read">Ai 速读</string>
+    <string name="privacy_ai_quote">Ai 金句</string>
     <string name="privacy_ai_test">功能测试</string>
     <string name="privacy_reading_title">阅读历史</string>
     <string name="privacy_reading_empty">还没有阅读记录。单篇文章连续阅读满 1 分钟后，会在这里留下记录。</string>
@@ -167,6 +168,7 @@
     <string name="glass_preview_title">发现美好内容</string>
     <string name="glass_preview_subtitle">让每一次阅读更加清晰、专注。</string>
     <string name="glass_preview_search">搜索</string>
+    <string name="glass_preview_motto">用 INTENT 来拓宽思维的边界，丈量一个只属于您的信息世界。</string>
     <string name="glass_transparency">玻璃通透度</string>
     <string name="glass_transparency_tinted">更柔和</string>
     <string name="glass_transparency_clear">更通透</string>
@@ -196,7 +198,17 @@
     <string name="update_latest">已是最新版本</string>
     <string name="update_available_title">发现新版本</string>
     <string name="update_available_message">最新版本 %1$s，当前版本 %2$s</string>
-    <string name="update_action">前往更新</string>
+    <string name="update_action">立即更新</string>
+    <string name="update_changelog">更新日志</string>
+    <string name="update_confirm_message">将下载 %1$s（%2$s），下载完成后会打开系统安装程序。</string>
+    <string name="update_start">开始下载</string>
+    <string name="update_downloading">正在下载… %1$d%%</string>
+    <string name="update_download_done">下载完成，正在打开安装程序…</string>
+    <string name="update_download_failed">下载失败，请检查网络后重试</string>
+    <string name="update_install_failed">无法打开安装程序，请手动安装已下载的安装包</string>
+    <string name="update_need_permission">需要允许「安装未知应用」，请在设置中授权后重试</string>
+    <string name="update_no_asset">该版本暂未提供安装包</string>
+    <string name="update_retry">重试</string>
     <string name="update_failed">检查更新失败，请稍后重试</string>
     <string name="close">关闭</string>
     <string name="delete">删除</string>
@@ -316,7 +328,7 @@
     <string name="widget_unread">未读</string>
     <string name="widget_style_restart_hint">更改小组件样式后，需重启 APP 才能生效</string>
     <!-- Optional BYOK AI -->
-    <string name="ai_settings">AI 配置</string>
+    <string name="ai_settings">Ai 配置</string>
     <string name="ai_provider_label">服务商：%1$s</string>
     <string name="ai_provider_custom">自定义</string>
     <string name="ai_provider_volcengine">字节火山引擎</string>
@@ -338,18 +350,18 @@
     <string name="ai_service_section">服务配置</string>
     <string name="ai_features_section">功能管理</string>
     <string name="ai_data_section">数据管理</string>
-    <string name="ai_enabled">启用 AI 服务</string>
+    <string name="ai_enabled">启用 Ai 服务</string>
     <string name="ai_url">服务地址（兼容 Chat Completions）</string>
     <string name="ai_model">模型名称</string>
     <string name="ai_key">API Key</string>
-    <string name="ai_privacy">启用后，速读会把当前文章内容发送到你配置的 AI 服务；AI 金句会发送少量候选文章。请求直接连接该服务，费用由你的 API 账户承担，连接测试也会消耗少量额度。密钥加密保存在本机，不参与系统备份。</string>
+    <string name="ai_privacy">启用后，速读会把当前文章内容发送到你配置的 Ai 服务；Ai 金句会发送少量候选文章。请求直接连接该服务，费用由你的 API 账户承担，连接测试也会消耗少量额度。密钥加密保存在本机，不参与系统备份。</string>
     <string name="ai_save">保存设置</string>
     <string name="ai_save_hint">开关即时生效；修改连接配置后，请点「保存设置」。</string>
-    <string name="ai_saved">AI 设置已保存</string>
+    <string name="ai_saved">Ai 设置已保存</string>
     <string name="ai_test">测试连接</string>
     <string name="ai_test_ok">连接成功</string>
     <string name="ai_clear_config">清除配置与密钥</string>
-    <string name="ai_clear_cache">清除 AI 结果缓存</string>
+    <string name="ai_clear_cache">清除 Ai 结果缓存</string>
     <string name="ai_cleared">已清除</string>
     <string name="ai_loading">AI 处理中…</string>
     <string name="ai_summary">AI 速读</string>
@@ -363,14 +375,14 @@
     <string name="ai_quote_ready">AI 原文摘录</string>
     <string name="ai_quote_retry">重新提取</string>
     <string name="ai_quote_unavailable">暂未取得 AI 摘录，继续显示离线金句。</string>
-    <string name="ai_error_config">请先在「AI 配置」中启用服务，并填写模型和有效密钥。</string>
+    <string name="ai_error_config">请先在「Ai 配置」中启用服务，并填写模型和有效密钥。</string>
     <string name="ai_error_url">请输入 HTTPS 服务地址，不包含用户名、密码、查询参数或片段。</string>
     <string name="ai_error_empty">当前没有可供分析的文章文字。</string>
     <string name="ai_error_long">文章超出首版分析长度限制（24000 字符），本次未发送。</string>
     <string name="ai_error_auth">密钥无效或无访问权限，请检查服务配置。</string>
     <string name="ai_error_rate">服务额度不足或请求过于频繁，请稍后手动重试。</string>
     <string name="ai_error_network">网络连接失败或超时，请稍后重试。</string>
-    <string name="ai_error_service">AI 服务返回错误，请检查地址、模型或服务状态。</string>
+    <string name="ai_error_service">Ai 服务返回错误，请检查地址、模型或服务状态。</string>
     <string name="ai_error_response">服务未返回完整的兼容结果，本次未采用。</string>
     <string name="ai_error_quote">AI 摘录无法在对应正文中核实，已保留离线金句。</string>
     <string name="ai_error_storage">本地保存失败，请检查设备存储后重试。</string>
@@ -425,14 +437,14 @@
     <string name="widget_preview_source">示例来源</string>
     <string name="widget_preview_note">以下为示意预览，实际内容来自你的订阅。</string>
     <string name="ui_intro">你的阅读空间，应当完全顺应你的感官偏好。从图标的观感、字体的呼吸，到光影的明暗，请按照你最舒适的方式，打磨这座属于你的精神孤岛。</string>
-    <string name="ai_intro">我们坚持透明的 AI 协作方式。你的 API 密钥仅加密存储于本机，阅读内容直连你选择的服务商，不经由任何中间服务器。在这里，智能是辅助，而隐私与安全，永远是你的底线。</string>
+    <string name="ai_intro">我们坚持透明的 Ai 协作方式。你的 API 密钥仅加密存储于本机，阅读内容直连你选择的服务商，不经由任何中间服务器。在这里，智能是辅助，而隐私与安全，永远是你的底线。</string>
     <string name="ai_feature_quote">每日金句 Quote</string>
     <string name="ai_feature_quote_desc">通过云端 LLM 提呈金句，相对于本地算法推算的金句质量更高。开启后，在首页有候选正文时，每天自动尝试一次。只展示能在原文中核实的摘录；失败时继续显示离线金句。手动重新提取会再次调用服务。</string>
     <string name="ai_feature_diet">信息饮食报告</string>
     <string name="ai_feature_diet_desc">量化你的阅读结构\n这是一个基于本地数据的统计分析工具，旨在帮你客观审视自己的信息摄入情况。</string>
     <string name="ai_feature_unsupported">暂不支持</string>
-    <string name="ai_feature_read">AI 速读</string>
-    <string name="ai_feature_read_desc">针对长文阅读场景，INTENT 提供基于 BYOK（Bring Your Own Key）模式的 AI 辅助功能。你可以配置自己的 API Key，让 AI 成为你的私人阅读助理。</string>
+    <string name="ai_feature_read">Ai 速读</string>
+    <string name="ai_feature_read_desc">针对长文阅读场景，INTENT 提供基于 BYOK（Bring Your Own Key）模式的 Ai 辅助功能。你可以配置自己的 API Key，让 Ai 成为你的私人阅读助理。</string>
     <string name="about_thanks_title">感谢您使用 INTENT</string>
     <string name="about_thanks_body">This app was built with passion and a love for reading. We hope you enjoy the experience.</string>
     <string name="developer_title">开发人员</string>
@@ -444,7 +456,7 @@
     <string name="developer_senior_engineer">高级软件工程师</string>
     <string name="developer_assistant">开发助理</string>
     <string name="developer_marketing">软件营销执行官</string>
-    <string name="developer_rights">上述 AI 大模型名称及相关标识的权利归各自所属公司所有。</string>
+    <string name="developer_rights">上述 Ai 大模型名称及相关标识的权利归各自所属公司所有。</string>
     <string name="developer_team">开发团队</string>
     <string name="developer_from">来自 %1$s</string>
     <string name="about_intent_voice">来自 INTENT 的声音</string>

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.PanTool
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FormatColorFill
+import androidx.compose.material.icons.filled.LineWeight
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -33,9 +34,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.window.DialogWindowProvider
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -93,8 +91,8 @@ fun HandwritingPreview(drawing: Handwriting, modifier: Modifier = Modifier, anch
         drawing.strokes.forEach { stroke ->
             val strokePoints = stroke.points
             val color = Color(stroke.color.toInt())
-            if (strokePoints.size == 1) drawCircle(color, radius = 2f * scale, center = origin + Offset(strokePoints[0].x * scale, strokePoints[0].y * scale))
-            for (i in 1 until strokePoints.size) drawLine(color, origin + Offset(strokePoints[i-1].x * scale, strokePoints[i-1].y * scale), origin + Offset(strokePoints[i].x * scale, strokePoints[i].y * scale), strokeWidth = 3f * scale, cap = StrokeCap.Round)
+            if (strokePoints.size == 1) drawCircle(color, radius = (stroke.width / 2f * scale).coerceAtLeast(1f), center = origin + Offset(strokePoints[0].x * scale, strokePoints[0].y * scale))
+            for (i in 1 until strokePoints.size) drawLine(color, origin + Offset(strokePoints[i-1].x * scale, strokePoints[i-1].y * scale), origin + Offset(strokePoints[i].x * scale, strokePoints[i].y * scale), strokeWidth = stroke.width * scale, cap = StrokeCap.Round)
         }
         }
     }
@@ -117,8 +115,10 @@ fun HandwritingEditor(
     var fingerDraw by remember { mutableStateOf(false) }
     var eraser by remember { mutableStateOf(false) }
     var penColor by remember { mutableLongStateOf(0xFF000000L) }
+    var penWidth by remember { mutableFloatStateOf(4f) }
     var backgroundColor by remember { mutableLongStateOf(initial?.backgroundColor ?: 0xFFFFFFFFL) }
     var showPenColors by remember { mutableStateOf(false) }
+    var showPenWidth by remember { mutableStateOf(false) }
     var showBackground by remember { mutableStateOf(false) }
     var showHandHelp by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
@@ -140,20 +140,23 @@ fun HandwritingEditor(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
             )
-            val controller = window?.let { WindowCompat.getInsetsController(it, view) }
-            controller?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            controller?.hide(WindowInsetsCompat.Type.statusBars())
-            // This is the dialog's window; the activity's system bar policy is untouched.
+            // The status bar is deliberately left untouched: hiding it here changed the
+            // window insets of the note dialog underneath, so the dialog jumped and
+            // re-centred the moment this editor closed.
             onDispose { }
         }
-        Column(Modifier.fillMaxSize().background(Color(backgroundColor.toInt())).navigationBarsPadding()) {
+        Column(Modifier.fillMaxSize().background(Color(backgroundColor.toInt())).statusBarsPadding().navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().background(toolbar).windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 InkTool(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.close), onClick = onCancel)
                 Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 InkTool(Icons.Filled.Edit, stringResource(R.string.ink_pen), selected = !eraser, onClick = { eraser = false; showPenColors = !showPenColors })
                 InkTool(eraserIcon, stringResource(R.string.ink_eraser), selected = eraser, onClick = { eraser = true; showPenColors = false })
-                InkTool(Icons.Filled.PanTool, stringResource(if (fingerDraw) R.string.ink_finger_on else R.string.ink_finger_off), selected = fingerDraw, onClick = { fingerDraw = !fingerDraw; showPenColors = false; showHandHelp = true })
+                HorizontalDivider(Modifier.width(1.dp).height(24.dp), color = Color.White.copy(alpha = 0.25f))
+                InkTool(Icons.Filled.LineWeight, stringResource(R.string.ink_width), selected = showPenWidth, onClick = {
+                    eraser = false; showPenColors = false; showPenWidth = !showPenWidth
+                })
+                InkTool(Icons.Filled.PanTool, stringResource(if (fingerDraw) R.string.ink_finger_on else R.string.ink_finger_off), selected = fingerDraw, onClick = { fingerDraw = !fingerDraw; showPenColors = false; showPenWidth = false; showHandHelp = true })
                 InkTool(Icons.AutoMirrored.Filled.Redo, stringResource(R.string.ink_redo), enabled = redo.isNotEmpty(), onClick = { undo = undo + listOf(strokes); strokes = redo.last(); redo = redo.dropLast(1) })
                 InkTool(Icons.AutoMirrored.Filled.Undo, stringResource(R.string.ink_undo), enabled = undo.isNotEmpty(), onClick = { redo = redo + listOf(strokes); strokes = undo.last(); undo = undo.dropLast(1) })
                 InkTool(Icons.Filled.Delete, stringResource(R.string.ink_clear), enabled = strokes.isNotEmpty(), onClick = { confirmClear = true })
@@ -178,7 +181,10 @@ fun HandwritingEditor(
                         val dx = (availableWidth - width * scale) / 2f
                         val dy = (availableHeight - height * scale) / 2f
                         if (strokes.isNotEmpty()) strokes = strokes.map { stroke ->
-                            stroke.copy(points = stroke.points.map { InkPoint(it.x * scale + dx, it.y * scale + dy) })
+                            stroke.copy(
+                                points = stroke.points.map { InkPoint(it.x * scale + dx, it.y * scale + dy) },
+                                width = (stroke.width * scale).coerceIn(0.5f, 40f),
+                            )
                         }
                         width = availableWidth
                         height = availableHeight
@@ -197,13 +203,14 @@ fun HandwritingEditor(
                     modifier = Modifier.align(Alignment.Center).fillMaxWidth().padding(horizontal = 32.dp),
                 )
                 Canvas(Modifier.fillMaxSize()
-                    .pointerInput(fingerDraw, width, height, eraser, penColor) {
+                    .pointerInput(fingerDraw, width, height, eraser, penColor, penWidth) {
                         awaitEachGesture {
                             if (width <= 0f || height <= 0f) return@awaitEachGesture
                             val down = awaitFirstDown(requireUnconsumed = false)
                             if (down.type == PointerType.Stylus || down.type == PointerType.Eraser || (fingerDraw && down.type == PointerType.Touch)) {
                                 // Overlaying the palette avoids moving the canvas under the pen when it closes.
                                 showPenColors = false
+                                showPenWidth = false
                                 val sx = width / size.width.toFloat()
                                 val sy = height / size.height.toFloat()
                                 fun point(p: Offset) = InkPoint((p.x * sx).coerceIn(0f, width), (p.y * sy).coerceIn(0f, height))
@@ -223,7 +230,7 @@ fun HandwritingEditor(
                                         val radius = 24f
                                         val removed = strokes.filter { stroke -> stroke.points.any { p -> points.any { q -> (p.x-q.x)*(p.x-q.x)+(p.y-q.y)*(p.y-q.y) <= radius*radius } } }
                                         if (removed.isNotEmpty()) change(strokes.filterNot { it in removed })
-                                    } else { change(strokes + InkStroke(points.toList(), penColor)) }
+                                    } else { change(strokes + InkStroke(points.toList(), penColor, penWidth)) }
                                 }
                                 current = emptyList()
                             }
@@ -232,11 +239,12 @@ fun HandwritingEditor(
                     if (width <= 0f || height <= 0f) return@Canvas
                     val scaleX = size.width / width
                     val scaleY = size.height / height
-                    (strokes + listOfNotNull(current.takeIf { it.isNotEmpty() }?.let { InkStroke(it, penColor) })).forEach { stroke ->
+                    (strokes + listOfNotNull(current.takeIf { it.isNotEmpty() }?.let { InkStroke(it, penColor, penWidth) })).forEach { stroke ->
                         val points = stroke.points
                         val color = Color(stroke.color.toInt())
-                        if (points.size == 1) drawCircle(color, radius = 2f * scaleX, center = Offset(points[0].x * scaleX, points[0].y * scaleY))
-                        for (i in 1 until points.size) drawLine(color, Offset(points[i-1].x * scaleX, points[i-1].y * scaleY), Offset(points[i].x * scaleX, points[i].y * scaleY), strokeWidth = 3f * scaleX, cap = StrokeCap.Round)
+                        val strokeWidth = stroke.width * scaleX
+                        if (points.size == 1) drawCircle(color, radius = (strokeWidth / 2f).coerceAtLeast(1f), center = Offset(points[0].x * scaleX, points[0].y * scaleY))
+                        for (i in 1 until points.size) drawLine(color, Offset(points[i-1].x * scaleX, points[i-1].y * scaleY), Offset(points[i].x * scaleX, points[i].y * scaleY), strokeWidth = strokeWidth, cap = StrokeCap.Round)
                     }
                 }
                 if (showPenColors) Surface(modifier = Modifier.align(Alignment.TopCenter).padding(8.dp), color = toolbar,
@@ -248,6 +256,21 @@ fun HandwritingEditor(
                             IconButton(onClick = { penColor = color; eraser = false }, modifier = Modifier.size(48.dp).semantics { contentDescription = description }) {
                                 Box(Modifier.size(24.dp).background(Color(color.toInt()), CircleShape)
                                     .border(if (penColor == color) 3.dp else 1.dp, Color.White, CircleShape))
+                            }
+                        }
+                    }
+                }
+                if (showPenWidth) Surface(modifier = Modifier.align(Alignment.TopCenter).padding(8.dp), color = toolbar,
+                    shape = RoundedCornerShape(20.dp), shadowElevation = 4.dp) {
+                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        InkWidthPalette.forEach { option ->
+                            val description = stringResource(option.label)
+                            val picked = penWidth == option.width
+                            IconButton(onClick = { penWidth = option.width; eraser = false },
+                                modifier = Modifier.size(48.dp).semantics { contentDescription = description }
+                                    .background(if (picked) Color.White.copy(alpha = 0.22f) else Color.Transparent, RoundedCornerShape(12.dp))) {
+                                Box(Modifier.width(28.dp).height(option.width.dp.coerceAtMost(20.dp))
+                                    .background(Color.White, RoundedCornerShape(50)))
                             }
                         }
                     }
@@ -264,6 +287,16 @@ fun HandwritingEditor(
         }, dismissButton = { TextButton(onClick = { confirmClear = false }) { Text(stringResource(R.string.close)) } })
     }
 }
+
+/** Pen widths in canvas units, shown as thicker bars in the width popup. */
+private data class InkWidth(val width: Float, val label: Int)
+
+private val InkWidthPalette = listOf(
+    InkWidth(2f, R.string.ink_width_thin),
+    InkWidth(4f, R.string.ink_width_medium),
+    InkWidth(8f, R.string.ink_width_thick),
+    InkWidth(14f, R.string.ink_width_extra),
+)
 
 /** Paper and muted tones that keep black ink readable. */
 private val InkBackgroundPalette = listOf(

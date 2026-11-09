@@ -1,5 +1,6 @@
 package com.intent.reader.ui.settings
 
+import android.text.format.Formatter
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebResourceRequest
@@ -39,6 +40,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -53,6 +55,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -63,6 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,12 +90,8 @@ import com.intent.reader.R
 import com.intent.reader.ui.components.HeaderIconButton
 import com.intent.reader.ui.theme.IntentTheme
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
+import com.intent.reader.update.AppUpdater
 
 private const val SITE_BASE = "https://intentsonnet.pages.dev"
 private const val URL_INTENT_VOICE = "https://cynosure-atelier.pages.dev/"
@@ -100,11 +100,9 @@ private const val URL_CHANGELOG = "$SITE_BASE/changelog.html"
 private const val URL_PRIVACY = "$SITE_BASE/privacy.html"
 private const val URL_TERMS = "$SITE_BASE/terms.html"
 private const val URL_HELP = "$SITE_BASE/help.html"
-private const val URL_LATEST_RELEASE =
-    "https://api.github.com/repos/EOVANS/INTENT/releases/latest"
 
-/** Latest published release, as reported by GitHub. */
-private data class LatestRelease(val tag: String, val url: String)
+/** Latest published release, with its notes and installer attachment. */
+private typealias LatestRelease = com.intent.reader.update.UpdateRelease
 
 /**
  * About: app logo, the INTENT wordmark in AgibotDisplay, a Release capsule tag,
@@ -129,10 +127,41 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
     val scope = rememberCoroutineScope()
     var checking by remember { mutableStateOf(false) }
     var available by remember { mutableStateOf<LatestRelease?>(null) }
+    var pending by remember { mutableStateOf<LatestRelease?>(null) }
+    var updating by remember { mutableStateOf<LatestRelease?>(null) }
+    var progress by remember { mutableFloatStateOf(0f) }
+    var updateError by remember { mutableStateOf<String?>(null) }
+    var updateDone by remember { mutableStateOf(false) }
     val checkingLabel = stringResource(R.string.checking_update)
     val checkLabel = stringResource(R.string.check_update)
     val upToDate = stringResource(R.string.update_latest)
     val checkFailed = stringResource(R.string.update_failed)
+    val downloadFailed = stringResource(R.string.update_download_failed)
+    val installFailed = stringResource(R.string.update_install_failed)
+    val needPermission = stringResource(R.string.update_need_permission)
+
+    // Downloads in the background and hands the APK to the system installer.
+    fun startDownload(release: LatestRelease) {
+        pending = null
+        updating = release
+        progress = 0f
+        updateError = null
+        updateDone = false
+        scope.launch {
+            AppUpdater.download(context, release) { progress = it }
+                .onSuccess { file ->
+                    updateDone = true
+                    when {
+                        AppUpdater.needsInstallPermission(context) -> {
+                            updateError = needPermission
+                            AppUpdater.openInstallPermissionSettings(context)
+                        }
+                        !AppUpdater.install(context, file) -> updateError = installFailed
+                    }
+                }
+                .onFailure { updateError = downloadFailed }
+        }
+    }
 
     Column(Modifier.fillMaxSize().background(c.bg)) {
         TopAppBar(
@@ -188,7 +217,7 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
                         .background(c.accent.copy(alpha = 0.12f))
                         .padding(horizontal = 12.dp, vertical = 4.dp),
                 ) {
-                    Text("Release", style = t.meta, color = c.accent)
+                    Text("Released", style = t.meta, color = c.accent)
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -212,7 +241,7 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
                 if (checking) return@AboutEntry
                 checking = true
                 scope.launch {
-                    val latest = fetchLatestRelease()
+                    val latest = AppUpdater.fetchLatest()
                     checking = false
                     when {
                         latest == null -> Toast
@@ -271,29 +300,132 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
                 )
             },
             text = {
+                Column {
+                    Text(
+                        stringResource(
+                            R.string.update_available_message,
+                            release.tag,
+                            BuildConfig.VERSION_NAME,
+                        ),
+                        style = t.body,
+                        color = c.textSecondary,
+                    )
+                    // Release notes can be long: keep them readable in a bounded,
+                    // scrollable block and simply omit the section when GitHub has none.
+                    if (release.notes.isNotBlank()) {
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            stringResource(R.string.update_changelog),
+                            style = t.body,
+                            fontWeight = FontWeight.Bold,
+                            color = c.text,
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 220.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(c.bg)
+                                .verticalScroll(rememberScrollState())
+                                .padding(12.dp),
+                        ) {
+                            Text(release.notes, style = t.bodySmall, color = c.textSecondary)
+                        }
+                    }
+                    if (release.apk == null) {
+                        Spacer(Modifier.height(12.dp))
+                        Text(stringResource(R.string.update_no_asset), style = t.bodySmall, color = c.textSecondary)
+                    }
+                }
+            },
+            confirmButton = {
+                if (release.apk != null) {
+                    TextButton(onClick = { pending = release; available = null }) {
+                        Text(stringResource(R.string.update_action), color = c.accent)
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { available = null }) {
+                    Text(stringResource(R.string.close), color = c.textSecondary)
+                }
+            },
+        )
+    }
+
+    pending?.let { release ->
+        AlertDialog(
+            onDismissRequest = { pending = null },
+            containerColor = c.surface,
+            title = { Text(stringResource(R.string.update_action), style = t.sectionTitle, color = c.text) },
+            text = {
                 Text(
                     stringResource(
-                        R.string.update_available_message,
+                        R.string.update_confirm_message,
                         release.tag,
-                        BuildConfig.VERSION_NAME,
+                        Formatter.formatShortFileSize(context, release.apk?.size ?: 0L),
                     ),
                     style = t.body,
                     color = c.textSecondary,
                 )
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        available = null
-                        onOpenPage(release.tag, release.url)
-                    },
-                ) {
-                    Text(stringResource(R.string.update_action), color = c.accent)
+                TextButton(onClick = { startDownload(release) }) {
+                    Text(stringResource(R.string.update_start), color = c.accent)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { available = null }) {
+                TextButton(onClick = { pending = null }) {
                     Text(stringResource(R.string.close), color = c.textSecondary)
+                }
+            },
+        )
+    }
+
+    updating?.let { release ->
+        val finished = updateError != null || updateDone
+        AlertDialog(
+            onDismissRequest = { if (finished) updating = null },
+            containerColor = c.surface,
+            title = { Text(stringResource(R.string.update_action), style = t.sectionTitle, color = c.text) },
+            text = {
+                Column {
+                    val error = updateError
+                    if (error != null) {
+                        Text(error, style = t.body, color = c.textSecondary)
+                    } else {
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
+                            color = c.accent,
+                            trackColor = c.divider,
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            if (updateDone) stringResource(R.string.update_download_done)
+                            else stringResource(R.string.update_downloading, (progress * 100).toInt()),
+                            style = t.bodySmall,
+                            color = c.textSecondary,
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                when {
+                    updateError != null -> TextButton(onClick = { startDownload(release) }) {
+                        Text(stringResource(R.string.update_retry), color = c.accent)
+                    }
+                    updateDone -> TextButton(onClick = { updating = null }) {
+                        Text(stringResource(R.string.close), color = c.accent)
+                    }
+                }
+            },
+            dismissButton = {
+                if (finished) {
+                    TextButton(onClick = { updating = null }) {
+                        Text(stringResource(R.string.close), color = c.textSecondary)
+                    }
                 }
             },
         )
@@ -431,24 +563,6 @@ private fun DeveloperShimmerName(name: String, reduceAnimations: Boolean) {
     )
     Text(name, style = t.body.copy(brush = brush), fontWeight = FontWeight.SemiBold, modifier = Modifier.onSizeChanged { width = it.width.coerceAtLeast(1) })
 }
-
-/** Reads the latest GitHub release; null when the network or payload fails. */
-private suspend fun fetchLatestRelease(): LatestRelease? =
-    withContext(Dispatchers.IO) {
-        runCatching {
-            val request = Request.Builder()
-                .url(URL_LATEST_RELEASE)
-                .header("Accept", "application/vnd.github+json")
-                .header("User-Agent", "INTENT/${BuildConfig.VERSION_NAME}")
-                .build()
-            OkHttpClient().newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@use null
-                val json = JSONObject(response.body?.string().orEmpty())
-                val tag = json.optString("tag_name")
-                LatestRelease(tag, json.optString("html_url"))
-            }
-        }.getOrNull()
-    }
 
 /** True when [latest] (e.g. "v1.2") is a newer dotted version than [current]. */
 private fun isNewerVersion(latest: String, current: String): Boolean {

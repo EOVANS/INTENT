@@ -10,7 +10,12 @@ import kotlinx.serialization.json.Json
 data class InkPoint(val x: Float, val y: Float)
 
 @Serializable
-data class InkStroke(val points: List<InkPoint>, val color: Long = 0xFF000000L)
+data class InkStroke(
+    val points: List<InkPoint>,
+    val color: Long = 0xFF000000L,
+    /** Stroke width in canvas units; old drawings without it fall back to the original 3f pen. */
+    val width: Float = 3f,
+)
 
 @Serializable
 data class Handwriting(
@@ -47,6 +52,7 @@ object HandwritingFormat {
         var total = 0L
         for (stroke in drawing.strokes) {
             require(stroke.color in 0L..0xFFFFFFFFL)
+            require(stroke.width.isFinite() && stroke.width in 0.5f..40f)
             require(stroke.points.isNotEmpty())
             total += stroke.points.size
             require(total <= MAX_POINTS)

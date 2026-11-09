@@ -9,6 +9,7 @@
     <string name="ink_confirm">OK</string>
     <string name="ink_black">黒</string><string name="ink_blue">青</string><string name="ink_red">赤</string><string name="ink_green">緑</string>
     <string name="ink_pen">ペン</string><string name="ink_eraser">消しゴム</string>
+    <string name="ink_width">線の太さ</string><string name="ink_width_thin">細い</string><string name="ink_width_medium">普通</string><string name="ink_width_thick">太い</string><string name="ink_width_extra">極太</string>
     <string name="ink_add">手書きを追加</string><string name="ink_edit">手書きを編集</string><string name="ink_load_error">手書きまたは下書きを読み込めません。元のファイルは保持されています。</string>
     <string name="ink_undo">元に戻す</string><string name="ink_redo">やり直す</string><string name="ink_finger_on">指で描く：オン</string><string name="ink_finger_off">指で描く：オフ</string><string name="ink_clear">消去</string><string name="ink_clear_confirm">手書きをすべて消去しますか？</string><string name="ink_hint">ペンで書くか、指での描画を有効にして指で描いてください。</string>
     <string name="home_pull_refresh">下に引いて更新</string>
@@ -101,7 +102,7 @@
     <string name="permissions_notify_off">オフにすると：通知は届かず、毎日のサマリーと更新通知は静かに停止します。アプリ内の閲覧には影響しません。</string>
     <string name="permissions_notify_denied">通知がオフのままです。後でシステム設定から有効にできます。</string>
     <string name="permissions_network_title">ネットワークアクセス</string>
-    <string name="permissions_network_details">内容：RSS フィードの取得、記事と画像のダウンロード、設定した AI サービスの呼び出し。理由：リーダーとして最新のコンテンツを取得するために必要です。</string>
+    <string name="permissions_network_details">内容：RSS フィードの取得、記事と画像のダウンロード、設定した Ai サービスの呼び出し。理由：リーダーとして最新のコンテンツを取得するために必要です。</string>
     <string name="permissions_network_off">アプリ内ではオフにできません：インストール時にシステムが付与します。完全に遮断するには、システム設定で通信を制限するかアプリを削除してください。</string>
     <string name="permissions_background_title">バックグラウンド同期</string>
     <string name="permissions_background_details">内容：ウェイクロック、起動時の自動開始、フォアグラウンドサービス。理由：アプリを閉じた後も設定した頻度でフィードを更新します。</string>
@@ -113,9 +114,9 @@
     <string name="privacy_export_title">端末の共有ストレージに保存されるデータ（ユーザーによる書き出し）</string>
     <string name="privacy_export_description">説明：端末の共有ストレージに保存され、システムのファイルマネージャーで表示・移動・削除できます。これらのデータはご自身の操作によってのみ作成され、アプリが自動で書き込んだり送信したりすることはありません。</string>
     <string name="privacy_secure_title">端末上で暗号化して保存されるデータ</string>
-    <string name="privacy_secure_description">説明：システムレベルの暗号化で安全に保存されます。平文のキーは AI リクエスト時にメモリ内で一時的に使われるだけで、直接読み取ったり書き出したりすることはできず、INTENT のサーバーに送信されることはありません。</string>
-    <string name="privacy_ai_title">AI サービス提供元のクラウドに送信されるデータ</string>
-    <string name="privacy_ai_description">説明：これらのデータは端末から指定のサードパーティ AI サービスへ直接送信されます。INTENT は傍受・保存・転送を一切行いません。データの取り扱いと保持は各サービス提供元のプライバシーポリシーに従い、責任も提供元に帰属します。</string>
+    <string name="privacy_secure_description">説明：システムレベルの暗号化で安全に保存されます。平文のキーは Ai リクエスト時にメモリ内で一時的に使われるだけで、直接読み取ったり書き出したりすることはできず、INTENT のサーバーに送信されることはありません。</string>
+    <string name="privacy_ai_title">Ai サービス提供元のクラウドに送信されるデータ</string>
+    <string name="privacy_ai_description">説明：これらのデータは端末から指定のサードパーティ Ai サービスへ直接送信されます。INTENT は傍受・保存・転送を一切行いません。データの取り扱いと保持は各サービス提供元のプライバシーポリシーに従い、責任も提供元に帰属します。</string>
     <string name="privacy_row_sources">RSS 購読リスト</string>
     <string name="privacy_row_reading">閲覧の進捗と履歴</string>
     <string name="privacy_row_island_notes">アイランドノート</string>
@@ -125,7 +126,7 @@
     <string name="privacy_row_opml">OPML 購読バックアップ</string>
     <string name="privacy_row_article_export">記事の書き出しファイル</string>
     <string name="privacy_row_logs">アプリのログファイル</string>
-    <string name="privacy_row_api_key">サードパーティ AI サービスの API キー</string>
+    <string name="privacy_row_api_key">サードパーティ Ai サービスの API キー</string>
     <string name="privacy_count_sources">%1$d 件の購読</string>
     <string name="privacy_count_records">%1$d 件の記録</string>
     <string name="privacy_count_notes">%1$d 件のノート</string>
@@ -138,8 +139,8 @@
     <string name="privacy_ai_total_label">この端末で記録した呼び出し回数</string>
     <string name="privacy_ai_times_unit">回</string>
     <string name="privacy_ai_times">%1$d 回</string>
-    <string name="privacy_ai_quick_read">AI 速読</string>
-    <string name="privacy_ai_quote">AI 引用</string>
+    <string name="privacy_ai_quick_read">Ai 速読</string>
+    <string name="privacy_ai_quote">Ai 引用</string>
     <string name="privacy_ai_test">接続テスト</string>
     <string name="privacy_reading_title">閲覧履歴</string>
     <string name="privacy_reading_empty">閲覧履歴はまだありません。記事を 1 分以上続けて読むと、ここに記録されます。</string>
@@ -156,6 +157,7 @@
     <string name="glass_preview_title">新しい発見</string>
     <string name="glass_preview_subtitle">より明快で集中できる読書体験。</string>
     <string name="glass_preview_search">検索</string>
+    <string name="glass_preview_motto">INTENT で思考の境界を広げ、あなただけの情報世界を測ろう。</string>
     <string name="glass_transparency">ガラスの透明度</string>
     <string name="glass_transparency_tinted">柔らかく</string>
     <string name="glass_transparency_clear">透明に</string>
@@ -185,7 +187,17 @@
     <string name="update_latest">最新バージョンです</string>
     <string name="update_available_title">新しいバージョン</string>
     <string name="update_available_message">最新バージョン %1$s（現在 %2$s）</string>
-    <string name="update_action">アップデートへ</string>
+    <string name="update_action">今すぐ更新</string>
+    <string name="update_changelog">更新内容</string>
+    <string name="update_confirm_message">INTENT %1$s（%2$s）をダウンロードし、完了後にシステムのインストーラーを開きます。</string>
+    <string name="update_start">ダウンロード開始</string>
+    <string name="update_downloading">ダウンロード中… %1$d%%</string>
+    <string name="update_download_done">ダウンロード完了。インストーラーを開いています…</string>
+    <string name="update_download_failed">ダウンロードに失敗しました。通信環境を確認して再試行してください。</string>
+    <string name="update_install_failed">インストーラーを開けませんでした。ダウンロードしたパッケージを手動でインストールしてください。</string>
+    <string name="update_need_permission">「不明なアプリのインストール」を許可してから再試行してください。</string>
+    <string name="update_no_asset">このバージョンにはインストール用パッケージがまだありません。</string>
+    <string name="update_retry">再試行</string>
     <string name="update_failed">アップデートの確認に失敗しました。後でもう一度お試しください。</string>
     <string name="close">閉じる</string>
     <string name="delete">削除</string>
@@ -300,7 +312,7 @@
     <string name="widget_next">次の記事へ</string>
     <string name="widget_unread">未読</string>
     <string name="widget_style_restart_hint">ウィジェットのスタイル変更はアプリの再起動後に反映されます</string>
-    <string name="ai_settings">AI 設定</string>
+    <string name="ai_settings">Ai 設定</string>
     <string name="ai_provider_label">プロバイダー：%1$s</string>
     <string name="ai_provider_custom">カスタム</string>
     <string name="ai_provider_volcengine">ByteDance Volcengine</string>
@@ -316,18 +328,18 @@
     <string name="ai_service_section">サービス設定</string>
     <string name="ai_features_section">機能管理</string>
     <string name="ai_data_section">データ管理</string>
-    <string name="ai_enabled">AI サービスを有効にする</string>
+    <string name="ai_enabled">Ai サービスを有効にする</string>
     <string name="ai_url">サービス URL（Chat Completions 互換）</string>
     <string name="ai_model">モデル名</string>
     <string name="ai_key">API Key</string>
-    <string name="ai_privacy">有効にすると、要約は現在の記事を、AI 名言は少数の候補記事を設定先の AI サービスへ直接送信します。料金はご自身の API アカウントに発生し、接続テストも少量の利用料を消費します。キーは端末内で暗号化され、システムバックアップには含まれません。</string>
+    <string name="ai_privacy">有効にすると、要約は現在の記事を、Ai 名言は少数の候補記事を設定先の Ai サービスへ直接送信します。料金はご自身の API アカウントに発生し、接続テストも少量の利用料を消費します。キーは端末内で暗号化され、システムバックアップには含まれません。</string>
     <string name="ai_save">設定を保存</string>
     <string name="ai_save_hint">スイッチは即時反映されます。接続設定を変更したら保存してください。</string>
-    <string name="ai_saved">AI 設定を保存しました</string>
+    <string name="ai_saved">Ai 設定を保存しました</string>
     <string name="ai_test">接続テスト</string>
     <string name="ai_test_ok">接続できました</string>
     <string name="ai_clear_config">設定とキーを削除</string>
-    <string name="ai_clear_cache">AI 結果キャッシュを削除</string>
+    <string name="ai_clear_cache">Ai 結果キャッシュを削除</string>
     <string name="ai_cleared">削除しました</string>
     <string name="ai_loading">AI 処理中…</string>
     <string name="ai_summary">AI 要約</string>
@@ -341,14 +353,14 @@
     <string name="ai_quote_ready">AI が選んだ原文</string>
     <string name="ai_quote_retry">再抽出</string>
     <string name="ai_quote_unavailable">AI の抽出結果がないため、オフラインの文を表示しています。</string>
-    <string name="ai_error_config">AI 設定でサービスを有効にし、モデルと有効なキーを入力してください。</string>
+    <string name="ai_error_config">Ai 設定でサービスを有効にし、モデルと有効なキーを入力してください。</string>
     <string name="ai_error_url">認証情報、クエリ、フラグメントを含まない HTTPS URL を入力してください。</string>
     <string name="ai_error_empty">分析できる記事の文字情報がありません。</string>
     <string name="ai_error_long">記事が初期版の上限（24,000 文字）を超えています。送信していません。</string>
     <string name="ai_error_auth">キーが無効か、アクセス権がありません。</string>
     <string name="ai_error_rate">残高不足またはリクエスト過多です。後で手動で再試行してください。</string>
     <string name="ai_error_network">接続失敗またはタイムアウトです。後で再試行してください。</string>
-    <string name="ai_error_service">AI サービスエラーです。URL、モデル、サービスの状態を確認してください。</string>
+    <string name="ai_error_service">Ai サービスエラーです。URL、モデル、サービスの状態を確認してください。</string>
     <string name="ai_error_response">完全な互換レスポンスが返されませんでした。</string>
     <string name="ai_error_quote">本文で引用を確認できませんでした。オフラインの文を維持します。</string>
     <string name="ai_error_storage">端末への保存に失敗しました。空き容量を確認してください。</string>
@@ -403,14 +415,14 @@
     <string name="widget_preview_source">サンプル</string>
     <string name="widget_preview_note">これはイメージです。実際には購読中の記事が表示されます。</string>
     <string name="ui_intro">読書の空間は、あなたの感覚に寄り添うものであるべきです。アイコンの見た目から文字の趣、光と影の明暗まで、心地よい形に整えて、あなただけの静かな場所をつくりましょう。</string>
-    <string name="ai_intro">私たちは透明性のある AI の活用を大切にしています。API キーは端末内に暗号化して保存され、読書内容は中間サーバーを経由せず、選択したサービスに直接送信されます。AI はあくまで補助であり、プライバシーと安全を最優先にします。</string>
+    <string name="ai_intro">私たちは透明性のある Ai の活用を大切にしています。API キーは端末内に暗号化して保存され、読書内容は中間サーバーを経由せず、選択したサービスに直接送信されます。Ai はあくまで補助であり、プライバシーと安全を最優先にします。</string>
     <string name="ai_feature_quote">今日の名言 Quote</string>
     <string name="ai_feature_quote_desc">クラウドの LLM が、ローカルのアルゴリズムより質の高い名言の抽出を目指します。有効時はホームに候補本文があれば 1 日 1 回試行し、原文で確認できた抜粋のみ表示します。失敗時はオフラインの名言を表示し、再抽出時にはサービスを再度呼び出します。</string>
     <string name="ai_feature_diet">情報ダイエットレポート</string>
     <string name="ai_feature_diet_desc">読書の構成を可視化\n端末内のデータを分析し、情報摂取の傾向を客観的に振り返るためのツールです。</string>
     <string name="ai_feature_unsupported">準備中</string>
-    <string name="ai_feature_read">AI 要約</string>
-    <string name="ai_feature_read_desc">長文向けに、INTENT は BYOK（Bring Your Own Key）方式の AI 支援機能を提供します。自分の API キーを設定し、AI を読書アシスタントとして活用できます。</string>
+    <string name="ai_feature_read">Ai 要約</string>
+    <string name="ai_feature_read_desc">長文向けに、INTENT は BYOK（Bring Your Own Key）方式の Ai 支援機能を提供します。自分の API キーを設定し、Ai を読書アシスタントとして活用できます。</string>
     <string name="about_thanks_title">INTENT をご利用いただきありがとうございます</string>
     <string name="about_thanks_body">このアプリは、読書への情熱と愛情を込めて作られました。お楽しみいただければ幸いです。</string>
     <string name="developer_title">開発者</string>
@@ -422,7 +434,7 @@
     <string name="developer_senior_engineer">シニアソフトウェアエンジニア</string>
     <string name="developer_assistant">開発アシスタント</string>
     <string name="developer_marketing">ソフトウェアマーケティング責任者</string>
-    <string name="developer_rights">AI モデルの名称および関連する標章の権利は、それぞれの権利者に帰属します。</string>
+    <string name="developer_rights">Ai モデルの名称および関連する標章の権利は、それぞれの権利者に帰属します。</string>
     <string name="developer_team">開発チーム</string>
     <string name="developer_from">提供元：%1$s</string>
     <string name="about_intent_voice">INTENT からの声</string>

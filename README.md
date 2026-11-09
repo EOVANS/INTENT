@@ -139,12 +139,11 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 | BBC News（英文） | `https://feeds.bbci.co.uk/news/rss.xml` |
 | BBC 中文 | `https://feeds.bbci.co.uk/zhongwen/simp/rss.xml` |
 | The Guardian（世界） | `https://www.theguardian.com/world/rss` |
-| CNN（国际版） | `http://rss.cnn.com/rss/edition.rss` |
 | New York Times | `https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml` |
 | NPR | `https://feeds.npr.org/1001/rss.xml` |
-| AP News | `https://feeds.apnews.com/apf-topnews` |
 | Washington Post（世界） | `https://feeds.washingtonpost.com/rss/world` |
 | Al Jazeera | `https://www.aljazeera.com/xml/rss/all.xml` |
+| The Conversation | `https://theconversation.com/uk/articles.atom` |
 | France 24（英文） | `https://www.france24.com/en/rss` |
 | DW 德国之声（英文） | `https://rss.dw.com/rdf/rss-en-all` |
 | Vox | `https://www.vox.com/rss/index.xml` |
@@ -158,26 +157,21 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 
 | 来源 | RSS 地址 |
 |---|---|
-| 联合早报（中国） | `https://www.zaobao.com.sg/rss/realtime/china` |
-| 端传媒 | `https://theinitium.com/rss/news.xml` |
-| 中央社（全部） | `https://www.cna.com.tw/rss/aall.xml` |
+| 中央社（国际） | `https://feeds.feedburner.com/rsscna/intworld` |
 | 自由时报（全部） | `https://news.ltn.com.tw/rss/all.xml` |
-| 风传媒 | `https://www.storm.mg/rss` |
-| 日经中文网 | `https://cn.nikkei.com/feed/` |
 | 新京报 / 澎湃 / 财新等 | 见导航站 quanwenrss.com（全文源） |
 
 ### 4.3 日本・韩语源
 
 | 来源 | RSS 地址 |
 |---|---|
-| NHK 新闻（总合） | `https://www3.nhk.or.jp/rss/news/cat0.xml` |
-| NHK 国际 | `https://www3.nhk.or.jp/rss/news/cat3.xml` |
-| NHK WORLD（英文） | `https://www3.nhk.or.jp/nhkworld/en/news/feed.xml` |
-| 朝日新闻（英文） | `https://www.asahi.com/ajw/rss/ajw-rss.xml` |
+| NHK 新闻（总合） | `https://www.nhk.or.jp/rss/news/cat0.xml` |
+| NHK 国际 | `https://www.nhk.or.jp/rss/news/cat3.xml` |
+| 朝日新闻（日文头条） | `https://www.asahi.com/rss/asahi/newsheadlines.rdf` |
+| ITmedia NEWS | `https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml` |
 | 读卖 The Japan News | `https://japannews.yomiuri.co.jp/feed/` |
 | 韩联社 Yonhap（头条） | `https://www.yna.co.kr/rss/news.xml` |
 | 韩联社（朝鲜） | `https://www.yna.co.kr/rss/nk.xml` |
-| 东亚日报 | `https://www.donga.com/news/rss/List_0213` |
 
 ### 4.4 科技·互联网
 
@@ -193,14 +187,14 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 | Hacker News（头条） | `https://hnrss.org/frontpage` |
 | MIT Technology Review | `https://www.technologyreview.com/feed/` |
 | IEEE Spectrum | `https://spectrum.ieee.org/rss/fulltext` |
+| The Register | `https://www.theregister.com/headlines.atom` |
+| Tom's Hardware | `https://www.tomshardware.com/feeds/all` |
 | Solidot（中文科技） | `https://www.solidot.org/index.rss` |
 | 少数派 | `https://sspai.com/feed` |
-| 36 氪 | `https://36kr.com/feed` |
 | 虎嗅 | `https://www.huxiu.com/rss/0.xml` |
 | 爱范儿 | `https://www.ifanr.com/feed` |
 | 极客公园 | `https://www.geekpark.net/rss` |
 | 量子位 | `https://www.qbitai.com/feed` |
-| 机器之心 | `https://www.jiqizhixin.com/rss` |
 | IT 之家 | `https://www.ithome.com/rss/` |
 | cnBeta | `https://www.cnbeta.com.tw/backend.php` |
 | 机核 | `https://www.gcores.com/rss` |
@@ -231,11 +225,13 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 | Science（新闻） | `https://www.science.org/rss/news_current.xml` |
 | NEJM 新英格兰医学杂志 | `https://www.nejm.org/action/showFeed?type=etoc&feed=rss&jc=nejm` |
 | The Lancet | `https://www.thelancet.com/rssfeed/lancet_current.xml` |
-| BMJ | `https://www.bmj.com/rss/current.xml` |
+| STAT（医疗健康） | `https://www.statnews.com/feed/` |
+| MedPage Today | `https://www.medpagetoday.com/rss/headlines.xml` |
+| Healthline（健康新闻） | `https://www.healthline.com/rss/health-news` |
+| Medical Xpress | `https://medicalxpress.com/rss-feed/` |
 | PLOS Medicine | `https://journals.plos.org/plosmedicine/feed/atom` |
 | PubMed 检索结果 | 在 PubMed 搜索结果页点"Create RSS"，订阅任意主题文献 |
 | WHO 世界卫生组织（新闻） | `https://www.who.int/rss-feeds/news-english.xml` |
-| CDC（新闻） | `https://tools.cdc.gov/api/v2/resources/media/403372.rss` |
 | Medscape（护理） | `https://www.medscape.com/cx/rss/nursing.xml` |
 | 医学/护理更多专题 | 用 PubMed RSS + Google 新闻生成（如关键词"nursing"） |
 
@@ -243,7 +239,7 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 
 | 来源 | RSS 地址 |
 |---|---|
-| CNBC（头条） | `https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114` |
+| CNBC（头条） | `https://www.cnbc.com/id/100003114/device/rss/rss.html` |
 | MarketWatch（头条） | `https://feeds.marketwatch.com/marketwatch/topstories/` |
 | Forbes（商业） | `https://www.forbes.com/business/feed/` |
 | Financial Times（前几篇） | `https://www.ft.com/rss/home` |
@@ -259,18 +255,37 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 | Longreads | `https://longreads.com/feed/` |
 | The Marginalian（原 Brain Pickings） | `https://www.themarginalian.org/feed/` |
 | AEON 思想长文 | `https://aeon.co/feed.rss` |
-| Wait But Why | `https://waitbutwhy.com/feed` |
+| Hyperallergic（艺术） | `https://hyperallergic.com/feed/` |
+| ARTnews | `https://www.artnews.com/feed/` |
+| The Public Domain Review | `https://publicdomainreview.org/rss.xml` |
+| Pitchfork（音乐） | `https://pitchfork.com/feed/feed-news/rss` |
 
-### 4.9 博客·社区
+### 4.9 法律·历史
+
+| 来源 | RSS 地址 |
+|---|---|
+| SCOTUSblog | `https://www.scotusblog.com/feed/` |
+| Above the Law | `https://abovethelaw.com/feed/` |
+| The Volokh Conspiracy | `https://reason.com/volokh/feed/` |
+| ABA Journal | `https://www.abajournal.com/rss/` |
+| Legal Cheek | `https://www.legalcheek.com/feed/` |
+| Verfassungsblog | `https://verfassungsblog.de/feed/` |
+| History Extra | `https://www.historyextra.com/feed/` |
+| JSTOR Daily | `https://daily.jstor.org/feed/` |
+| Smithsonian（历史） | `https://www.smithsonianmag.com/rss/history/` |
+| Medievalists.net | `https://www.medievalists.net/feed/` |
+| Lapham's Quarterly | `https://www.laphamsquarterly.org/rss.xml` |
+
+> Lawfare（`https://www.lawfaremedia.org/feed`）、JURIST（`https://www.jurist.org/feed/`）、EJIL:Talk!（`https://www.ejiltalk.org/feed/`）、History Today（`https://www.historytoday.com/rss.xml`）四个源本身有效，但在部分网络下会被站点防护拦截（403 / 连接重置），需要能正常访问外网的环境。
+
+### 4.10 博客·社区
 
 | 来源 | RSS 地址 |
 |---|---|
 | 阮一峰的网络日志 | `https://www.ruanyifeng.com/blog/atom.xml` |
 | V2EX | `https://www.v2ex.com/index.xml` |
-| 知乎每日精选 | `https://www.zhihu.com/rss` |
-| 知乎日报（第三方） | `https://feedx.net/rss/zhihudaily.xml` |
 
-### 4.10 更多源去哪找（导航站）
+### 4.11 更多源去哪找（导航站）
 
 - **QuanwenRSS** `quanwenrss.com`：中文新闻全文源导航，336 个源，可直接下载 OPML；
 - **BestBlogs**（ginonotes.com 合集）：1600+ 订阅源，含微信公众号源；

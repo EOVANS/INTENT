@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- In-app update: hand the downloaded APK to the system package installer -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Live Update (promoted ongoing) notifications, Android 16+ only -->
     <uses-permission
         android:name="android.permission.POST_PROMOTED_NOTIFICATIONS"

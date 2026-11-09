@@ -85,7 +85,9 @@ fun NoteEditor(
             finally { busy = false }
         }
     }
-    if (!editingInk) AlertDialog(
+    // Keep the note dialog composed while the ink editor is open. Tearing it down and
+    // rebuilding it on return re-created its window and made it jump.
+    AlertDialog(
         onDismissRequest = { if (!busy) perform { if (ready) repository.writeDraft(draftKey, NoteDraft(remark, drawing)) } },
         containerColor = c.bg,
         title = { Text(stringResource(R.string.island_notes), style = t.pageTitle, color = c.text) },

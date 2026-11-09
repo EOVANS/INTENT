@@ -22,8 +22,8 @@ android {
         applicationId = "com.intent.reader"
         minSdk = 30
         targetSdk = 36
-        versionCode = 12
-        versionName = "v1.6"
+        versionCode = 13
+        versionName = "v1.6.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
     }

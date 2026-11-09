@@ -9,6 +9,7 @@
     <string name="ink_confirm">OK</string>
     <string name="ink_black">Black</string><string name="ink_blue">Blue</string><string name="ink_red">Red</string><string name="ink_green">Green</string>
     <string name="ink_pen">Pen</string><string name="ink_eraser">Eraser</string>
+    <string name="ink_width">Stroke width</string><string name="ink_width_thin">Thin</string><string name="ink_width_medium">Medium</string><string name="ink_width_thick">Thick</string><string name="ink_width_extra">Extra thick</string>
     <string name="ink_add">Add handwriting</string><string name="ink_edit">Edit handwriting</string><string name="ink_load_error">Handwriting or draft could not be read. The original file is preserved.</string>
     <string name="ink_undo">Undo</string><string name="ink_redo">Redo</string><string name="ink_finger_on">Finger drawing: on</string><string name="ink_finger_off">Finger drawing: off</string><string name="ink_clear">Clear</string><string name="ink_clear_confirm">Clear all handwriting?</string><string name="ink_hint">Write with a stylus, or turn on finger drawing to draw with a finger.</string>
     <string name="home_pull_refresh">Pull to refresh</string>
@@ -106,7 +107,17 @@
     <string name="update_latest">You\'re up to date</string>
     <string name="update_available_title">Update available</string>
     <string name="update_available_message">Version %1$s is available (current %2$s)</string>
-    <string name="update_action">Get update</string>
+    <string name="update_action">Update now</string>
+    <string name="update_changelog">What\'s new</string>
+    <string name="update_confirm_message">INTENT %1$s (%2$s) will be downloaded and the system installer will open when it finishes.</string>
+    <string name="update_start">Start download</string>
+    <string name="update_downloading">Downloading… %1$d%%</string>
+    <string name="update_download_done">Download complete. Opening the installer…</string>
+    <string name="update_download_failed">Download failed. Check your connection and try again.</string>
+    <string name="update_install_failed">Couldn\'t open the installer. Install the downloaded package manually.</string>
+    <string name="update_need_permission">Allow "Install unknown apps" for INTENT, then try again.</string>
+    <string name="update_no_asset">This release doesn\'t include an installable package yet.</string>
+    <string name="update_retry">Retry</string>
     <string name="update_failed">Couldn\'t check for updates. Try again later.</string>
     <string name="close">Close</string>
     <string name="delete">Delete</string>
@@ -222,7 +233,7 @@
     <string name="permissions_notify_off">When off: no notifications arrive, the daily summary and update reminders stop silently, and reading in the app is unaffected.</string>
     <string name="permissions_notify_denied">Notifications are still off. You can enable them later in system settings.</string>
     <string name="permissions_network_title">Network access</string>
-    <string name="permissions_network_details">What: fetching RSS feeds, downloading articles and images, and calling the AI service you configured. Why: a reader needs the network for fresh content.</string>
+    <string name="permissions_network_details">What: fetching RSS feeds, downloading articles and images, and calling the Ai service you configured. Why: a reader needs the network for fresh content.</string>
     <string name="permissions_network_off">Cannot be turned off here: the system grants it at install. To disconnect fully, restrict its network access in system settings or uninstall the app.</string>
     <string name="permissions_background_title">Background sync</string>
     <string name="permissions_background_details">What: wake lock, boot-completed receiver and foreground service. Why: keeps refreshing feeds at your chosen interval after you leave the app.</string>
@@ -234,9 +245,9 @@
     <string name="privacy_export_title">Data stored in public storage (user exports)</string>
     <string name="privacy_export_description">Details: Stored in public storage on your device and can be viewed, moved, or deleted with the system file manager. These files are created only by your own actions; the app never writes or uploads them automatically.</string>
     <string name="privacy_secure_title">Data encrypted on this device</string>
-    <string name="privacy_secure_description">Details: Stored securely with system-level encryption. Plaintext keys are only briefly held in memory when you make an AI request, cannot be read or exported directly, and are never uploaded to INTENT servers.</string>
-    <string name="privacy_ai_title">Data uploaded to AI providers</string>
-    <string name="privacy_ai_description">Details: This data is sent directly from your device to the third-party AI provider you specify. INTENT does not intercept, store, or forward it. Handling and retention are governed by that provider\'s privacy policy, and responsibility rests with the provider.</string>
+    <string name="privacy_secure_description">Details: Stored securely with system-level encryption. Plaintext keys are only briefly held in memory when you make an Ai request, cannot be read or exported directly, and are never uploaded to INTENT servers.</string>
+    <string name="privacy_ai_title">Data uploaded to Ai providers</string>
+    <string name="privacy_ai_description">Details: This data is sent directly from your device to the third-party Ai provider you specify. INTENT does not intercept, store, or forward it. Handling and retention are governed by that provider\'s privacy policy, and responsibility rests with the provider.</string>
     <string name="privacy_row_sources">RSS subscriptions</string>
     <string name="privacy_row_reading">Reading progress and history</string>
     <string name="privacy_row_island_notes">Island notes</string>
@@ -246,7 +257,7 @@
     <string name="privacy_row_opml">OPML subscription backup</string>
     <string name="privacy_row_article_export">Article export files</string>
     <string name="privacy_row_logs">App log files</string>
-    <string name="privacy_row_api_key">Third-party AI API key</string>
+    <string name="privacy_row_api_key">Third-party Ai API key</string>
     <string name="privacy_count_sources">%1$d feeds</string>
     <string name="privacy_count_records">%1$d records</string>
     <string name="privacy_count_notes">%1$d notes</string>
@@ -259,8 +270,8 @@
     <string name="privacy_ai_total_label">Requests counted on this device</string>
     <string name="privacy_ai_times_unit">times</string>
     <string name="privacy_ai_times">%1$d×</string>
-    <string name="privacy_ai_quick_read">AI quick read</string>
-    <string name="privacy_ai_quote">AI quote</string>
+    <string name="privacy_ai_quick_read">Ai quick read</string>
+    <string name="privacy_ai_quote">Ai quote</string>
     <string name="privacy_ai_test">Connection test</string>
     <string name="privacy_reading_title">Reading history</string>
     <string name="privacy_reading_empty">No reading history yet. After one minute of continuous reading on an article, it will appear here.</string>
@@ -277,6 +288,7 @@
     <string name="glass_preview_title">Discover something new</string>
     <string name="glass_preview_subtitle">A clearer, more focused reading experience.</string>
     <string name="glass_preview_search">Search</string>
+    <string name="glass_preview_motto">Use INTENT to stretch the edges of your thinking and map an information world that is entirely yours.</string>
     <string name="glass_transparency">Glass transparency</string>
     <string name="glass_transparency_tinted">Softer</string>
     <string name="glass_transparency_clear">Clearer</string>
@@ -301,7 +313,7 @@
     <string name="widget_next">Next article</string>
     <string name="widget_unread">unread</string>
     <string name="widget_style_restart_hint">Restart the app to apply widget style changes</string>
-    <string name="ai_settings">AI configuration</string>
+    <string name="ai_settings">Ai configuration</string>
     <string name="ai_provider_label">Provider: %1$s</string>
     <string name="ai_provider_custom">Custom</string>
     <string name="ai_provider_volcengine">ByteDance Volcengine</string>
@@ -317,18 +329,18 @@
     <string name="ai_service_section">Service configuration</string>
     <string name="ai_features_section">Feature management</string>
     <string name="ai_data_section">Data management</string>
-    <string name="ai_enabled">Enable AI service</string>
+    <string name="ai_enabled">Enable Ai service</string>
     <string name="ai_url">Service URL (Chat Completions compatible)</string>
     <string name="ai_model">Model name</string>
     <string name="ai_key">API Key</string>
-    <string name="ai_privacy">When enabled, summaries send the current article to your configured AI service; AI quotes send a few candidate articles. Requests go directly to that service and are billed to your API account. Connection tests also use a small amount of credit. Your key is encrypted locally and excluded from system backups.</string>
+    <string name="ai_privacy">When enabled, summaries send the current article to your configured Ai service; Ai quotes send a few candidate articles. Requests go directly to that service and are billed to your API account. Connection tests also use a small amount of credit. Your key is encrypted locally and excluded from system backups.</string>
     <string name="ai_save">Save settings</string>
     <string name="ai_save_hint">Switches apply instantly; tap Save after editing the connection settings.</string>
-    <string name="ai_saved">AI settings saved</string>
+    <string name="ai_saved">Ai settings saved</string>
     <string name="ai_test">Test connection</string>
     <string name="ai_test_ok">Connected successfully</string>
     <string name="ai_clear_config">Clear configuration and key</string>
-    <string name="ai_clear_cache">Clear cached AI results</string>
+    <string name="ai_clear_cache">Clear cached Ai results</string>
     <string name="ai_cleared">Cleared</string>
     <string name="ai_loading">AI is working…</string>
     <string name="ai_summary">AI summary</string>
@@ -342,14 +354,14 @@
     <string name="ai_quote_ready">AI-selected original quote</string>
     <string name="ai_quote_retry">Extract again</string>
     <string name="ai_quote_unavailable">No AI quote is available yet. Showing offline quotes.</string>
-    <string name="ai_error_config">Enable AI and enter a model and valid key in AI configuration.</string>
+    <string name="ai_error_config">Enable Ai and enter a model and valid key in Ai configuration.</string>
     <string name="ai_error_url">Use an HTTPS service URL without credentials, query parameters or a fragment.</string>
     <string name="ai_error_empty">No article text is available for analysis.</string>
     <string name="ai_error_long">Article exceeds the initial 24,000-character limit. Nothing was sent.</string>
     <string name="ai_error_auth">Invalid key or insufficient permission. Check your configuration.</string>
     <string name="ai_error_rate">Insufficient credit or too many requests. Please retry manually later.</string>
     <string name="ai_error_network">Connection failed or timed out. Please try again later.</string>
-    <string name="ai_error_service">AI service error. Check the URL, model or service status.</string>
+    <string name="ai_error_service">Ai service error. Check the URL, model or service status.</string>
     <string name="ai_error_response">The service returned an incomplete or incompatible response.</string>
     <string name="ai_error_quote">The quote could not be verified against its source. Keeping offline quotes.</string>
     <string name="ai_error_storage">Could not save locally. Check device storage and retry.</string>
@@ -405,14 +417,14 @@
     <string name="widget_preview_source">Sample source</string>
     <string name="widget_preview_note">Illustrative previews; your widgets show articles from your subscriptions.</string>
     <string name="ui_intro">Your reading space should suit your senses. From the look of the icon and the feel of the type to the balance of light and dark, shape your own island of calm in whatever way feels most comfortable.</string>
-    <string name="ai_intro">We believe in transparent AI collaboration. Your API key is stored encrypted only on your device, and reading content connects directly to your chosen provider without passing through an intermediary server. Intelligence is here to help; privacy and security remain yours to protect.</string>
+    <string name="ai_intro">We believe in transparent Ai collaboration. Your API key is stored encrypted only on your device, and reading content connects directly to your chosen provider without passing through an intermediary server. Intelligence is here to help; privacy and security remain yours to protect.</string>
     <string name="ai_feature_quote">Daily Quote</string>
     <string name="ai_feature_quote_desc">A cloud LLM selects quotes that may be of higher quality than those chosen by the local algorithm. When enabled, it tries once a day when candidate article text is available on the home page. Only excerpts verified in the source are shown; offline quotes remain on failure. Extracting again calls the service again.</string>
     <string name="ai_feature_diet">Information Diet Report</string>
     <string name="ai_feature_diet_desc">Understand the shape of your reading\nThis local-data analysis tool helps you assess your information intake objectively.</string>
     <string name="ai_feature_unsupported">Coming later</string>
-    <string name="ai_feature_read">AI summary</string>
-    <string name="ai_feature_read_desc">For long articles, INTENT offers AI assistance using BYOK (Bring Your Own Key). Configure your own API key to make AI your personal reading assistant.</string>
+    <string name="ai_feature_read">Ai summary</string>
+    <string name="ai_feature_read_desc">For long articles, INTENT offers Ai assistance using BYOK (Bring Your Own Key). Configure your own API key to make Ai your personal reading assistant.</string>
     <string name="about_thanks_title">Thank you for using INTENT</string>
     <string name="about_thanks_body">This app was built with passion and a love for reading. We hope you enjoy the experience.</string>
     <string name="developer_title">Developers</string>
@@ -424,7 +436,7 @@
     <string name="developer_senior_engineer">Senior Software Engineer</string>
     <string name="developer_assistant">Development Assistant</string>
     <string name="developer_marketing">Software Marketing Executive</string>
-    <string name="developer_rights">Names and associated marks of the AI models belong to their respective owners.</string>
+    <string name="developer_rights">Names and associated marks of the Ai models belong to their respective owners.</string>
     <string name="developer_team">Development team</string>
     <string name="developer_from">From %1$s</string>
     <string name="about_intent_voice">A voice from INTENT</string>

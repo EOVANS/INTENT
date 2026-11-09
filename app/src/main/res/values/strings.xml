@@ -6,6 +6,7 @@
     <string name="ink_hand_enabled_help">已开启手指书写。现在可以直接用手指画线或擦除；手写笔仍可正常使用。关闭后，手指不再绘制。</string>
     <string name="ink_hand_disabled_help">已关闭手指书写。请使用手写笔书写或擦除。</string>
     <string name="ink_understood">知道了</string>
+    <string name="ink_confirm">确定</string>
     <string name="ink_black">黑色</string><string name="ink_blue">蓝色</string><string name="ink_red">红色</string><string name="ink_green">绿色</string>
     <string name="ink_add">添加手写</string>
     <string name="ink_pen">画笔</string><string name="ink_eraser">橡皮擦</string>

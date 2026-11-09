@@ -6,6 +6,7 @@
     <string name="ink_hand_enabled_help">손가락 쓰기를 켰습니다. 손가락으로 쓰거나 지울 수 있으며 펜도 사용할 수 있습니다. 끄면 손가락으로는 그려지지 않습니다.</string>
     <string name="ink_hand_disabled_help">손가락 쓰기를 껐습니다. 펜으로 쓰거나 지우세요.</string>
     <string name="ink_understood">확인</string>
+    <string name="ink_confirm">확인</string>
     <string name="ink_black">검정</string><string name="ink_blue">파랑</string><string name="ink_red">빨강</string><string name="ink_green">초록</string>
     <string name="ink_pen">펜</string><string name="ink_eraser">지우개</string>
     <string name="ink_add">손글씨 추가</string><string name="ink_edit">손글씨 편집</string><string name="ink_load_error">손글씨 또는 임시 저장을 읽을 수 없습니다. 원본 파일은 보존됩니다.</string>

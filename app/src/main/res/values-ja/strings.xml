@@ -6,6 +6,7 @@
     <string name="ink_hand_enabled_help">指での描画を有効にしました。指で描画・消去でき、ペンも使用できます。無効にすると指では描画されません。</string>
     <string name="ink_hand_disabled_help">指での描画を無効にしました。ペンで描画・消去します。</string>
     <string name="ink_understood">了解</string>
+    <string name="ink_confirm">OK</string>
     <string name="ink_black">黒</string><string name="ink_blue">青</string><string name="ink_red">赤</string><string name="ink_green">緑</string>
     <string name="ink_pen">ペン</string><string name="ink_eraser">消しゴム</string>
     <string name="ink_add">手書きを追加</string><string name="ink_edit">手書きを編集</string><string name="ink_load_error">手書きまたは下書きを読み込めません。元のファイルは保持されています。</string>

@@ -62,13 +62,24 @@ fun HandwritingPreview(drawing: Handwriting, modifier: Modifier = Modifier) {
     val description = stringResource(R.string.ink_note_preview)
     Canvas(modifier.clip(RoundedCornerShape(16.dp)).background(Color(drawing.backgroundColor.toInt()))
         .semantics { contentDescription = description }) {
-        val scale = minOf(size.width / drawing.width, size.height / drawing.height)
-        val origin = Offset((size.width - drawing.width * scale) / 2f, (size.height - drawing.height * scale) / 2f)
+        val points = drawing.strokes.flatMap { it.points }
+        if (points.isEmpty()) return@Canvas
+        // Fit the ink itself instead of the whole canvas, so a preview never shows the
+        // empty margins that surrounded the writing on the original page.
+        val minX = points.minOf { it.x }
+        val minY = points.minOf { it.y }
+        val inkWidth = (points.maxOf { it.x } - minX).coerceAtLeast(1f)
+        val inkHeight = (points.maxOf { it.y } - minY).coerceAtLeast(1f)
+        val scale = minOf(size.width / inkWidth, size.height / inkHeight) * 0.92f
+        val origin = Offset(
+            (size.width - inkWidth * scale) / 2f - minX * scale,
+            (size.height - inkHeight * scale) / 2f - minY * scale,
+        )
         drawing.strokes.forEach { stroke ->
-            val points = stroke.points
+            val strokePoints = stroke.points
             val color = Color(stroke.color.toInt())
-            if (points.size == 1) drawCircle(color, radius = 2f * scale, center = origin + Offset(points[0].x * scale, points[0].y * scale))
-            for (i in 1 until points.size) drawLine(color, origin + Offset(points[i-1].x * scale, points[i-1].y * scale), origin + Offset(points[i].x * scale, points[i].y * scale), strokeWidth = 3f * scale, cap = StrokeCap.Round)
+            if (strokePoints.size == 1) drawCircle(color, radius = 2f * scale, center = origin + Offset(strokePoints[0].x * scale, strokePoints[0].y * scale))
+            for (i in 1 until strokePoints.size) drawLine(color, origin + Offset(strokePoints[i-1].x * scale, strokePoints[i-1].y * scale), origin + Offset(strokePoints[i].x * scale, strokePoints[i].y * scale), strokeWidth = 3f * scale, cap = StrokeCap.Round)
         }
     }
 }
@@ -101,6 +112,12 @@ fun HandwritingEditor(initial: Handwriting?, onCancel: () -> Unit, onDone: (Hand
         val view = LocalView.current
         DisposableEffect(view) {
             val window = (view.parent as? DialogWindowProvider)?.window
+            // Some large screens still wrap the dialog content by default, which left the
+            // canvas as a small island in the middle. Pin the window to the whole display.
+            window?.setLayout(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            )
             val controller = window?.let { WindowCompat.getInsetsController(it, view) }
             controller?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller?.hide(WindowInsetsCompat.Type.statusBars())
@@ -126,17 +143,26 @@ fun HandwritingEditor(initial: Handwriting?, onCancel: () -> Unit, onDone: (Hand
                 val density = LocalDensity.current
                 val availableWidth = with(density) { maxWidth.toPx() }
                 val availableHeight = with(density) { maxHeight.toPx() }
-                // A fresh canvas takes the viewport size once and keeps that logical size;
-                // both new and existing drawings are then scaled down to stay on screen.
+                // The canvas always occupies the whole visible area: it cannot grow past
+                // the screen and no dead margin surrounds the ink. A drawing made on the
+                // old scrollable canvas is re-fitted here the first time it is opened.
                 LaunchedEffect(availableWidth, availableHeight) {
-                    if (width <= 0f || height <= 0f) { width = availableWidth; height = availableHeight }
+                    if (availableWidth <= 0f || availableHeight <= 0f) return@LaunchedEffect
+                    if (width <= 0f || height <= 0f) {
+                        width = availableWidth
+                        height = availableHeight
+                    } else if (width != availableWidth || height != availableHeight) {
+                        val scale = minOf(availableWidth / width, availableHeight / height)
+                        val dx = (availableWidth - width * scale) / 2f
+                        val dy = (availableHeight - height * scale) / 2f
+                        if (strokes.isNotEmpty()) strokes = strokes.map { stroke ->
+                            stroke.copy(points = stroke.points.map { InkPoint(it.x * scale + dx, it.y * scale + dy) })
+                        }
+                        width = availableWidth
+                        height = availableHeight
+                    }
                 }
-                val logicalWidth = width.takeIf { it > 0f } ?: availableWidth
-                val logicalHeight = height.takeIf { it > 0f } ?: availableHeight
-                val fit = minOf(1f, availableWidth / logicalWidth, availableHeight / logicalHeight)
-                Box(Modifier.size(with(density) { (logicalWidth * fit).toDp() }, with(density) { (logicalHeight * fit).toDp() })
-                    .align(Alignment.Center)) {
-                Canvas(Modifier.matchParentSize()
+                Canvas(Modifier.fillMaxSize()
                     .pointerInput(fingerDraw, width, height, eraser, penColor) {
                         awaitEachGesture {
                             if (width <= 0f || height <= 0f) return@awaitEachGesture
@@ -169,6 +195,7 @@ fun HandwritingEditor(initial: Handwriting?, onCancel: () -> Unit, onDone: (Hand
                             }
                         }
                     }) {
+                    if (width <= 0f || height <= 0f) return@Canvas
                     val scaleX = size.width / width
                     val scaleY = size.height / height
                     (strokes + listOfNotNull(current.takeIf { it.isNotEmpty() }?.let { InkStroke(it, penColor) })).forEach { stroke ->
@@ -177,7 +204,6 @@ fun HandwritingEditor(initial: Handwriting?, onCancel: () -> Unit, onDone: (Hand
                         if (points.size == 1) drawCircle(color, radius = 2f * scaleX, center = Offset(points[0].x * scaleX, points[0].y * scaleY))
                         for (i in 1 until points.size) drawLine(color, Offset(points[i-1].x * scaleX, points[i-1].y * scaleY), Offset(points[i].x * scaleX, points[i].y * scaleY), strokeWidth = 3f * scaleX, cap = StrokeCap.Round)
                     }
-                }
                 }
                 if (showPenColors) Surface(modifier = Modifier.align(Alignment.TopCenter).padding(8.dp), color = toolbar,
                     shape = RoundedCornerShape(20.dp), shadowElevation = 4.dp) {
@@ -198,7 +224,7 @@ fun HandwritingEditor(initial: Handwriting?, onCancel: () -> Unit, onDone: (Hand
             title = { Text(stringResource(if (fingerDraw) R.string.ink_finger_on else R.string.ink_finger_off)) },
             text = { Text(stringResource(if (fingerDraw) R.string.ink_hand_enabled_help else R.string.ink_hand_disabled_help)) },
             confirmButton = { TextButton(onClick = { showHandHelp = false }) { Text(stringResource(R.string.ink_understood)) } })
-        if (showBackground) BackgroundColorDialog(backgroundColor, onDismiss = { showBackground = false }, onSelect = { backgroundColor = it; showBackground = false })
+        if (showBackground) BackgroundColorDialog(backgroundColor, onDismiss = { showBackground = false }, onSelect = { backgroundColor = it })
         if (confirmClear) AlertDialog(onDismissRequest = { confirmClear = false }, title = { Text(stringResource(R.string.ink_clear_confirm)) }, confirmButton = {
             TextButton(onClick = { change(emptyList()); confirmClear = false }) { Text(stringResource(R.string.ink_clear)) }
         }, dismissButton = { TextButton(onClick = { confirmClear = false }) { Text(stringResource(R.string.close)) } })
@@ -226,12 +252,12 @@ private fun BackgroundColorDialog(initial: Long, onDismiss: () -> Unit, onSelect
                         Box(Modifier.size(40.dp).clip(CircleShape).background(Color(preset.toInt()))
                             .border(if (picked) 3.dp else 1.dp,
                                 if (picked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, CircleShape)
-                            .clickable { selected = preset }
+                            // Every tap applies at once, so the canvas updates behind the dialog.
+                            .clickable { selected = preset; onSelect(preset) }
                             .semantics { contentDescription = "#%06X".format(preset and 0xFFFFFFL) })
                     }
                 }
             }
         }
-    }, confirmButton = { TextButton(onClick = { onSelect(selected) }) { Text(stringResource(R.string.notes_save)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } })
+    }, confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ink_confirm)) } })
 }

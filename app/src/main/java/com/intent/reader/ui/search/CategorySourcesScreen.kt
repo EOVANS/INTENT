@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.intent.reader.R
+import com.intent.reader.ui.theme.withCjkSpacing
 import com.intent.reader.data.assets.RecommendedSources
 import com.intent.reader.data.db.Source
 import com.intent.reader.data.repo.SourceRepository.AddSourceError
@@ -152,7 +153,7 @@ private fun PresetSourceRow(
             SourceLogo(logoUrl, name, 32.dp)
             Spacer(Modifier.width(12.dp))
             Text(
-                text = name,
+                text = name.withCjkSpacing(),
                 style = t.body,
                 color = c.text,
                 maxLines = 1,

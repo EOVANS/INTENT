@@ -162,7 +162,7 @@ fun AllArticlesScreen(
                 FilterChip(
                     selected = filterSource == s.id,
                     onClick = { filterSource = if (filterSource == s.id) null else s.id },
-                    label = { Text(s.title, maxLines = 1) },
+                    label = { Text(s.title.withCjkSpacing(), maxLines = 1) },
                     colors = chipColors(),
                 )
             }
@@ -199,7 +199,7 @@ fun SourceDetailScreen(
     val t = IntentTheme.typography
     Column(Modifier.fillMaxSize().background(c.bg)) {
         TopAppBar(
-            title = { Text(source?.title ?: "", style = t.pageTitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            title = { Text((source?.title ?: "").withCjkSpacing(), style = t.pageTitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             navigationIcon = {
                 HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
             },

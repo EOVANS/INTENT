@@ -58,6 +58,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.intent.reader.R
+import com.intent.reader.ui.theme.withCjkSpacing
 import com.intent.reader.data.assets.RecommendedSources
 import com.intent.reader.data.repo.SourceRepository.AddSourceError
 import com.intent.reader.domain.CardStyle
@@ -318,7 +319,7 @@ private fun ImportedSourceRow(title: String, logoUrl: String?, onClick: () -> Un
             SourceLogo(logoUrl, title, 28.dp)
             Spacer(Modifier.width(12.dp))
             Text(
-                text = title,
+                text = title.withCjkSpacing(),
                 style = t.body,
                 color = c.text,
                 maxLines = 1,

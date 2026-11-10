@@ -6,6 +6,7 @@
 [![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+
 适用版本：INTENT v1.6 · Android 11 及以上
 
 ![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)
@@ -17,6 +18,8 @@
 快来网站看看：[官网](https://intentread.pages.dev/#features)
 
 欢迎到访直男之家：[帮助中心](https://intentsonnet.pages.dev/help.html)
+
+[![Read the Docs](https://img.shields.io/badge/Read%20the%20Docs-%23000000.svg?style=for-the-badge&logo=readthedocs&logoColor=white)](https://intentsonnet.pages.dev/help.html)
 
 软件安全性检查：https://www.virustotal.com/gui/
 
@@ -42,6 +45,8 @@
 ## 1. 认识 INTENT
 
 RSS 是一种"订阅"功能：你把喜欢的网站、媒体、博客添加进来，它们一更新，INTENT 就自动帮你收集，不需要逐个打开网站。
+
+![RSS](https://img.shields.io/badge/rss-%23F88900.svg?style=for-the-badge&logo=rss&logoColor=white)
 
 **三个底部标签页：**
 
@@ -234,6 +239,8 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 | WHO 世界卫生组织（新闻） | `https://www.who.int/rss-feeds/news-english.xml` |
 | Medscape（护理） | `https://www.medscape.com/cx/rss/nursing.xml` |
 | 医学/护理更多专题 | 用 PubMed RSS + Google 新闻生成（如关键词"nursing"） |
+
+[![Google Scholar](https://img.shields.io/badge/Google%20Scholar-%234285F4.svg?style=for-the-badge&logo=google-scholar&logoColor=white)](https://scholar.google.com/)
 
 ### 4.7 财经·商业
 

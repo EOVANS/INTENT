@@ -1,0 +1,51 @@
+name: INTENT 问题反馈与功能建议
+description: 报告 INTENT 使用问题，或提出功能与体验改进建议。
+body:
+  - type: dropdown
+    id: feedback_type
+    attributes:
+      label: 反馈类型
+      options:
+        - Bug 报告
+        - 功能建议
+        - 使用体验改进
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 涉及功能
+      options:
+        - RSS 搜索与添加订阅
+        - 文章刷新与加载
+        - OPML 导入与导出
+        - 阅读与原文显示
+        - 笔记
+        - AI 功能
+        - 桌面小组件与通知
+        - 外观与无障碍
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: 反馈内容
+      description: 遇到问题时，请写明操作步骤、实际结果和预期结果。提出建议时，请描述使用场景和希望实现的效果。
+      placeholder: 例如，订阅某个 RSS 源后，首页显示已订阅，但手动刷新后仍没有文章。
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: INTENT 版本、Android 版本与设备型号
+      placeholder: 例如 INTENT v1.6 / Android 15 / Pixel 8
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 相关链接、截图或错误信息
+      description: RSS 问题可附公开订阅源或文章链接。OPML 问题可附脱敏样例。AI 问题可注明服务商、模型和错误提示。请移除 API Key、令牌和私人订阅地址。

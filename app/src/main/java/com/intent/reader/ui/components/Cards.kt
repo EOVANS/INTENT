@@ -62,6 +62,7 @@ fun SourceBadge(
     logoUrl: String?,
     dark: Boolean,
     modifier: Modifier = Modifier,
+    textColor: Color? = null,
 ) {
     Row(
         modifier = modifier,
@@ -72,7 +73,7 @@ fun SourceBadge(
         Text(
             text = name,
             style = IntentTheme.typography.micro,
-            color = if (dark) Color.White.copy(alpha = 0.85f) else IntentTheme.colors.textSecondary,
+            color = textColor ?: if (dark) Color.White.copy(alpha = 0.85f) else IntentTheme.colors.textSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -335,6 +336,7 @@ fun TextStoryCard(
     modifier: Modifier = Modifier,
     emphasized: Boolean = true,
     imageUrl: String? = null,
+    sourceTextColor: Color? = null,
 ) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
@@ -346,7 +348,7 @@ fun TextStoryCard(
             ArticleImage(imageUrl, Modifier.fillMaxWidth().height(112.dp), corner = 12)
             Spacer(Modifier.height(8.dp))
         }
-        SourceBadge(sourceTitle, sourceLogo, dark = false)
+        SourceBadge(sourceTitle, sourceLogo, dark = false, textColor = sourceTextColor)
         Spacer(Modifier.height(8.dp))
         Text(
             text = title.withCjkSpacing(),

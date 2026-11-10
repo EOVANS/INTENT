@@ -141,7 +141,7 @@ fun SearchScreen(
             item {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
-                    Text(stringResource(R.string.tab_search), style = t.pageTitle)
+                    Text(stringResource(R.string.tab_search), style = t.pageTitle, color = c.text)
                 }
             }
             item {
@@ -193,7 +193,7 @@ fun SearchScreen(
             } else {
                 // Category hero strip (doc 4.2.2): each tile opens its preset feeds.
                 item {
-                    Text(stringResource(R.string.recommended_sources), style = t.sectionTitle)
+                    Text(stringResource(R.string.recommended_sources), style = t.sectionTitle, color = c.text)
                     Spacer(Modifier.height(8.dp))
                     Box(
                         Modifier
@@ -220,7 +220,7 @@ fun SearchScreen(
                 val imported = state.sources.filter { !it.isBuiltIn }
                 if (imported.isNotEmpty()) {
                     item {
-                        Text(stringResource(R.string.imported_sources), style = t.sectionTitle)
+                        Text(stringResource(R.string.imported_sources), style = t.sectionTitle, color = c.text)
                     }
                     imported.forEach { s ->
                         item(key = "imported_" + s.id) {

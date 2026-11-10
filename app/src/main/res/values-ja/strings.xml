@@ -88,7 +88,7 @@
     <string name="settings_pick_pane">左側から設定を選択</string>
     <string name="settings_ui">ユーザーインターフェース</string>
     <string name="settings_a11y">アクセシビリティ</string>
-    <string name="settings_notify">通知</string>
+    <string name="settings_notify">通知管理</string>
     <string name="settings_user_name">ユーザー名</string>
     <string name="settings_user">ユーザー設定</string>
     <string name="settings_privacy">プライバシー</string>
@@ -107,6 +107,13 @@
     <string name="permissions_background_title">バックグラウンド同期</string>
     <string name="permissions_background_details">内容：ウェイクロック、起動時の自動開始、フォアグラウンドサービス。理由：アプリを閉じた後も設定した頻度でフィードを更新します。</string>
     <string name="permissions_background_off">アプリ内ではオフにできません：同じくインストール時の権限です。設定の「同期頻度」を長くするとバックグラウンド動作を抑えられます。</string>
+    <string name="permissions_app_section">アプリ内の制御</string>
+    <string name="permissions_clipboard_title">クリップボードの読み書き</string>
+    <string name="permissions_clipboard_details">内容：システムのクリップボードへのアクセス。用途：記事リンクやテキストのコピー、取り込みたい内容の読み取り。このスイッチは INTENT のみを制御し、他のアプリには影響しません。</string>
+    <string name="permissions_clipboard_off">オフの場合：INTENT はシステムのクリップボードを読み書きせず、コピーや貼り付けの操作が使えなくなります。</string>
+    <string name="permissions_widget_title">ホーム画面カードの作成</string>
+    <string name="permissions_widget_details">内容：今日の記事をウィジェットとして提供します。用途：アプリを開かずに最新の内容を閲覧できます。</string>
+    <string name="permissions_widget_off">オフの場合：INTENT はホーム画面カードを作成・更新せず、配置済みのウィジェットも更新されなくなります。</string>
     <string name="privacy_intro">私たちは、プライバシーは基本的人権であり、妥協されるべきではないと考えています。データの管理権は製品提供者ではなく、利用者にあるべきです。このページでは、すべてのデータの保存・送信ルールを自分で管理できます。</string>
     <string name="privacy_data_section">データの保存と送信の管理</string>
     <string name="privacy_sandbox_title">端末内に保存されるデータ（アプリサンドボックス）</string>
@@ -234,6 +241,13 @@
     <string name="color_system_unavailable">システムのダイナミックカラーには Android 12 以降が必要です。</string>
     <string name="color_background">背景にシステムの色を使用</string>
     <string name="color_manual">またはアクセントカラーを選択</string>
+    <string name="theme_custom">カスタム配色</string>
+    <string name="theme_custom_background">背景色をカスタム</string>
+    <string name="theme_background_follow">テーマに従う</string>
+    <string name="theme_background_reset">既定の背景に戻す</string>
+    <string name="theme_background_note">カスタム背景はページの下地色にのみ適用され、文字とカードは明暗に合わせて自動的に調整されます。</string>
+    <string name="color_picker_apply">適用</string>
+    <string name="color_picker_cancel">キャンセル</string>
     <string name="accent_red">赤</string>
     <string name="accent_black">黒</string>
     <string name="accent_blue">青</string>
@@ -273,6 +287,8 @@
     <string name="a11y_high_contrast">ハイコントラスト文字</string>
     <string name="a11y_large_touch">タッチターゲットを拡大</string>
     <string name="a11y_reduce_anim">不要なアニメーションを無効化</string>
+    <string name="a11y_talkback">TalkBack 設定</string>
+    <string name="a11y_talkback_unavailable">未インストール</string>
 
     <string name="notify_daily">今日のサマリーを通知</string>
     <string name="notify_daily_time">通知時刻</string>

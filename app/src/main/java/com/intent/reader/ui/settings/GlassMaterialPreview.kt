@@ -17,21 +17,23 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.intent.reader.R
 import com.intent.reader.ui.components.navigationSurface
 import com.intent.reader.ui.theme.IntentTheme
+import com.intent.reader.ui.theme.withCjkSpacing
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 
 /** The preview records only its artwork, so the glass never samples itself. */
 @Composable
-internal fun GlassMaterialPreview(transparency: Float, adaptive: Boolean) {
+internal fun GlassMaterialPreview(transparency: Float, adaptive: Boolean, motto: String) {
     val supported = Build.VERSION.SDK_INT >= 33
     val foreground = if (IntentTheme.colors.isDark) Color.White else Color(0xFF17211D)
     val backdrop = if (supported) rememberLayerBackdrop() else null
-    Box(Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(28.dp))) {
+    Box(Modifier.fillMaxWidth().height(340.dp).clip(RoundedCornerShape(28.dp))) {
         Column(
             Modifier.fillMaxSize()
                 .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
@@ -46,9 +48,18 @@ internal fun GlassMaterialPreview(transparency: Float, adaptive: Boolean) {
                 Box(Modifier.align(Alignment.TopEnd).padding(top = 24.dp, end = 28.dp)
                     .size(66.dp).clip(RoundedCornerShape(50)).background(Color(0xBBF9E9BC)))
             }
-            Column(Modifier.fillMaxWidth().height(130.dp).padding(horizontal = 20.dp, vertical = 12.dp)) {
+            Column(Modifier.fillMaxWidth().height(200.dp).padding(horizontal = 20.dp, vertical = 12.dp)) {
                 Text(stringResource(R.string.glass_preview_title), color = Color(0xFF141716), fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                 Text(stringResource(R.string.glass_preview_subtitle), color = Color(0xFF58615D), fontSize = 14.sp, maxLines = 2)
+                Text(
+                    motto.withCjkSpacing(),
+                    color = Color(0xFF58615D),
+                    fontSize = 12.sp,
+                    lineHeight = 17.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
             }
         }
         Row(

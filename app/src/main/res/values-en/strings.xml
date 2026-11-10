@@ -88,7 +88,7 @@
     <string name="settings_pick_pane">Choose a setting on the left</string>
     <string name="settings_ui">Appearance</string>
     <string name="settings_a11y">Accessibility</string>
-    <string name="settings_notify">Notifications</string>
+    <string name="settings_notify">Notification management</string>
     <string name="settings_user_name">Username</string>
     <string name="sync_interval">Sync frequency</string>
     <string name="sync_wifi_only">Sync on Wi-Fi only</string>
@@ -154,6 +154,13 @@
     <string name="color_system_unavailable">System dynamic color requires Android 12 or later.</string>
     <string name="color_background">Use system-colored backgrounds</string>
     <string name="color_manual">Or choose an accent color</string>
+    <string name="theme_custom">Custom colors</string>
+    <string name="theme_custom_background">Custom background</string>
+    <string name="theme_background_follow">Follow theme</string>
+    <string name="theme_background_reset">Reset background</string>
+    <string name="theme_background_note">The custom background only changes the page colour; text and cards adapt their contrast automatically.</string>
+    <string name="color_picker_apply">Apply</string>
+    <string name="color_picker_cancel">Cancel</string>
     <string name="accent_red">Red</string>
     <string name="accent_black">Black</string>
     <string name="accent_blue">Blue</string>
@@ -193,6 +200,8 @@
     <string name="a11y_high_contrast">High-contrast text</string>
     <string name="a11y_large_touch">Larger touch targets</string>
     <string name="a11y_reduce_anim">Reduce animations</string>
+    <string name="a11y_talkback">TalkBack settings</string>
+    <string name="a11y_talkback_unavailable">Not installed</string>
 
     <string name="notify_daily">Daily summary</string>
     <string name="notify_daily_time">Delivery time</string>
@@ -239,6 +248,13 @@
     <string name="permissions_background_title">Background sync</string>
     <string name="permissions_background_details">What: wake lock, boot-completed receiver and foreground service. Why: keeps refreshing feeds at your chosen interval after you leave the app.</string>
     <string name="permissions_background_off">Cannot be turned off here: also granted at install. Lengthen the sync interval in Settings to reduce background activity.</string>
+    <string name="permissions_app_section">In-app controls</string>
+    <string name="permissions_clipboard_title">Read and write clipboard</string>
+    <string name="permissions_clipboard_details">What: access to the system clipboard. Why: copying article links and text, and reading content you want to import. This switch only controls INTENT, not other apps.</string>
+    <string name="permissions_clipboard_off">When off: INTENT will not read or write the system clipboard, so copy and paste actions become unavailable.</string>
+    <string name="permissions_widget_title">Create home-screen cards</string>
+    <string name="permissions_widget_details">What: offering today\'s articles as a home-screen widget. Why: browse the latest content without opening the app.</string>
+    <string name="permissions_widget_off">When off: INTENT will not create or update home-screen cards, and widgets already placed stop refreshing.</string>
     <string name="privacy_intro">We believe privacy is a fundamental human right, and it should never be compromised. Control over data belongs to the people using the product, not to the product provider. On this page you can manage how all data is stored and transmitted.</string>
     <string name="privacy_data_section">Data storage and transmission</string>
     <string name="privacy_sandbox_title">Data stored locally (app sandbox)</string>

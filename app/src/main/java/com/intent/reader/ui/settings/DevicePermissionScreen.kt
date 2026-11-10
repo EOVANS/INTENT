@@ -24,9 +24,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -90,6 +92,8 @@ fun DevicePermissionScreen(onBack: () -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val context = LocalContext.current
+    val vm = settingsVm()
+    val s = vm.settings
     var notifications by remember { mutableStateOf(notificationsAllowed(context)) }
 
     // Re-read the state after the user leaves the system permission sheet or settings.
@@ -172,6 +176,28 @@ fun DevicePermissionScreen(onBack: () -> Unit) {
                 checked = true,
                 locked = true,
             )
+        }
+
+        // App-level controls: neither is a system permission, so the switch is
+        // stored in INTENT itself and describes what the app is allowed to do.
+        SectionLabel(stringResource(R.string.permissions_app_section))
+        SettingsGroup {
+            PermissionRow(
+                icon = Icons.Filled.ContentPaste,
+                tint = Color(0xFF8A6BF0),
+                title = stringResource(R.string.permissions_clipboard_title),
+                details = stringResource(R.string.permissions_clipboard_details),
+                consequence = stringResource(R.string.permissions_clipboard_off),
+                checked = s.clipboardAccess,
+            ) { vm.setClipboardAccess(it) }
+            PermissionRow(
+                icon = Icons.Filled.Widgets,
+                tint = Color(0xFFE58B32),
+                title = stringResource(R.string.permissions_widget_title),
+                details = stringResource(R.string.permissions_widget_details),
+                consequence = stringResource(R.string.permissions_widget_off),
+                checked = s.widgetCreation,
+            ) { vm.setWidgetCreation(it) }
         }
         Spacer(Modifier.height(10.dp))
     }

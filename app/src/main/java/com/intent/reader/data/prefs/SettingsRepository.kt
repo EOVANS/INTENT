@@ -27,6 +27,7 @@ data class SettingsState(
     val accentColor: Long = 0xFFE02B2B,
     val dynamicColor: Boolean = false,
     val dynamicBackground: Boolean = true,
+    val customBackgroundColor: Long? = null, // null = theme default page background
     val widgetStyle: String = "classic",     // "classic" | "image"
     val fontChoice: String = "system",     // "system" | "serif" | "custom:<path>"
     val fontWeight: Int = 400,
@@ -37,6 +38,8 @@ data class SettingsState(
     val highContrast: Boolean = false,
     val largeTouchTargets: Boolean = false,
     val reduceAnimations: Boolean = false,
+    val clipboardAccess: Boolean = true,
+    val widgetCreation: Boolean = true,
     val glassEffectEnabled: Boolean = false,   // AGSL liquid-glass tab bar (API 33+)
     val glassMaterial: String = "regular",     // "regular" (adaptive / readable) | "clear" (high transparency)
     val glassTransparency: Float = 0.5f,
@@ -80,6 +83,7 @@ class SettingsRepository(
         val accentColor = stringPreferencesKey("accent_color")
         val dynamicColor = booleanPreferencesKey("dynamic_color")
         val dynamicBackground = booleanPreferencesKey("dynamic_background")
+        val customBackgroundColor = stringPreferencesKey("custom_background_color")
         val widgetStyle = stringPreferencesKey("widget_style")
         val fontChoice = stringPreferencesKey("font_choice")
         val fontWeight = intPreferencesKey("font_weight")
@@ -90,6 +94,8 @@ class SettingsRepository(
         val highContrast = booleanPreferencesKey("high_contrast")
         val largeTouch = booleanPreferencesKey("large_touch_targets")
         val reduceAnim = booleanPreferencesKey("reduce_animations")
+        val clipboardAccess = booleanPreferencesKey("clipboard_access")
+        val widgetCreation = booleanPreferencesKey("widget_creation")
         val glassEffect = booleanPreferencesKey("glass_effect_enabled")
         val glassMaterial = stringPreferencesKey("glass_material")
         val glassTransparency = floatPreferencesKey("glass_transparency")
@@ -129,6 +135,7 @@ class SettingsRepository(
             accentColor = p[Keys.accentColor]?.toLongOrNull() ?: 0xFFE02B2B,
             dynamicColor = p[Keys.dynamicColor] ?: false,
             dynamicBackground = p[Keys.dynamicBackground] ?: true,
+            customBackgroundColor = p[Keys.customBackgroundColor]?.toLongOrNull(),
             widgetStyle = p[Keys.widgetStyle] ?: "classic",
             fontChoice = p[Keys.fontChoice] ?: "system",
             fontWeight = (p[Keys.fontWeight] ?: 400).coerceIn(1, 1000),
@@ -139,6 +146,8 @@ class SettingsRepository(
             highContrast = p[Keys.highContrast] ?: false,
             largeTouchTargets = p[Keys.largeTouch] ?: false,
             reduceAnimations = p[Keys.reduceAnim] ?: false,
+            clipboardAccess = p[Keys.clipboardAccess] ?: true,
+            widgetCreation = p[Keys.widgetCreation] ?: true,
             glassEffectEnabled = p[Keys.glassEffect] ?: false,
             glassMaterial = p[Keys.glassMaterial] ?: "regular",
             glassTransparency = (p[Keys.glassTransparency] ?: if (p[Keys.glassMaterial] == "clear") 0.85f else 0.5f).coerceIn(0f, 1f),
@@ -195,6 +204,9 @@ class SettingsRepository(
     suspend fun setAccentColor(argb: Long) = edit { it[Keys.accentColor] = argb.toString() }
     suspend fun setDynamicColor(v: Boolean) = edit { it[Keys.dynamicColor] = v }
     suspend fun setDynamicBackground(v: Boolean) = edit { it[Keys.dynamicBackground] = v }
+    suspend fun setCustomBackgroundColor(argb: Long?) = edit {
+        if (argb == null) it.remove(Keys.customBackgroundColor) else it[Keys.customBackgroundColor] = argb.toString()
+    }
     suspend fun setWidgetStyle(v: String) = edit { it[Keys.widgetStyle] = v }
     suspend fun setFontChoice(v: String) = edit { it[Keys.fontChoice] = v }
     suspend fun setFontWeight(v: Int) = edit { it[Keys.fontWeight] = v.coerceIn(1, 1000) }
@@ -205,6 +217,8 @@ class SettingsRepository(
     suspend fun setHighContrast(v: Boolean) = edit { it[Keys.highContrast] = v }
     suspend fun setLargeTouchTargets(v: Boolean) = edit { it[Keys.largeTouch] = v }
     suspend fun setReduceAnimations(v: Boolean) = edit { it[Keys.reduceAnim] = v }
+    suspend fun setClipboardAccess(v: Boolean) = edit { it[Keys.clipboardAccess] = v }
+    suspend fun setWidgetCreation(v: Boolean) = edit { it[Keys.widgetCreation] = v }
     suspend fun setGlassEffectEnabled(v: Boolean) = edit { it[Keys.glassEffect] = v }
     suspend fun setGlassMaterial(v: String) = edit { it[Keys.glassMaterial] = v }
     suspend fun setGlassTransparency(v: Float) = edit { it[Keys.glassTransparency] = v.coerceIn(0f, 1f) }

@@ -136,12 +136,8 @@ open class MainActivity : ComponentActivity() {
                 // System bar icon appearance must follow the in-app theme, not the
                 // system one: in light mode the status/navigation bar icons have to
                 // turn dark, otherwise the clock stays white on a light background.
-                androidx.compose.runtime.SideEffect {
-                    val controller = androidx.core.view.WindowCompat
-                        .getInsetsController(window, window.decorView)
-                    controller.isAppearanceLightStatusBars = !dark
-                    controller.isAppearanceLightNavigationBars = !dark
-                }
+                // The actual appearance is applied inside IntentTheme, where the
+                // custom background colour can flip the effective brightness.
                 val accent = Color(s.accentColor and 0xFFFFFFFF)
                 val sans = when {
                     s.fontChoice.startsWith("custom:") ->
@@ -160,10 +156,16 @@ open class MainActivity : ComponentActivity() {
                 val widthClass = calculateWindowSizeClass(this)
 
                 IntentTheme(darkTheme = dark, accent = accent, typography = typo, highContrast = highContrast,
-                    dynamicColor = s.dynamicColor, dynamicBackground = s.dynamicBackground) {
+                    dynamicColor = s.dynamicColor, dynamicBackground = s.dynamicBackground,
+                    customBackground = s.customBackgroundColor?.let { Color(it) }) {
                     val windowBackground = IntentTheme.colors.bg
+                    val effectiveDark = IntentTheme.colors.isDark
                     androidx.compose.runtime.SideEffect {
                         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(windowBackground.toArgb()))
+                        val controller = androidx.core.view.WindowCompat
+                            .getInsetsController(window, window.decorView)
+                        controller.isAppearanceLightStatusBars = !effectiveDark
+                        controller.isAppearanceLightNavigationBars = !effectiveDark
                     }
                     androidx.compose.foundation.layout.Box(
                         Modifier

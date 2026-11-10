@@ -59,6 +59,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.intent.reader.IntentApplication
 import com.intent.reader.R
+import com.intent.reader.ai.AiConfig
 import com.intent.reader.ai.AiError
 import com.intent.reader.ai.AiException
 import com.intent.reader.ai.AiProvider
@@ -124,6 +125,19 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
             finally { busy = false }
         }
     }
+    // Toggle rows save immediately. A not-yet-complete setup makes `save` reject
+    // the write; surface that as a message instead of letting the coroutine
+    // exception tear down the screen.
+    fun persist(next: AiConfig) {
+        scope.launch {
+            try { container.aiConfigStore.save(next) }
+            catch (cancelled: CancellationException) { throw cancelled }
+            catch (error: Exception) {
+                draft = container.aiConfigStore.config.value
+                status = aiErrorResource(error)
+            }
+        }
+    }
 
     SettingsScaffold(title = stringResource(R.string.ai_settings), onBack = onBack) {
         Column(
@@ -144,7 +158,7 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
             draft = draft.copy(enabled = want); status = null
             // A toggle is a setting of its own: apply it without a separate save tap.
             val next = draft
-            scope.launch { container.aiConfigStore.save(next) }
+            persist(next)
         }
         Box(Modifier.fillMaxWidth()) {
             OutlinedButton(enabled = !busy, onClick = { keyboard?.hide(); providerMenu = true }, modifier = Modifier.fillMaxWidth()) {
@@ -222,7 +236,7 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
                         draft = draft.copy(quoteEnabled = want); status = null
                         // Daily quote is live too — no save button needed.
                         val next = draft
-                        scope.launch { container.aiConfigStore.save(next) }
+                        persist(next)
                     },
                     colors = SwitchDefaults.colors(checkedTrackColor = colors.text, checkedThumbColor = colors.bg, uncheckedTrackColor = colors.divider, uncheckedThumbColor = colors.bg, uncheckedBorderColor = colors.divider),
                 )

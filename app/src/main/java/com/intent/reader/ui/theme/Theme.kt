@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import android.os.Build
 import androidx.compose.ui.text.font.FontFamily
@@ -68,6 +69,7 @@ fun IntentTheme(
     highContrast: Boolean = false,
     dynamicColor: Boolean = false,
     dynamicBackground: Boolean = true,
+    customBackground: Color? = null,
     content: @Composable () -> Unit,
 ) {
     val base = if (darkTheme) DarkScheme else LightScheme
@@ -75,7 +77,7 @@ fun IntentTheme(
     val dynamicScheme = if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else null
-    val colors0 = if (dynamicScheme != null) base.copy(
+    val themed = if (dynamicScheme != null) base.copy(
         bg = if (dynamicBackground) dynamicScheme.background else base.bg,
         card = dynamicScheme.surfaceContainerLow,
         text = dynamicScheme.onSurface,
@@ -87,6 +89,7 @@ fun IntentTheme(
         accent = dynamicScheme.primary,
         glass = dynamicScheme.surfaceContainerHigh.copy(alpha = if (darkTheme) 0.85f else 0.9f),
     ) else base.copy(accent = accent)
+    val colors0 = if (customBackground != null) themed.withCustomBackground(customBackground) else themed
     // High-contrast accessibility: pull secondary/tertiary text toward full
     // contrast and make dividers clearly visible.
     val colors = if (highContrast) colors0.copy(
@@ -94,7 +97,7 @@ fun IntentTheme(
         textTertiary = colors0.textSecondary,
         divider = colors0.text.copy(alpha = 0.4f),
     ) else colors0
-    val m3Scheme = dynamicScheme ?: if (darkTheme) {
+    val m3Scheme = if (dynamicScheme != null && customBackground == null) dynamicScheme else if (colors.isDark) {
         darkColorScheme(
             background = colors.bg, surface = colors.bg, surfaceVariant = colors.card,
             onBackground = colors.text, onSurface = colors.text, onSurfaceVariant = colors.textSecondary,
@@ -124,3 +127,32 @@ object IntentTheme {
     val typography: IntentTypography
         @Composable get() = LocalIntentTypography.current
 }
+
+/**
+ * Replaces the page background with a user-picked colour. Surfaces and text are
+ * re-derived from that colour so the UI stays legible even when it contradicts
+ * the light/dark mode the user picked.
+ */
+private fun IntentColors.withCustomBackground(bgColor: Color): IntentColors {
+    val dark = bgColor.luminance() < 0.5f
+    val onBg = if (dark) Color.White else Color.Black
+    return copy(
+        bg = bgColor,
+        card = bgColor.blendWith(Color.White, if (dark) 0.06f else 0.03f),
+        heroBg = bgColor.blendWith(if (dark) Color.White else Color.Black, if (dark) 0.09f else 0.04f),
+        surface = bgColor.blendWith(if (dark) Color.White else Color.Black, if (dark) 0.10f else 0.04f),
+        text = onBg,
+        textSecondary = onBg.copy(alpha = if (dark) 0.72f else 0.62f),
+        textTertiary = onBg.copy(alpha = if (dark) 0.50f else 0.40f),
+        divider = onBg.copy(alpha = if (dark) 0.20f else 0.14f),
+        glass = if (dark) Color(0x8C1A1A1A) else Color(0xE6FAFAFA),
+        isDark = dark,
+    )
+}
+
+private fun Color.blendWith(other: Color, fraction: Float): Color = Color(
+    red = red + (other.red - red) * fraction,
+    green = green + (other.green - green) * fraction,
+    blue = blue + (other.blue - blue) * fraction,
+    alpha = 1f,
+)

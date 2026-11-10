@@ -175,6 +175,11 @@ fun ReaderScreen(
                                     }
                                     val engine = speaker
                                     if (ttsReady && engine != null) {
+                                        // Some OEM engines (ColorOS) stay silent unless
+                                        // a language is selected explicitly.
+                                        if (engine.setLanguage(java.util.Locale.getDefault()) < 0) {
+                                            engine.setLanguage(java.util.Locale.CHINA)
+                                        }
                                         engine.setSpeechRate(state.ttsRate)
                                         engine.setPitch(state.ttsPitch)
                                         val plain = com.intent.reader.rss.HtmlText.toPlain(

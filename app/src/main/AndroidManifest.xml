@@ -12,6 +12,14 @@
         android:name="android.permission.POST_PROMOTED_NOTIFICATIONS"
         tools:targetApi="36" />
 
+    <!-- Android 11+ package visibility: without this the system hides the
+         installed TTS engines (e.g. ColorOS's) from TextToSpeech.getEngines(). -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:name=".IntentApplication"
         android:allowBackup="true"

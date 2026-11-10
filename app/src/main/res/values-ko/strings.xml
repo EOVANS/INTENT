@@ -88,7 +88,7 @@
     <string name="settings_pick_pane">왼쪽에서 설정을 선택하세요</string>
     <string name="settings_ui">사용자 인터페이스</string>
     <string name="settings_a11y">접근성</string>
-    <string name="settings_notify">알림</string>
+    <string name="settings_notify">알림 관리</string>
     <string name="settings_user_name">사용자 이름</string>
     <string name="settings_user">사용자 설정</string>
     <string name="settings_privacy">개인정보 보호</string>
@@ -107,6 +107,13 @@
     <string name="permissions_background_title">백그라운드 동기화</string>
     <string name="permissions_background_details">내용: 웨이크록, 부팅 시 자동 시작, 포그라운드 서비스. 이유: 앱을 나간 뒤에도 설정한 주기로 피드를 새로 고칩니다.</string>
     <string name="permissions_background_off">앱에서 끌 수 없음: 마찬가지로 설치 시 부여되는 권한입니다. 설정의 「동기화 주기」를 늘리면 백그라운드 활동을 줄일 수 있습니다.</string>
+    <string name="permissions_app_section">앱 내 제어</string>
+    <string name="permissions_clipboard_title">클립보드 읽기 및 쓰기</string>
+    <string name="permissions_clipboard_details">내용: 시스템 클립보드에 접근합니다. 용도: 기사 링크와 텍스트 복사, 가져올 내용 읽기. 이 스위치는 INTENT만 제어하며 다른 앱에는 영향을 주지 않습니다.</string>
+    <string name="permissions_clipboard_off">끄면: INTENT가 시스템 클립보드를 읽거나 쓰지 않아 복사 및 붙여넣기 작업을 사용할 수 없습니다.</string>
+    <string name="permissions_widget_title">홈 화면 카드 만들기</string>
+    <string name="permissions_widget_details">내용: 오늘의 기사를 위젯으로 제공합니다. 용도: 앱을 열지 않고도 최신 콘텐츠를 볼 수 있습니다.</string>
+    <string name="permissions_widget_off">끄면: INTENT가 홈 화면 카드를 만들거나 업데이트하지 않으며, 이미 배치된 위젯도 새로고침되지 않습니다.</string>
     <string name="privacy_intro">우리는 개인정보 보호가 기본권이며 타협되어서는 안 된다고 생각합니다. 데이터에 대한 통제권은 제품 제공자가 아니라 사용자에게 있어야 합니다. 이 페이지에서 모든 데이터의 저장 및 전송 규칙을 직접 관리할 수 있습니다.</string>
     <string name="privacy_data_section">데이터 저장 및 전송 관리</string>
     <string name="privacy_sandbox_title">기기에 저장되는 데이터(앱 샌드박스)</string>
@@ -234,6 +241,13 @@
     <string name="color_system_unavailable">시스템 동적 색상은 Android 12 이상에서 지원됩니다.</string>
     <string name="color_background">시스템 색상을 배경에 사용</string>
     <string name="color_manual">또는 강조색 선택</string>
+    <string name="theme_custom">사용자 지정 색상</string>
+    <string name="theme_custom_background">배경색 사용자 지정</string>
+    <string name="theme_background_follow">테마 따르기</string>
+    <string name="theme_background_reset">기본 배경으로 복원</string>
+    <string name="theme_background_note">사용자 지정 배경은 페이지 바탕색에만 적용되며, 텍스트와 카드는 밝기에 맞춰 자동으로 조정됩니다.</string>
+    <string name="color_picker_apply">적용</string>
+    <string name="color_picker_cancel">취소</string>
     <string name="accent_red">빨강</string>
     <string name="accent_black">검정</string>
     <string name="accent_blue">파랑</string>
@@ -273,6 +287,8 @@
     <string name="a11y_high_contrast">고대비 텍스트</string>
     <string name="a11y_large_touch">터치 대상 확대</string>
     <string name="a11y_reduce_anim">불필요한 애니메이션 끄기</string>
+    <string name="a11y_talkback">TalkBack 설정</string>
+    <string name="a11y_talkback_unavailable">설치되지 않음</string>
 
     <string name="notify_daily">오늘의 요약 보내기</string>
     <string name="notify_daily_time">알림 시간</string>

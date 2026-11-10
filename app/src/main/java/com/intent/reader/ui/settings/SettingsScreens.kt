@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import android.widget.Toast
+import android.view.accessibility.AccessibilityManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
@@ -132,6 +133,9 @@ class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
     fun setAccentColor(argb: Long) = launch { repo.setAccentColor(argb); IntentWidgets.refreshAll(app) }
     fun setDynamicColor(v: Boolean) = launch { repo.setDynamicColor(v) }
     fun setDynamicBackground(v: Boolean) = launch { repo.setDynamicBackground(v) }
+    fun setCustomBackgroundColor(argb: Long?) = launch { repo.setCustomBackgroundColor(argb) }
+    fun setClipboardAccess(v: Boolean) = launch { repo.setClipboardAccess(v) }
+    fun setWidgetCreation(v: Boolean) = launch { repo.setWidgetCreation(v); IntentWidgets.setCreationEnabled(app, v) }
     fun setWidgetStyle(v: String) = launch { repo.setWidgetStyle(v); IntentWidgets.setStyle(app, v) }
     fun setFontChoice(v: String) = launch { repo.setFontChoice(v) }
     fun setFontWeight(v: Int) = launch { repo.setFontWeight(v) }
@@ -186,7 +190,7 @@ class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
 }
 
 @Composable
-private fun settingsVm(): SettingsViewModel {
+internal fun settingsVm(): SettingsViewModel {
     val app = LocalContext.current.applicationContext as IntentApplication
     return viewModel(initializer = { SettingsViewModel(app) })
 }
@@ -274,24 +278,24 @@ internal fun SectionLabel(text: String) {
 }
 
 @Composable
-private fun EntryRow(title: String, value: String? = null, icon: ImageVector? = null, iconColor: Color = Color(0xFF438BFF), onClick: () -> Unit) {
+private fun EntryRow(title: String, value: String? = null, icon: ImageVector? = null, iconColor: Color = Color(0xFF438BFF), enabled: Boolean = true, onClick: () -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(21.dp))
+            Icon(icon, contentDescription = null, tint = if (enabled) iconColor else iconColor.copy(alpha = 0.4f), modifier = Modifier.size(21.dp))
             Spacer(Modifier.width(14.dp))
         }
         Text(
             text = title.withCjkSpacing(),
             style = t.body,
-            color = c.text,
+            color = if (enabled) c.text else c.textTertiary,
             modifier = Modifier.weight(1f),
         )
         if (value != null) {
@@ -304,7 +308,7 @@ private fun EntryRow(title: String, value: String? = null, icon: ImageVector? = 
             )
             Spacer(Modifier.width(8.dp))
         }
-        Text(text = "→", style = t.body, color = c.textTertiary)
+        Text(text = "→", style = t.body, color = if (enabled) c.textTertiary else c.textTertiary.copy(alpha = 0.4f))
     }
 }
 
@@ -757,12 +761,10 @@ fun AdvancedMaterialScreen(onBack: () -> Unit) {
     LaunchedEffect(s.glassTransparency) { transparency = s.glassTransparency }
 
     SettingsScaffold(title = stringResource(R.string.settings_advanced), onBack = onBack) {
-        GlassMaterialPreview(transparency = transparency, adaptive = s.glassAdaptiveTint)
-        Text(
-            text = stringResource(R.string.glass_preview_motto).withCjkSpacing(),
-            style = t.bodySmall,
-            color = c.textSecondary,
-            modifier = Modifier.padding(top = 14.dp),
+        GlassMaterialPreview(
+            transparency = transparency,
+            adaptive = s.glassAdaptiveTint,
+            motto = stringResource(R.string.glass_preview_motto),
         )
         Text(stringResource(R.string.glass_transparency), style = t.body, color = c.text,
             modifier = Modifier.padding(top = 20.dp))
@@ -824,6 +826,8 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
     val t = IntentTheme.typography
     val vm = settingsVm()
     val s = vm.settings
+    var accentPicker by remember { mutableStateOf(false) }
+    var backgroundPicker by remember { mutableStateOf(false) }
     SettingsScaffold(title = stringResource(R.string.ui_theme), onBack = onBack) {
         SectionLabel(stringResource(R.string.ui_accent))
         SwitchRow(
@@ -869,6 +873,51 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
                         ) { vm.setDynamicColor(false); vm.setAccentColor(color.toArgbLong()) },
                 )
             }
+        }
+
+        SectionLabel(stringResource(R.string.theme_custom))
+        SettingsGroup {
+            EntryRow(
+                title = stringResource(R.string.accent_custom),
+                value = hexColor(s.accentColor),
+                onClick = { accentPicker = true },
+            )
+            EntryRow(
+                title = stringResource(R.string.theme_custom_background),
+                value = s.customBackgroundColor?.let { hexColor(it) }
+                    ?: stringResource(R.string.theme_background_follow),
+                onClick = { backgroundPicker = true },
+            )
+            if (s.customBackgroundColor != null) {
+                EntryRow(
+                    title = stringResource(R.string.theme_background_reset),
+                    onClick = { vm.setCustomBackgroundColor(null) },
+                )
+            }
+        }
+        Text(
+            text = stringResource(R.string.theme_background_note).withCjkSpacing(),
+            style = t.micro,
+            color = c.textTertiary,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+
+        if (accentPicker) ColorPickerDialog(
+            title = stringResource(R.string.accent_custom),
+            initial = Color(s.accentColor),
+            onDismiss = { accentPicker = false },
+        ) { argb ->
+            accentPicker = false
+            vm.setDynamicColor(false)
+            vm.setAccentColor(argb)
+        }
+        if (backgroundPicker) ColorPickerDialog(
+            title = stringResource(R.string.theme_custom_background),
+            initial = s.customBackgroundColor?.let { Color(it) } ?: c.bg,
+            onDismiss = { backgroundPicker = false },
+        ) { argb ->
+            backgroundPicker = false
+            vm.setCustomBackgroundColor(argb)
         }
 
         SectionLabel(stringResource(R.string.ui_theme))
@@ -1231,6 +1280,81 @@ private fun Color.toArgbLong(): Long = 0xFFFFFFFFL and android.graphics.Color.ar
     (alpha * 255).toInt(), (red * 255).toInt(), (green * 255).toInt(), (blue * 255).toInt(),
 ).toLong() and 0xFFFFFFFFL
 
+private fun hexColor(argb: Long): String = String.format(Locale.US, "#%06X", argb and 0xFFFFFF)
+
+/** RGB picker used by both the accent and the page-background custom colours. */
+@Composable
+private fun ColorPickerDialog(
+    title: String,
+    initial: Color,
+    onDismiss: () -> Unit,
+    onConfirm: (Long) -> Unit,
+) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    var red by remember { mutableFloatStateOf(initial.red * 255f) }
+    var green by remember { mutableFloatStateOf(initial.green * 255f) }
+    var blue by remember { mutableFloatStateOf(initial.blue * 255f) }
+    val picked = Color(red.toInt(), green.toInt(), blue.toInt())
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = c.card,
+        title = { Text(title, style = t.body, fontWeight = FontWeight.Bold, color = c.text) },
+        text = {
+            Column {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(72.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(picked)
+                        .border(1.dp, c.divider, RoundedCornerShape(16.dp)),
+                )
+                Text(
+                    text = hexColor(picked.toArgbLong()),
+                    style = t.meta,
+                    color = c.textSecondary,
+                    modifier = Modifier.padding(top = 10.dp, bottom = 4.dp),
+                )
+                ColorChannel(stringResource(R.string.accent_red), red) { red = it }
+                ColorChannel(stringResource(R.string.accent_green), green) { green = it }
+                ColorChannel(stringResource(R.string.accent_blue), blue) { blue = it }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(picked.toArgbLong()) }) {
+                Text(stringResource(R.string.color_picker_apply), color = c.text)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.color_picker_cancel), color = c.textSecondary)
+            }
+        },
+    )
+}
+
+@Composable
+private fun ColorChannel(label: String, value: Float, onChange: (Float) -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = t.meta, color = c.textSecondary, modifier = Modifier.width(40.dp))
+        Slider(
+            value = value,
+            onValueChange = onChange,
+            valueRange = 0f..255f,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            text = value.toInt().toString(),
+            style = t.meta,
+            color = c.textTertiary,
+            modifier = Modifier.width(36.dp).padding(start = 8.dp),
+        )
+    }
+}
+
 // ---------- Privacy settings (level 1) ----------
 
 class PrivacyViewModel(private val app: IntentApplication) : ViewModel() {
@@ -1570,6 +1694,28 @@ fun ReadingHistoryScreen(onBack: () -> Unit) {
 
 // ---------- Accessibility settings (level 1) ----------
 
+private const val TALKBACK_PACKAGE = "com.google.android.marvin.talkback"
+private const val TALKBACK_SERVICE = "com.google.android.marvin.talkback.TalkBackService"
+
+/** True when the Android Accessibility Suite (TalkBack) is installed. */
+private fun isTalkBackInstalled(context: Context): Boolean = runCatching {
+    // `installedAccessibilityServiceList` is provided by the accessibility
+    // framework itself, so it works even under Android 11+ package visibility.
+    val manager = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    manager.installedAccessibilityServiceList.any {
+        it.resolveInfo.serviceInfo.packageName == TALKBACK_PACKAGE
+    }
+}.getOrDefault(false)
+
+/** Opens TalkBack's own accessibility detail page, falling back to the list. */
+private fun openTalkBackSettings(context: Context) {
+    val details = Intent("android.settings.ACCESSIBILITY_DETAILS_SETTINGS")
+        .putExtra(Intent.EXTRA_COMPONENT_NAME, ComponentName(TALKBACK_PACKAGE, TALKBACK_SERVICE))
+    runCatching { context.startActivity(details) }.onFailure {
+        runCatching { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+    }
+}
+
 @Composable
 fun AccessibilityScreen(onBack: () -> Unit) {
     val c = IntentTheme.colors
@@ -1577,6 +1723,7 @@ fun AccessibilityScreen(onBack: () -> Unit) {
     val vm = settingsVm()
     val s = vm.settings
     val context = LocalContext.current
+    val talkBackInstalled = remember { isTalkBackInstalled(context) }
 
     // TTS engine listing + preview. The instance is rebuilt whenever the selected
     // engine changes, so both "试听" and the reader actually use the chosen engine.
@@ -1651,12 +1798,17 @@ fun AccessibilityScreen(onBack: () -> Unit) {
                 color = c.text,
                 modifier = Modifier
                     .clickable {
-                        previewTts?.setSpeechRate(s.ttsRate)
-                        previewTts?.setPitch(s.ttsPitch)
-                        previewTts?.speak(
-                            context.getString(R.string.tts_sample),
-                            TextToSpeech.QUEUE_FLUSH, null, "preview",
-                        )
+                        previewTts?.let { tts ->
+                            // Engines such as ColorOS's need an explicit language
+                            // before they accept speak().
+                            if (tts.setLanguage(Locale.getDefault()) < 0) tts.setLanguage(Locale.CHINA)
+                            tts.setSpeechRate(s.ttsRate)
+                            tts.setPitch(s.ttsPitch)
+                            tts.speak(
+                                context.getString(R.string.tts_sample),
+                                TextToSpeech.QUEUE_FLUSH, null, "preview",
+                            )
+                        }
                     }
                     .padding(8.dp),
             )
@@ -1677,6 +1829,15 @@ fun AccessibilityScreen(onBack: () -> Unit) {
         SwitchRow(stringResource(R.string.a11y_high_contrast), s.highContrast) { vm.setHighContrast(it) }
         SwitchRow(stringResource(R.string.a11y_large_touch), s.largeTouchTargets) { vm.setLargeTouchTargets(it) }
         SwitchRow(stringResource(R.string.a11y_reduce_anim), s.reduceAnimations) { vm.setReduceAnimations(it) }
+
+        SectionLabel(stringResource(R.string.a11y_talkback))
+        EntryRow(
+            title = stringResource(R.string.a11y_talkback),
+            value = if (talkBackInstalled) null else stringResource(R.string.a11y_talkback_unavailable),
+            icon = Icons.Filled.RecordVoiceOver,
+            iconColor = Color(0xFF2587FF),
+            enabled = talkBackInstalled,
+        ) { openTalkBackSettings(context) }
         }
     }
 }

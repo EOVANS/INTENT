@@ -99,7 +99,7 @@
     <string name="settings_pick_pane">从左侧选择一项设置</string>
     <string name="settings_ui">更改用户界面</string>
     <string name="settings_a11y">无障碍</string>
-    <string name="settings_notify">通知</string>
+    <string name="settings_notify">通知管理</string>
     <string name="settings_user_name">用户名</string>
     <string name="settings_user">用户设置</string>
     <string name="settings_privacy">隐私</string>
@@ -118,6 +118,13 @@
     <string name="permissions_background_title">后台同步</string>
     <string name="permissions_background_details">是什么：唤醒锁、开机自启与前台服务。申请原因：按你设定的频率在退出应用后继续刷新订阅。</string>
     <string name="permissions_background_off">无法在应用内关闭：同为安装时授予的系统权限。可在设置中把「同步频率」调长，以减少后台活动。</string>
+    <string name="permissions_app_section">应用内控制</string>
+    <string name="permissions_clipboard_title">读取与写入剪切板</string>
+    <string name="permissions_clipboard_details">是什么：访问系统剪切板。用途：复制文章链接与文本，以及读取待导入的内容。开关仅控制 INTENT 自身，不涉及其他应用。</string>
+    <string name="permissions_clipboard_off">关闭后：INTENT 不会读取或写入系统剪切板，复制与粘贴相关操作将不可用。</string>
+    <string name="permissions_widget_title">创建桌面卡片</string>
+    <string name="permissions_widget_details">是什么：把今日文章以小组件形式提供给你。用途：无需打开应用即可浏览最新内容。</string>
+    <string name="permissions_widget_off">关闭后：INTENT 不会创建或更新桌面卡片，已放置的小组件将停止刷新。</string>
     <string name="privacy_intro">我们认为，隐私权是一项基本人权，隐私权不应被妥协。数据的控制权理应掌握在使用者手中，而非产品提供方。在本页面，你可以自主管理所有数据的保存与上传规则。</string>
     <string name="privacy_data_section">数据存储与上传管理</string>
     <string name="privacy_sandbox_title">保存在本地的数据（应用沙箱）</string>
@@ -246,6 +253,13 @@
     <string name="color_system_unavailable">系统动态色彩需要 Android 12 或更高版本。</string>
     <string name="color_background">使用系统配色背景</string>
     <string name="color_manual">或选择强调色</string>
+    <string name="theme_custom">自定义配色</string>
+    <string name="theme_custom_background">自定义背景色</string>
+    <string name="theme_background_follow">跟随主题</string>
+    <string name="theme_background_reset">恢复默认背景</string>
+    <string name="theme_background_note">自定义背景只作用于页面底色，文字与卡片会自动适配明暗对比。</string>
+    <string name="color_picker_apply">应用</string>
+    <string name="color_picker_cancel">取消</string>
     <string name="accent_red">红</string>
     <string name="accent_black">黑</string>
     <string name="accent_blue">蓝</string>
@@ -254,7 +268,7 @@
     <string name="accent_violet">紫</string>
     <string name="accent_teal">青</string>
     <string name="accent_magenta">品红</string>
-    <string name="accent_custom">自定义取色</string>
+    <string name="accent_custom">自定义颜色</string>
     <string name="ui_theme">主题</string>
     <string name="ui_widget_style">更改小组件样式</string>
     <string name="widget_style_classic">经典</string>
@@ -286,6 +300,8 @@
     <string name="a11y_high_contrast">高对比度文字</string>
     <string name="a11y_large_touch">放大触控目标</string>
     <string name="a11y_reduce_anim">关闭非必要动画</string>
+    <string name="a11y_talkback">TalkBack 设置</string>
+    <string name="a11y_talkback_unavailable">未安装</string>
 
     <!-- Settings: Notifications -->
     <string name="notify_daily">推送今日摘要</string>

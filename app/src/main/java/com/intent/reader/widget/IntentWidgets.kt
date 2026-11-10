@@ -1,6 +1,8 @@
 package com.intent.reader.widget
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
@@ -21,6 +23,23 @@ object IntentWidgets {
 
     suspend fun refreshAll(context: Context) {
         push(context, WidgetLoader.load(context))
+    }
+
+    /**
+     * Applies the "创建桌面卡片" consent switch: disabling the providers hides
+     * them from the launcher picker and stops placed widgets from refreshing.
+     */
+    suspend fun setCreationEnabled(context: Context, enabled: Boolean) {
+        val state = if (enabled) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        listOf(TodayLargeWidgetReceiver::class.java, TodaySmallWidgetReceiver::class.java).forEach { receiver ->
+            runCatching {
+                context.packageManager.setComponentEnabledSetting(
+                    ComponentName(context, receiver), state, PackageManager.DONT_KILL_APP,
+                )
+            }
+        }
+        if (enabled) refreshAll(context)
     }
 
     /** Switches the style and repaints right away (no app restart needed). */

@@ -193,7 +193,7 @@ fun SearchScreen(
             } else {
                 // Category hero strip (doc 4.2.2): each tile opens its preset feeds.
                 item {
-                    Text(stringResource(R.string.recommended_sources), style = t.sectionTitle)
+                    Text(stringResource(R.string.recommended_sources), style = t.sectionTitle, color = c.text)
                     Spacer(Modifier.height(8.dp))
                     Box(
                         Modifier
@@ -220,7 +220,7 @@ fun SearchScreen(
                 val imported = state.sources.filter { !it.isBuiltIn }
                 if (imported.isNotEmpty()) {
                     item {
-                        Text(stringResource(R.string.imported_sources), style = t.sectionTitle)
+                        Text(stringResource(R.string.imported_sources), style = t.sectionTitle, color = c.text)
                     }
                     imported.forEach { s ->
                         item(key = "imported_" + s.id) {

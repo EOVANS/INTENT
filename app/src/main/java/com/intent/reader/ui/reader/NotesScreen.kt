@@ -287,6 +287,7 @@ fun NotesScreen(
                     title = stringResource(if (query.isBlank()) R.string.notes_empty_title else R.string.no_results),
                     preview = stringResource(if (query.isBlank()) R.string.notes_empty else R.string.notes_search_hint),
                     sourceTitle = stringResource(R.string.island_notes), sourceLogo = null,
+                    sourceTextColor = c.text,
                     onClick = { if (query.isNotBlank()) query = "" },
                     modifier = Modifier.padding(horizontal = margin).fillMaxWidth(),
                 )

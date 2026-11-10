@@ -165,6 +165,7 @@
     <string name="glass_preview_subtitle">더 선명하고 집중할 수 있는 독서 경험.</string>
     <string name="glass_preview_search">검색</string>
     <string name="glass_preview_motto">INTENT 와 함께 사고의 경계를 넓히고, 오직 당신만의 정보 세계를 헤아려 보세요.</string>
+    <string name="glass_preview_body">소란 속에서 정보의 외딴섬을 세운다. 우리는 매일 방대한 정보에 스쳐 지나가면서도 진정으로 무언가를 남기는 일은 거의 없다.\n\n알고리즘은 감정과 화제를 정교하게 먹여 주며 시간을 다시 맞춰 볼 수 없는 조각으로 잘라낸다. 우리는 서서히 잊어 간다. 읽기란 본래 조용한 혼자가 되어야 한다는 것을.\n\n우리에게 필요한 것은 결코 더 많은 콘텐츠가 아니라, 소음을 걸러내는 경계다.</string>
     <string name="glass_transparency">유리 투명도</string>
     <string name="glass_transparency_tinted">부드럽게</string>
     <string name="glass_transparency_clear">투명하게</string>

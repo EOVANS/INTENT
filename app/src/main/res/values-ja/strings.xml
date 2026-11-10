@@ -165,6 +165,7 @@
     <string name="glass_preview_subtitle">より明快で集中できる読書体験。</string>
     <string name="glass_preview_search">検索</string>
     <string name="glass_preview_motto">INTENT で思考の境界を広げ、あなただけの情報世界を測ろう。</string>
+    <string name="glass_preview_body">喧騒の中で、情報の孤島を築く。私たちは毎日、膨大な情報に通り過ぎられながら、本当に何かを残すことはほとんどない。\n\nアルゴリズムは感情と話題を精密に与え、時間を組み合わせることのできない断片に切り刻んでいく。私たちは次第に忘れていく——読書とは本来、静かなひとりの時間であるべきだと。\n\n私たちに必要なのは、より多くのコンテンツではなく、ノイズを濾過する境界線なのだ。</string>
     <string name="glass_transparency">ガラスの透明度</string>
     <string name="glass_transparency_tinted">柔らかく</string>
     <string name="glass_transparency_clear">透明に</string>

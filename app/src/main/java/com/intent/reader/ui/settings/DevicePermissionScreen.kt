@@ -156,28 +156,6 @@ fun DevicePermissionScreen(onBack: () -> Unit) {
             }
         }
 
-        SectionLabel(stringResource(R.string.permissions_install_section))
-        SettingsGroup {
-            PermissionRow(
-                icon = Icons.Filled.Wifi,
-                tint = Color(0xFF45A4E8),
-                title = stringResource(R.string.permissions_network_title),
-                details = stringResource(R.string.permissions_network_details),
-                consequence = stringResource(R.string.permissions_network_off),
-                checked = true,
-                locked = true,
-            )
-            PermissionRow(
-                icon = Icons.Filled.Sync,
-                tint = Color(0xFF50B7C5),
-                title = stringResource(R.string.permissions_background_title),
-                details = stringResource(R.string.permissions_background_details),
-                consequence = stringResource(R.string.permissions_background_off),
-                checked = true,
-                locked = true,
-            )
-        }
-
         // App-level controls: neither is a system permission, so the switch is
         // stored in INTENT itself and describes what the app is allowed to do.
         SectionLabel(stringResource(R.string.permissions_app_section))
@@ -198,6 +176,28 @@ fun DevicePermissionScreen(onBack: () -> Unit) {
                 consequence = stringResource(R.string.permissions_widget_off),
                 checked = s.widgetCreation,
             ) { vm.setWidgetCreation(it) }
+        }
+
+        SectionLabel(stringResource(R.string.permissions_install_section))
+        SettingsGroup {
+            PermissionRow(
+                icon = Icons.Filled.Wifi,
+                tint = Color(0xFF45A4E8),
+                title = stringResource(R.string.permissions_network_title),
+                details = stringResource(R.string.permissions_network_details),
+                consequence = stringResource(R.string.permissions_network_off),
+                checked = true,
+                locked = true,
+            )
+            PermissionRow(
+                icon = Icons.Filled.Sync,
+                tint = Color(0xFF50B7C5),
+                title = stringResource(R.string.permissions_background_title),
+                details = stringResource(R.string.permissions_background_details),
+                consequence = stringResource(R.string.permissions_background_off),
+                checked = true,
+                locked = true,
+            )
         }
         Spacer(Modifier.height(10.dp))
     }

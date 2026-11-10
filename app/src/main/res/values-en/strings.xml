@@ -306,6 +306,7 @@
     <string name="glass_preview_subtitle">A clearer, more focused reading experience.</string>
     <string name="glass_preview_search">Search</string>
     <string name="glass_preview_motto">Use INTENT to stretch the edges of your thinking and map an information world that is entirely yours.</string>
+    <string name="glass_preview_body">In the noise, build an island of information. Every day we are passed through by a flood of information, yet we rarely keep anything.\n\nAlgorithms feed us emotions and trends with precision, cutting time into fragments that cannot be pieced together. We gradually forget that reading should be a quiet time alone.\n\nWhat we need has never been more content, but a boundary that filters out the noise.</string>
     <string name="glass_transparency">Glass transparency</string>
     <string name="glass_transparency_tinted">Softer</string>
     <string name="glass_transparency_clear">Clearer</string>

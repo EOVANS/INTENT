@@ -176,6 +176,7 @@
     <string name="glass_preview_subtitle">让每一次阅读更加清晰、专注。</string>
     <string name="glass_preview_search">搜索</string>
     <string name="glass_preview_motto">用 INTENT 来拓宽思维的边界，丈量一个只属于您的信息世界。</string>
+    <string name="glass_preview_body">在喧嚣中，建一座信息孤岛，我们每天被海量的信息穿过，却很少真正留下什么。\n\n算法精准地投喂着情绪与热点，将时间切割成无法拼凑的碎片。我们渐渐忘记，阅读本该是一场安静的独处。\n\n我们需要的，从来不是更多的内容，而是一道过滤噪音的边界。</string>
     <string name="glass_transparency">玻璃通透度</string>
     <string name="glass_transparency_tinted">更柔和</string>
     <string name="glass_transparency_clear">更通透</string>

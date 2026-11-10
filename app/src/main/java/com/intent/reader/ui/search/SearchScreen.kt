@@ -141,7 +141,7 @@ fun SearchScreen(
             item {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
-                    Text(stringResource(R.string.tab_search), style = t.pageTitle)
+                    Text(stringResource(R.string.tab_search), style = t.pageTitle, color = c.text)
                 }
             }
             item {

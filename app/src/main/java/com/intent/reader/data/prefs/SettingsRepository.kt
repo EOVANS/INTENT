@@ -200,7 +200,12 @@ class SettingsRepository(
     suspend fun setAvatarPath(v: String) = edit { it[Keys.avatarPath] = v }
     suspend fun setOnboardingVersion(v: Int) = edit { it[Keys.onboardingVersion] = v }
     suspend fun setClearCacheOnExit(v: Boolean) = edit { it[Keys.clearCacheOnExit] = v }
-    suspend fun setThemeMode(mode: ThemeMode) = edit { it[Keys.themeMode] = mode.ordinal }
+    suspend fun setThemeMode(mode: ThemeMode) = edit {
+        it[Keys.themeMode] = mode.ordinal
+        // A fixed background determines its own brightness and otherwise masks
+        // the theme selection. Choosing a theme returns to its default background.
+        it.remove(Keys.customBackgroundColor)
+    }
     suspend fun setAccentColor(argb: Long) = edit { it[Keys.accentColor] = argb.toString() }
     suspend fun setDynamicColor(v: Boolean) = edit { it[Keys.dynamicColor] = v }
     suspend fun setDynamicBackground(v: Boolean) = edit { it[Keys.dynamicBackground] = v }

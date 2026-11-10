@@ -6,6 +6,7 @@
 [![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+<img width="4096" height="1920" alt="IMG_20261111_004450" src="https://github.com/user-attachments/assets/b9b0ecbc-7cb1-4680-8265-5a560808230c" />
 
 适用版本：INTENT v1.6 · Android 11 及以上
 

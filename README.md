@@ -5,10 +5,16 @@
 [![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-7F52FF)](https://kotlinlang.org/)
 [![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Static Badge](https://img.shields.io/badge/build-Ai%20Powered%20RSS%20Reader-brightgreen?style=flat&logo=android&label=INTENT&labelColor=%23E02B2B&color=%23110F00&link=https%3A%2F%2Fintentread.pages.dev%2F)
+
+
+<img width="4096" height="1920" alt="IMG_20261111_004450" src="https://github.com/user-attachments/assets/b9b0ecbc-7cb1-4680-8265-5a560808230c" />
 
 适用版本：INTENT v1.6 · Android 11 及以上
 
 ![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)
+![Chrome OS](https://img.shields.io/badge/chrome%20os-%233d89fc.svg?style=flat)
+![Static Badge](https://img.shields.io/badge/build-Made%20for%20OnePlus-brightgreen?style=flat&logo=oneplus&label=INTENT&labelColor=%23E02B2B&color=%23110F00&link=https%3A%2F%2Fintentread.pages.dev%2F)
 
 手册内容：添加订阅 · 找 RSS 源 · 管理与阅读 · 桌面小组件 · 个性化设置 · 常见问题
 
@@ -17,6 +23,8 @@
 快来网站看看：[官网](https://intentread.pages.dev/#features)
 
 欢迎到访直男之家：[帮助中心](https://intentsonnet.pages.dev/help.html)
+
+[![Read the Docs](https://img.shields.io/badge/Read%20the%20Docs-%23000000.svg?style=for-the-badge&logo=readthedocs&logoColor=white)](https://intentsonnet.pages.dev/help.html)
 
 软件安全性检查：https://www.virustotal.com/gui/
 
@@ -42,6 +50,8 @@
 ## 1. 认识 INTENT
 
 RSS 是一种"订阅"功能：你把喜欢的网站、媒体、博客添加进来，它们一更新，INTENT 就自动帮你收集，不需要逐个打开网站。
+
+![RSS](https://img.shields.io/badge/rss-%23F88900.svg?style=for-the-badge&logo=rss&logoColor=white)
 
 **三个底部标签页：**
 
@@ -235,6 +245,8 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 | Medscape（护理） | `https://www.medscape.com/cx/rss/nursing.xml` |
 | 医学/护理更多专题 | 用 PubMed RSS + Google 新闻生成（如关键词"nursing"） |
 
+[![Google Scholar](https://img.shields.io/badge/Google%20Scholar-%234285F4.svg?style=for-the-badge&logo=google-scholar&logoColor=white)](https://scholar.google.com/)
+
 ### 4.7 财经·商业
 
 | 来源 | RSS 地址 |
@@ -400,6 +412,21 @@ A：在 App 内改色后会自动刷新；如启动器缓存，可删除小组�
 ---
 
 *祝你在 INTENT 里，读得专注。*
+
+本项目使用了以下 Ai 工具
+
+![Claude Code](https://img.shields.io/badge/Claude%20Code-%23D97757.svg?style=for-the-badge&logo=claudecode&logoColor=white)
+![DeepSeek](https://img.shields.io/badge/DeepSeek-%235786FE.svg?style=for-the-badge&logo=deepseek&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/google%20gemini-%238E75B2.svg?style=for-the-badge&logo=google%20gemini&logoColor=white)
+![Minimax](https://img.shields.io/badge/minimax-%23B4393C.svg?style=for-the-badge&logo=minimax&logoColor=white)
+![Ollama](https://img.shields.io/badge/ollama-%23000000.svg?style=for-the-badge&logo=ollama&logoColor=white)
+
+## 11月最佳员工
+![Static Badge](https://img.shields.io/badge/Agent%20Developer-Ai%20Code?style=flat&logo=moonshotai&label=Kimi&color=%23000000&link=https%3A%2F%2Fwww.moonshot.cn%2F)
+![Static Badge](https://img.shields.io/badge/Agent%20Marketing-Ai%20Code?style=flat&logo=qwen&label=Qwen&color=%236950EF&link=https%3A%2F%2Fqwen.ai%2Fhome)
+![Static Badge](https://img.shields.io/badge/Senior%20Software%20Architecter-Ai%20Code?style=flat&logo=googlegemini&logoColor=%234285F4&label=Gemini&color=%230049AB&link=https%3A%2F%2Fdeepmind.google)
+![Static Badge](https://img.shields.io/badge/Senior%20Project%20Assistant-Ai%20Code?style=flat&logo=spacex&label=spaceX&labelColor=%230049AB&color=%23000000&link=https%3A%2F%2Fgrokai.org)
+
 
 ## 许可证
 

@@ -360,7 +360,7 @@
     <string name="ai_clear_cache">Ai 結果キャッシュを削除</string>
     <string name="ai_cleared">削除しました</string>
     <string name="ai_loading">AI 処理中…</string>
-    <string name="ai_summary">AI 要約</string>
+    <string name="ai_summary">Ai 要約</string>
     <string name="ai_regenerate">再生成</string>
     <string name="ai_excerpt_only">RSS 抜粋のみを使用しています。全文は取得できていません。</string>
     <string name="ai_content_scope">アプリが取得した記事の文字情報のみを使用します。画像や未取得の内容は含みません。</string>

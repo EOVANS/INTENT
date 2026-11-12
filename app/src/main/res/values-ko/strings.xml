@@ -360,7 +360,7 @@
     <string name="ai_clear_cache">Ai 결과 캐시 삭제</string>
     <string name="ai_cleared">삭제했습니다</string>
     <string name="ai_loading">AI 처리 중…</string>
-    <string name="ai_summary">AI 요약</string>
+    <string name="ai_summary">Ai 요약</string>
     <string name="ai_regenerate">다시 생성</string>
     <string name="ai_excerpt_only">RSS 발췌만 사용합니다. 전체 본문을 가져오지 못했습니다.</string>
     <string name="ai_content_scope">앱에서 가져온 글의 텍스트만 사용합니다. 이미지와 가져오지 못한 내용은 제외됩니다.</string>

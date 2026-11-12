@@ -393,21 +393,21 @@ fun ReaderScreen(
                     .navigationBarsPadding().padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(stringResource(R.string.ai_summary), style = t.pageTitle, color = c.text)
+                Text(context.getString(R.string.ai_summary), style = t.pageTitle, color = c.text)
                 Text(
-                    stringResource(if (com.intent.reader.ai.AiRepository.articleText(article).excerptOnly)
+                    context.getString(if (com.intent.reader.ai.AiRepository.articleText(article).excerptOnly)
                         R.string.ai_excerpt_only else R.string.ai_content_scope),
                     style = t.meta, color = c.textSecondary,
                 )
-                if (state.summaryLoading) Text(stringResource(R.string.ai_loading), style = t.body, color = c.textSecondary)
+                if (state.summaryLoading) Text(context.getString(R.string.ai_loading), style = t.body, color = c.textSecondary)
                 state.aiSummary?.let { Text(it.withCjkSpacing(), style = t.body, color = c.text) }
-                state.summaryError?.let { Text(stringResource(it), style = t.meta, color = c.textSecondary) }
-                Text(stringResource(R.string.ai_output_hint), style = t.micro, color = c.textSecondary)
+                state.summaryError?.let { Text(context.getString(it), style = t.meta, color = c.textSecondary) }
+                Text(context.getString(R.string.ai_output_hint), style = t.micro, color = c.textSecondary)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(enabled = !state.summaryLoading, onClick = onRegenerateSummary) {
-                        Text(stringResource(R.string.ai_regenerate))
+                        Text(context.getString(R.string.ai_regenerate))
                     }
-                    TextButton(onClick = onDismissSummary) { Text(stringResource(R.string.close)) }
+                    TextButton(onClick = onDismissSummary) { Text(context.getString(R.string.close)) }
                 }
             }
         }

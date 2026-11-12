@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.intent.reader.IntentApplication
+import com.intent.reader.ai.SummaryLanguage
 import com.intent.reader.ui.settings.aiErrorResource
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -26,6 +27,7 @@ data class ReaderUiState(
     val ttsRate: Float = 1f,
     val ttsPitch: Float = 1f,
     val aiEnabled: Boolean = false,
+    val summaryLanguage: SummaryLanguage = SummaryLanguage.CHINESE,
     val summaryVisible: Boolean = false,
     val summaryLoading: Boolean = false,
     val aiSummary: String? = null,
@@ -40,6 +42,7 @@ class ReaderViewModel(private val app: IntentApplication) : ViewModel() {
     private val _state = MutableStateFlow(ReaderUiState())
     val state: StateFlow<ReaderUiState> = _state
     private var summaryJob: Job? = null
+    private var languageTag: String = ""
 
     init {
         viewModelScope.launch {
@@ -58,6 +61,12 @@ class ReaderViewModel(private val app: IntentApplication) : ViewModel() {
         }
         viewModelScope.launch {
             container.settingsRepository.settings.collect { settings ->
+                languageTag = settings.languageTag
+                val language = resolveSummaryLanguage(languageTag)
+                if (_state.value.summaryLanguage != language) {
+                    summaryJob?.cancel()
+                    _state.update { it.copy(summaryLanguage = language, aiSummary = null, summaryLoading = false, summaryError = null) }
+                }
                 _state.update {
                     it.copy(
                         ttsEngine = settings.ttsEngine,
@@ -114,14 +123,23 @@ class ReaderViewModel(private val app: IntentApplication) : ViewModel() {
 
     suspend fun deleteNote(id: String) { container.notesRepository.delete(id) }
 
+    private fun resolveSummaryLanguage(tag: String): SummaryLanguage = SummaryLanguage.resolve(
+        tag, android.content.res.Resources.getSystem().configuration.locales[0]?.toLanguageTag().orEmpty(),
+    )
+
     fun summarize(regenerate: Boolean = false) {
         val article = _state.value.article ?: return
+        val language = resolveSummaryLanguage(languageTag)
+        if (_state.value.summaryLanguage != language) {
+            summaryJob?.cancel()
+            _state.update { it.copy(summaryLanguage = language, aiSummary = null, summaryLoading = false, summaryError = null) }
+        }
         _state.update { it.copy(summaryVisible = true) }
         if (_state.value.summaryLoading || (_state.value.aiSummary != null && !regenerate)) return
         _state.update { it.copy(summaryLoading = true, summaryError = null) }
         summaryJob = viewModelScope.launch {
             try {
-                val text = container.aiRepository.summary(article, regenerate)
+                val text = container.aiRepository.summary(article, regenerate, language)
                 _state.update { it.copy(aiSummary = text, summaryLoading = false) }
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (error: Exception) {

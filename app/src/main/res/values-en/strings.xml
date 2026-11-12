@@ -287,7 +287,7 @@
     <string name="privacy_ai_total_label">Requests counted on this device</string>
     <string name="privacy_ai_times_unit">times</string>
     <string name="privacy_ai_times">%1$d×</string>
-    <string name="privacy_ai_quick_read">Ai quick read</string>
+    <string name="privacy_ai_quick_read">Ai Glance</string>
     <string name="privacy_ai_quote">Ai quote</string>
     <string name="privacy_ai_test">Connection test</string>
     <string name="privacy_reading_title">Reading history</string>
@@ -361,7 +361,7 @@
     <string name="ai_clear_cache">Clear cached Ai results</string>
     <string name="ai_cleared">Cleared</string>
     <string name="ai_loading">AI is working…</string>
-    <string name="ai_summary">AI summary</string>
+    <string name="ai_summary">Ai Glance</string>
     <string name="ai_regenerate">Regenerate</string>
     <string name="ai_excerpt_only">Based only on the RSS excerpt; full text is unavailable.</string>
     <string name="ai_content_scope">Based on article text available in the app; excludes images and unavailable web content.</string>
@@ -441,7 +441,7 @@
     <string name="ai_feature_diet">Information Diet Report</string>
     <string name="ai_feature_diet_desc">Understand the shape of your reading\nThis local-data analysis tool helps you assess your information intake objectively.</string>
     <string name="ai_feature_unsupported">Coming later</string>
-    <string name="ai_feature_read">Ai summary</string>
+    <string name="ai_feature_read">Ai Glance</string>
     <string name="ai_feature_read_desc">For long articles, INTENT offers Ai assistance using BYOK (Bring Your Own Key). Configure your own API key to make Ai your personal reading assistant.</string>
     <string name="about_thanks_title">Thank you for using INTENT</string>
     <string name="about_thanks_body">This app was built with passion and a love for reading. We hope you enjoy the experience.</string>

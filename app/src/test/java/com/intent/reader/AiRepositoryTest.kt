@@ -7,6 +7,7 @@ import com.intent.reader.ai.AiError
 import com.intent.reader.ai.AiException
 import com.intent.reader.ai.AiQuote
 import com.intent.reader.ai.AiRepository
+import com.intent.reader.ai.SummaryLanguage
 import com.intent.reader.data.db.Article
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -31,9 +32,10 @@ class AiRepositoryTest {
     private var calls = 0
     private var answer = "这是一段简明摘要。"
     private var input = ""
+    private var systemPrompt = ""
     private val body = "设计的本质是秩序，而非装饰，克制往往比堆砌更有力量。"
     private val directory by lazy { temporary.newFolder() }
-    private val completion = AiCompletion { _, _, user, _ -> calls++; input = user; answer }
+    private val completion = AiCompletion { _, system, user, _ -> calls++; systemPrompt = system; input = user; answer }
     private fun repository(client: AiCompletion = completion) = AiRepository({ config }, client, directory, { date })
     private fun article(id: String = "a1", text: String = "$body 我们沿着河岸慢慢前行，观察两侧建筑与道路之间的细微变化。") = Article(
         id, "source", id, "一篇关于设计的文章", "https://example.com/$id", null, "文章的RSS摘要。",
@@ -66,6 +68,36 @@ class AiRepositoryTest {
         config = config.copy(model = "another-model")
         repo.summary(article(text = body))
         assertEquals(3, calls)
+    }
+
+    @Test fun summariesFollowLanguageAndHaveSeparateCaches() = runBlocking {
+        val repo = repository()
+        val languages = listOf(SummaryLanguage.CHINESE, SummaryLanguage.ENGLISH, SummaryLanguage.JAPANESE, SummaryLanguage.KOREAN)
+        languages.forEach { language ->
+            answer = "result-" + language.tag
+            assertEquals(answer, repo.summary(article(), language = language))
+            assertTrue(systemPrompt.contains(language.instruction))
+        }
+        assertEquals(4, calls)
+        languages.forEach { language -> assertEquals("result-" + language.tag, repo.summary(article(), language = language)) }
+        assertEquals(4, calls)
+    }
+
+    @Test fun summaryLanguageFollowsDeviceUnlessAppOverridesIt() {
+        assertEquals(SummaryLanguage.JAPANESE, SummaryLanguage.resolve("", "ja-JP"))
+        assertEquals(SummaryLanguage.ENGLISH, SummaryLanguage.resolve("en", "zh-CN"))
+        assertEquals(SummaryLanguage.KOREAN, SummaryLanguage.resolve("", "ko-KR"))
+        assertEquals(SummaryLanguage.CHINESE, SummaryLanguage.resolve("", "fr-FR"))
+    }
+
+    @Test fun englishSummaryIsNotTruncatedAtChineseCharacterLimit() {
+        val text = "This is an English summary of the article. ".repeat(5).trim()
+        assertEquals(text, AiRepository.limitSummary(text, SummaryLanguage.ENGLISH))
+        val longText = "word ".repeat(150).trim()
+        val limited = AiRepository.limitSummary(longText, SummaryLanguage.ENGLISH)
+        assertTrue(limited.length <= 600)
+        assertTrue(limited.endsWith("…"))
+        assertTrue(limited.removeSuffix("…").endsWith("word"))
     }
 
     @Test fun disabledEmptyAndOverlongArticlesMakeNoPaidRequests() = runBlocking {

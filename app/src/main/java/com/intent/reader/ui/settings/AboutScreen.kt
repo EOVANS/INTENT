@@ -94,7 +94,7 @@ import kotlinx.coroutines.launch
 import com.intent.reader.update.AppUpdater
 
 private const val SITE_BASE = "https://intentsonnet.pages.dev"
-private const val URL_INTENT_VOICE = "https://cynosure-atelier.pages.dev/"
+private const val URL_INTENT_VOICE = "https://intentblog.pages.dev/"
 private const val URL_OFFICIAL_WEBSITE = "https://intentread.pages.dev/"
 private const val URL_CHANGELOG = "$SITE_BASE/changelog.html"
 private const val URL_PRIVACY = "$SITE_BASE/privacy.html"

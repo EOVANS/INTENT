@@ -93,8 +93,8 @@ private fun SmallWidgetContent(state: WidgetSnapshot, thumbs: Map<String, Bitmap
             .appWidgetBackground()
             .background(colors.surface)
             .then(
-                if (Build.VERSION.SDK_INT < 31) GlanceModifier.cornerRadius(28.dp)
-                else GlanceModifier,
+                if (Build.VERSION.SDK_INT >= 31) GlanceModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
+                else GlanceModifier.cornerRadius(28.dp),
             ),
     ) {
         // Accent rail: wordmark. Tap opens the app.

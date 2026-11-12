@@ -71,8 +71,8 @@ fun ImageStyleContent(
                 .appWidgetBackground()
                 .background(colors.surface)
                 .then(
-                    if (Build.VERSION.SDK_INT < 31) GlanceModifier.cornerRadius(28.dp)
-                    else GlanceModifier,
+                    if (Build.VERSION.SDK_INT >= 31) GlanceModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
+                    else GlanceModifier.cornerRadius(28.dp),
                 )
                 .clickable(openAppAction(context)),
             contentAlignment = Alignment.Center,
@@ -96,10 +96,11 @@ fun ImageStyleContent(
         GlanceModifier
             .fillMaxSize()
             .appWidgetBackground()
+            .background(colors.surface)
             .semantics { contentDescription = a11y }
             .then(
-                if (Build.VERSION.SDK_INT < 31) GlanceModifier.cornerRadius(28.dp)
-                else GlanceModifier,
+                if (Build.VERSION.SDK_INT >= 31) GlanceModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
+                else GlanceModifier.cornerRadius(28.dp),
             ),
         contentAlignment = Alignment.TopStart,
     ) {

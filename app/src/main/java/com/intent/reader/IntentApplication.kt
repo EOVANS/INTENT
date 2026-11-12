@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
+private data class LiveState(val eligible: Boolean, val minutes: Int, val goal: Int, val language: String)
+
 class IntentApplication : Application(), Configuration.Provider {
 
     lateinit var container: AppContainer
@@ -45,10 +47,15 @@ class IntentApplication : Application(), Configuration.Provider {
                     settings.liveUpdateEnabled &&
                     settings.liveUpdateDismissedDate != ReadingTracker.todayKey() &&
                     LiveUpdate.canPost(this@IntentApplication)
-                Triple(eligible, log?.minutes ?: 0, settings.readingGoalMinutes) to refresh
+                LiveState(eligible, log?.minutes ?: 0, settings.readingGoalMinutes, settings.languageTag) to refresh
             }.distinctUntilChanged().collect { (state, _) ->
-                val (eligible, minutes, goal) = state
-                if (eligible) LiveUpdate.update(this@IntentApplication, minutes, goal)
+                val (eligible, minutes, goal, language) = state
+                val localized = if (language.isBlank()) this@IntentApplication else {
+                    val config = android.content.res.Configuration(resources.configuration)
+                    config.setLocales(android.os.LocaleList(java.util.Locale.forLanguageTag(language)))
+                    createConfigurationContext(config)
+                }
+                if (eligible) LiveUpdate.update(localized, minutes, goal)
                 else LiveUpdate.cancel(this@IntentApplication)
             }
         }

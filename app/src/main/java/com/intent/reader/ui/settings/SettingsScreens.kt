@@ -827,7 +827,7 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
     val vm = settingsVm()
     val s = vm.settings
     var accentPicker by remember { mutableStateOf(false) }
-    var backgroundPicker by remember { mutableStateOf(false) }
+
     SettingsScaffold(title = stringResource(R.string.ui_theme), onBack = onBack) {
         SectionLabel(stringResource(R.string.ui_accent))
         SwitchRow(
@@ -882,18 +882,21 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
                 value = hexColor(s.accentColor),
                 onClick = { accentPicker = true },
             )
-            EntryRow(
-                title = stringResource(R.string.theme_custom_background),
-                value = s.customBackgroundColor?.let { hexColor(it) }
-                    ?: stringResource(R.string.theme_background_follow),
-                onClick = { backgroundPicker = true },
-            )
-            if (s.customBackgroundColor != null) {
-                EntryRow(
-                    title = stringResource(R.string.theme_background_reset),
-                    onClick = { vm.setCustomBackgroundColor(null) },
-                )
+
+        }
+        SectionLabel(stringResource(R.string.theme_custom_background))
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            val presets = listOf(0xFF6750A4L, 0xFF526B8FL, 0xFF4F7968L, 0xFF9A6757L, 0xFF8B6480L, 0xFF817458L)
+            presets.forEach { seed ->
+                val selected = s.customBackgroundColor == seed
+                Box(Modifier.size(40.dp).background(Color(seed), CircleShape)
+                    .border(if (selected) 3.dp else 1.dp, if (selected) c.text else c.divider, CircleShape)
+                    .clip(CircleShape).clickable { vm.setCustomBackgroundColor(seed) })
             }
+        }
+        TextButton(onClick = { vm.setCustomBackgroundColor(null) }) {
+            Text(stringResource(R.string.theme_background_reset))
         }
         Text(
             text = stringResource(R.string.theme_background_note).withCjkSpacing(),
@@ -911,14 +914,7 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
             vm.setDynamicColor(false)
             vm.setAccentColor(argb)
         }
-        if (backgroundPicker) ColorPickerDialog(
-            title = stringResource(R.string.theme_custom_background),
-            initial = s.customBackgroundColor?.let { Color(it) } ?: c.bg,
-            onDismiss = { backgroundPicker = false },
-        ) { argb ->
-            backgroundPicker = false
-            vm.setCustomBackgroundColor(argb)
-        }
+
 
         SectionLabel(stringResource(R.string.ui_theme))
         Segmented(
@@ -1046,6 +1042,7 @@ fun FontSettingsScreen(onBack: () -> Unit) {
     val dir = remember { java.io.File(context.filesDir, "fonts").apply { mkdirs() } }
     fun listFonts() = dir.listFiles()?.filter { it.isFile && (it.extension.equals("ttf", true) || it.extension.equals("otf", true)) }?.sortedBy { it.name } ?: emptyList()
     var fontFiles by remember { mutableStateOf(listFonts()) }
+    var deleteFont by remember { mutableStateOf<java.io.File?>(null) }
     val selectedFile = s.fontChoice.takeIf { it.startsWith("custom:") }?.removePrefix("custom:")?.let { java.io.File(it) }
     val axis = remember(selectedFile?.absolutePath) { selectedFile?.let { IntentFonts.weightAxis(it) } }
     val previewFamily = remember(s.fontChoice, s.fontWeight) {
@@ -1075,6 +1072,21 @@ fun FontSettingsScreen(onBack: () -> Unit) {
             if (!ok) dest?.delete()
             Toast.makeText(context, if (ok) R.string.font_imported else R.string.font_import_failed, Toast.LENGTH_SHORT).show()
         }
+    }
+    deleteFont?.let { file ->
+        AlertDialog(
+            onDismissRequest = { deleteFont = null },
+            title = { Text(context.getString(R.string.font_delete_title)) },
+            text = { Text(context.getString(R.string.font_delete_message, file.nameWithoutExtension.replace(Regex("^[0-9a-fA-F-]{36}_"), ""))) },
+            confirmButton = { TextButton(onClick = {
+                if (file.delete()) {
+                    if (s.fontChoice == "custom:" + file.absolutePath) vm.setFontChoice("system")
+                    fontFiles = listFonts()
+                } else Toast.makeText(context, R.string.font_delete_failed, Toast.LENGTH_SHORT).show()
+                deleteFont = null
+            }) { Text(context.getString(R.string.delete)) } },
+            dismissButton = { TextButton(onClick = { deleteFont = null }) { Text(context.getString(R.string.close)) } },
+        )
     }
     Column(Modifier.fillMaxSize().background(c.surface).statusBarsPadding()) {
         Row(
@@ -1113,7 +1125,12 @@ fun FontSettingsScreen(onBack: () -> Unit) {
                     fontFiles.forEach { file ->
                         val family = remember(file.absolutePath) { IntentFonts.fromFile(file.absolutePath) ?: androidx.compose.ui.text.font.FontFamily.Default }
                         val name = file.nameWithoutExtension.replace(Regex("^[0-9a-fA-F-]{36}_"), "")
-                        FontTile("custom:" + file.absolutePath, name, family)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            FontTile("custom:" + file.absolutePath, name, family)
+                            TextButton(onClick = { deleteFont = file }, contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) {
+                                Text(stringResource(R.string.delete), style = t.micro, color = c.accent)
+                            }
+                        }
                     }
                     Column(Modifier.width(88.dp).clip(RoundedCornerShape(12.dp)).clickable { fontImport.launch(arrayOf("font/ttf", "font/otf", "application/x-font-ttf", "application/x-font-otf", "*/*")) }, horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(Modifier.fillMaxWidth().height(64.dp).border(1.dp, c.divider, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {

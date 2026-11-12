@@ -37,6 +37,7 @@ import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -130,6 +131,7 @@ fun HandwritingEditor(
         else Handwriting(width = width, height = height, strokes = strokes, backgroundColor = backgroundColor)
     LaunchedEffect(strokes, width, height, backgroundColor) { onDraft(snapshot()) }
     val eraserIcon = ImageVector.vectorResource(R.drawable.ic_ink_eraser)
+    val localized = LocalContext.current
     Dialog(onDismissRequest = onCancel, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         val view = LocalView.current
         DisposableEffect(view) {
@@ -148,21 +150,21 @@ fun HandwritingEditor(
         Column(Modifier.fillMaxSize().background(Color(backgroundColor.toInt())).statusBarsPadding().navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().background(toolbar).windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                InkTool(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.close), onClick = onCancel)
+                InkTool(Icons.AutoMirrored.Filled.ArrowBack, localized.getString(R.string.close), onClick = onCancel)
                 Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                InkTool(Icons.Filled.Edit, stringResource(R.string.ink_pen), selected = !eraser, onClick = { eraser = false; showPenColors = !showPenColors })
-                InkTool(eraserIcon, stringResource(R.string.ink_eraser), selected = eraser, onClick = { eraser = true; showPenColors = false })
+                InkTool(Icons.Filled.Edit, localized.getString(R.string.ink_pen), selected = !eraser, onClick = { eraser = false; showPenColors = !showPenColors })
+                InkTool(eraserIcon, localized.getString(R.string.ink_eraser), selected = eraser, onClick = { eraser = true; showPenColors = false })
                 HorizontalDivider(Modifier.width(1.dp).height(24.dp), color = Color.White.copy(alpha = 0.25f))
-                InkTool(Icons.Filled.LineWeight, stringResource(R.string.ink_width), selected = showPenWidth, onClick = {
+                InkTool(Icons.Filled.LineWeight, localized.getString(R.string.ink_width), selected = showPenWidth, onClick = {
                     eraser = false; showPenColors = false; showPenWidth = !showPenWidth
                 })
-                InkTool(Icons.Filled.PanTool, stringResource(if (fingerDraw) R.string.ink_finger_on else R.string.ink_finger_off), selected = fingerDraw, onClick = { fingerDraw = !fingerDraw; showPenColors = false; showPenWidth = false; showHandHelp = true })
-                InkTool(Icons.AutoMirrored.Filled.Redo, stringResource(R.string.ink_redo), enabled = redo.isNotEmpty(), onClick = { undo = undo + listOf(strokes); strokes = redo.last(); redo = redo.dropLast(1) })
-                InkTool(Icons.AutoMirrored.Filled.Undo, stringResource(R.string.ink_undo), enabled = undo.isNotEmpty(), onClick = { redo = redo + listOf(strokes); strokes = undo.last(); undo = undo.dropLast(1) })
-                InkTool(Icons.Filled.Delete, stringResource(R.string.ink_clear), enabled = strokes.isNotEmpty(), onClick = { confirmClear = true })
-                InkTool(Icons.Filled.FormatColorFill, stringResource(R.string.ink_background), onClick = { showPenColors = false; showBackground = true })
+                InkTool(Icons.Filled.PanTool, localized.getString(if (fingerDraw) R.string.ink_finger_on else R.string.ink_finger_off), selected = fingerDraw, onClick = { fingerDraw = !fingerDraw; showPenColors = false; showPenWidth = false; showHandHelp = true })
+                InkTool(Icons.AutoMirrored.Filled.Redo, localized.getString(R.string.ink_redo), enabled = redo.isNotEmpty(), onClick = { undo = undo + listOf(strokes); strokes = redo.last(); redo = redo.dropLast(1) })
+                InkTool(Icons.AutoMirrored.Filled.Undo, localized.getString(R.string.ink_undo), enabled = undo.isNotEmpty(), onClick = { redo = redo + listOf(strokes); strokes = undo.last(); undo = undo.dropLast(1) })
+                InkTool(Icons.Filled.Delete, localized.getString(R.string.ink_clear), enabled = strokes.isNotEmpty(), onClick = { confirmClear = true })
+                InkTool(Icons.Filled.FormatColorFill, localized.getString(R.string.ink_background), onClick = { showPenColors = false; showBackground = true })
                 }
-                InkTool(Icons.Filled.Check, stringResource(R.string.notes_save), onClick = { onDone(snapshot()) })
+                InkTool(Icons.Filled.Check, localized.getString(R.string.notes_save), onClick = { onDone(snapshot()) })
             }
             BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                 val density = LocalDensity.current
@@ -252,7 +254,7 @@ fun HandwritingEditor(
                     Row(Modifier.horizontalScroll(rememberScrollState()).padding(4.dp)) {
                         listOf(0xFF000000L to R.string.ink_black, 0xFF1565C0L to R.string.ink_blue, 0xFFD32F2FL to R.string.ink_red,
                             0xFF2E7D32L to R.string.ink_green, 0xFFFFFFFFL to R.string.ink_white).forEach { (color, label) ->
-                            val description = stringResource(label)
+                            val description = localized.getString(label)
                             IconButton(onClick = { penColor = color; eraser = false }, modifier = Modifier.size(48.dp).semantics { contentDescription = description }) {
                                 Box(Modifier.size(24.dp).background(Color(color.toInt()), CircleShape)
                                     .border(if (penColor == color) 3.dp else 1.dp, Color.White, CircleShape))
@@ -264,7 +266,7 @@ fun HandwritingEditor(
                     shape = RoundedCornerShape(20.dp), shadowElevation = 4.dp) {
                     Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         InkWidthPalette.forEach { option ->
-                            val description = stringResource(option.label)
+                            val description = localized.getString(option.label)
                             val picked = penWidth == option.width
                             IconButton(onClick = { penWidth = option.width; eraser = false },
                                 modifier = Modifier.size(48.dp).semantics { contentDescription = description }
@@ -278,13 +280,13 @@ fun HandwritingEditor(
             }
         }
         if (showHandHelp) AlertDialog(onDismissRequest = { showHandHelp = false },
-            title = { Text(stringResource(if (fingerDraw) R.string.ink_finger_on else R.string.ink_finger_off)) },
-            text = { Text(stringResource(if (fingerDraw) R.string.ink_hand_enabled_help else R.string.ink_hand_disabled_help)) },
-            confirmButton = { TextButton(onClick = { showHandHelp = false }) { Text(stringResource(R.string.ink_understood)) } })
-        if (showBackground) BackgroundColorDialog(backgroundColor, onDismiss = { showBackground = false }, onSelect = { backgroundColor = it })
-        if (confirmClear) AlertDialog(onDismissRequest = { confirmClear = false }, title = { Text(stringResource(R.string.ink_clear_confirm)) }, confirmButton = {
-            TextButton(onClick = { change(emptyList()); confirmClear = false }) { Text(stringResource(R.string.ink_clear)) }
-        }, dismissButton = { TextButton(onClick = { confirmClear = false }) { Text(stringResource(R.string.close)) } })
+            title = { Text(localized.getString(if (fingerDraw) R.string.ink_finger_on else R.string.ink_finger_off)) },
+            text = { Text(localized.getString(if (fingerDraw) R.string.ink_hand_enabled_help else R.string.ink_hand_disabled_help)) },
+            confirmButton = { TextButton(onClick = { showHandHelp = false }) { Text(localized.getString(R.string.ink_understood)) } })
+        if (showBackground) BackgroundColorDialog(localized, backgroundColor, onDismiss = { showBackground = false }, onSelect = { backgroundColor = it })
+        if (confirmClear) AlertDialog(onDismissRequest = { confirmClear = false }, title = { Text(localized.getString(R.string.ink_clear_confirm)) }, confirmButton = {
+            TextButton(onClick = { change(emptyList()); confirmClear = false }) { Text(localized.getString(R.string.ink_clear)) }
+        }, dismissButton = { TextButton(onClick = { confirmClear = false }) { Text(localized.getString(R.string.close)) } })
     }
 }
 
@@ -308,9 +310,9 @@ private val InkBackgroundPalette = listOf(
 )
 
 @Composable
-private fun BackgroundColorDialog(initial: Long, onDismiss: () -> Unit, onSelect: (Long) -> Unit) {
+private fun BackgroundColorDialog(localized: android.content.Context, initial: Long, onDismiss: () -> Unit, onSelect: (Long) -> Unit) {
     var selected by remember { mutableLongStateOf(initial) }
-    AlertDialog(onDismissRequest = onDismiss, title = { Text(stringResource(R.string.ink_background)) }, text = {
+    AlertDialog(onDismissRequest = onDismiss, title = { Text(localized.getString(R.string.ink_background)) }, text = {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             InkBackgroundPalette.chunked(6).forEach { rowColors ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -326,5 +328,5 @@ private fun BackgroundColorDialog(initial: Long, onDismiss: () -> Unit, onSelect
                 }
             }
         }
-    }, confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ink_confirm)) } })
+    }, confirmButton = { TextButton(onClick = onDismiss) { Text(localized.getString(R.string.ink_confirm)) } })
 }

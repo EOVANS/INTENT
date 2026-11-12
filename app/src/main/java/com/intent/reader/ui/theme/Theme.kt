@@ -12,7 +12,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import android.os.Build
 import androidx.compose.ui.text.font.FontFamily
@@ -90,7 +89,7 @@ fun IntentTheme(
         accent = dynamicScheme.primary,
         glass = dynamicScheme.surfaceContainerHigh.copy(alpha = if (darkTheme) 0.85f else 0.9f),
     ) else base.copy(accent = accent)
-    val colors0 = if (customBackground != null) themed.withCustomBackground(customBackground) else themed
+    val colors0 = if (customBackground != null) themed.withCustomBackground(customBackground, darkTheme) else themed
     // High-contrast accessibility: pull secondary/tertiary text toward full
     // contrast and make dividers clearly visible.
     val colors = if (highContrast) colors0.copy(
@@ -102,14 +101,14 @@ fun IntentTheme(
         darkColorScheme(
             background = colors.bg, surface = colors.bg, surfaceVariant = colors.card,
             onBackground = colors.text, onSurface = colors.text, onSurfaceVariant = colors.textSecondary,
-            outlineVariant = colors.divider, primary = accent, onPrimary = colors.bg,
+            outlineVariant = colors.divider, primary = colors.accent, onPrimary = colors.bg,
             secondary = colors.text, onSecondary = colors.bg,
         )
     } else {
         lightColorScheme(
             background = colors.bg, surface = colors.bg, surfaceVariant = colors.card,
             onBackground = colors.text, onSurface = colors.text, onSurfaceVariant = colors.textSecondary,
-            outlineVariant = colors.divider, primary = accent, onPrimary = colors.bg,
+            outlineVariant = colors.divider, primary = colors.accent, onPrimary = colors.bg,
             secondary = colors.text, onSecondary = colors.bg,
         )
     }
@@ -132,12 +131,10 @@ object IntentTheme {
 }
 
 /**
- * Replaces the page background with a user-picked colour. Surfaces and text are
- * re-derived from that colour so the UI stays legible even when it contradicts
- * the light/dark mode the user picked.
+ * Derives mode-appropriate surfaces and text from the selected background seed.
  */
-private fun IntentColors.withCustomBackground(bgColor: Color): IntentColors {
-    val dark = bgColor.luminance() < 0.5f
+private fun IntentColors.withCustomBackground(seed: Color, dark: Boolean): IntentColors {
+    val bgColor = seed.blendWith(if (dark) Color.Black else Color.White, if (dark) 0.90f else 0.94f)
     val onBg = if (dark) Color.White else Color.Black
     return copy(
         bg = bgColor,

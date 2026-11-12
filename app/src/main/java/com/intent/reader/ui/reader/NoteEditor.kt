@@ -21,7 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.intent.reader.R
 import com.intent.reader.ui.theme.IntentTheme
@@ -45,6 +45,7 @@ fun NoteEditor(
     onSave: suspend (String, Handwriting?) -> Unit,
     onDelete: (suspend () -> Unit)? = null,
 ) {
+    val localized = LocalContext.current
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val scope = rememberCoroutineScope()
@@ -90,53 +91,53 @@ fun NoteEditor(
     AlertDialog(
         onDismissRequest = { if (!busy) perform { if (ready) repository.writeDraft(draftKey, NoteDraft(remark, drawing)) } },
         containerColor = c.bg,
-        title = { Text(stringResource(R.string.island_notes), style = t.pageTitle, color = c.text) },
+        title = { Text(localized.getString(R.string.island_notes), style = t.pageTitle, color = c.text) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(quote, style = t.bodySmall, color = c.textSecondary)
                 OutlinedTextField(
                     value = remark, onValueChange = { remark = it }, enabled = ready && !busy,
                     modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8,
-                    label = { Text(stringResource(R.string.notes_remark)) },
-                    placeholder = { Text(stringResource(R.string.notes_remark_hint)) },
+                    label = { Text(localized.getString(R.string.notes_remark)) },
+                    placeholder = { Text(localized.getString(R.string.notes_remark_hint)) },
                 )
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(enabled = ready && !busy, onClick = { beforeInk = drawing; editingInk = true }) {
-                        Text(stringResource(if (drawing == null) R.string.ink_add else R.string.ink_edit))
+                        Text(localized.getString(if (drawing == null) R.string.ink_add else R.string.ink_edit))
                     }
                 }
                 drawing?.let { HandwritingPreview(it, Modifier.fillMaxWidth().height(200.dp)
                     .clickable(enabled = ready && !busy) { beforeInk = drawing; editingInk = true }, anchorText = quote) }
-                if (loadFailed) Text(stringResource(R.string.ink_load_error), color = c.accent, style = t.meta)
-                if (failed) Text(stringResource(R.string.notes_save_error), color = c.accent, style = t.meta)
+                if (loadFailed) Text(localized.getString(R.string.ink_load_error), color = c.accent, style = t.meta)
+                if (failed) Text(localized.getString(R.string.notes_save_error), color = c.accent, style = t.meta)
             }
         },
         confirmButton = {
             TextButton(enabled = !busy && ready, onClick = { perform { onSave(remark, drawing); runCatching { repository.deleteDraft(draftKey) } } }) {
-                Text(stringResource(R.string.notes_save))
+                Text(localized.getString(R.string.notes_save))
             }
         },
         dismissButton = {
             Row {
                 if (onDelete != null) TextButton(enabled = !busy, onClick = { confirmDelete = true }) {
-                    Text(stringResource(R.string.delete))
+                    Text(localized.getString(R.string.delete))
                 }
-                TextButton(enabled = !busy, onClick = { perform { if (ready) repository.writeDraft(draftKey, NoteDraft(remark, drawing)) } }) { Text(stringResource(R.string.close)) }
+                TextButton(enabled = !busy, onClick = { perform { if (ready) repository.writeDraft(draftKey, NoteDraft(remark, drawing)) } }) { Text(localized.getString(R.string.close)) }
             }
         },
     )
     if (editingInk) HandwritingEditor(initial = beforeInk, anchorText = quote, onCancel = { drawing = beforeInk; editingInk = false }, onDone = { drawing = it; editingInk = false }, onDraft = { drawing = it })
     if (confirmDelete && onDelete != null) AlertDialog(
         onDismissRequest = { if (!busy) confirmDelete = false },
-        title = { Text(stringResource(R.string.notes_delete_title)) },
-        text = { Text(stringResource(R.string.notes_delete_message)) },
+        title = { Text(localized.getString(R.string.notes_delete_title)) },
+        text = { Text(localized.getString(R.string.notes_delete_message)) },
         confirmButton = {
             TextButton(enabled = !busy, onClick = { confirmDelete = false; perform { onDelete(); runCatching { repository.deleteDraft(draftKey) } } }) {
-                Text(stringResource(R.string.delete))
+                Text(localized.getString(R.string.delete))
             }
         },
         dismissButton = {
-            TextButton(enabled = !busy, onClick = { confirmDelete = false }) { Text(stringResource(R.string.close)) }
+            TextButton(enabled = !busy, onClick = { confirmDelete = false }) { Text(localized.getString(R.string.close)) }
         },
     )
 }

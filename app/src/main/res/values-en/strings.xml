@@ -158,7 +158,7 @@
     <string name="theme_custom_background">Custom background</string>
     <string name="theme_background_follow">Follow theme</string>
     <string name="theme_background_reset">Reset background</string>
-    <string name="theme_background_note">The custom background only changes the page colour; text and cards adapt their contrast automatically.</string>
+    <string name="theme_background_note">Choose a soft background palette. Light and dark modes use different tones; the accent color remains independent.</string>
     <string name="color_picker_apply">Apply</string>
     <string name="color_picker_cancel">Cancel</string>
     <string name="accent_red">Red</string>
@@ -458,4 +458,7 @@
     <string name="developer_team">Development team</string>
     <string name="developer_from">From %1$s</string>
     <string name="about_intent_voice">A voice from INTENT</string>
+    <string name="font_delete_title">Delete font?</string>
+    <string name="font_delete_message">Delete “%1$s”? If selected, the system font will be used.</string>
+    <string name="font_delete_failed">Could not delete font</string>
 </resources>

@@ -258,7 +258,7 @@
     <string name="theme_custom_background">自定义背景色</string>
     <string name="theme_background_follow">跟随主题</string>
     <string name="theme_background_reset">恢复默认背景</string>
-    <string name="theme_background_note">自定义背景只作用于页面底色，文字与卡片会自动适配明暗对比。</string>
+    <string name="theme_background_note">选择柔和的背景色预设。浅色和深色模式会自动使用不同色调，强调色保持独立。</string>
     <string name="color_picker_apply">应用</string>
     <string name="color_picker_cancel">取消</string>
     <string name="accent_red">红</string>
@@ -478,5 +478,8 @@
     <string name="developer_team">开发团队</string>
     <string name="developer_from">来自 %1$s</string>
     <string name="about_intent_voice">来自 INTENT 的声音</string>
+    <string name="font_delete_title">删除字体？</string>
+    <string name="font_delete_message">确定删除字体“%1$s”？如果正在使用，将切换为系统字体。</string>
+    <string name="font_delete_failed">无法删除字体</string>
 </resources>
 

@@ -246,7 +246,7 @@
     <string name="theme_custom_background">背景色をカスタム</string>
     <string name="theme_background_follow">テーマに従う</string>
     <string name="theme_background_reset">既定の背景に戻す</string>
-    <string name="theme_background_note">カスタム背景はページの下地色にのみ適用され、文字とカードは明暗に合わせて自動的に調整されます。</string>
+    <string name="theme_background_note">背景のプリセットを選択します。ライトとダークで色調が変わり、アクセントカラーは独立しています。</string>
     <string name="color_picker_apply">適用</string>
     <string name="color_picker_cancel">キャンセル</string>
     <string name="accent_red">赤</string>
@@ -456,4 +456,7 @@
     <string name="developer_team">開発チーム</string>
     <string name="developer_from">提供元：%1$s</string>
     <string name="about_intent_voice">INTENT からの声</string>
+    <string name="font_delete_title">フォントを削除しますか？</string>
+    <string name="font_delete_message">「%1$s」を削除しますか？使用中の場合はシステムフォントに切り替わります。</string>
+    <string name="font_delete_failed">フォントを削除できませんでした</string>
 </resources>

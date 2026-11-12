@@ -247,6 +247,7 @@ fun HomeScreen(
                         greetingEmoji = state.greetingEmoji,
                         avatarPath = state.avatarPath,
                         quotes = state.quotes,
+                        boldQuote = state.boldGreetingQuote,
                         reduceAnimations = state.reduceAnimations,
                         onOpenArticle = onOpenArticle,
                         modifier = Modifier.padding(top = 24.dp),
@@ -411,6 +412,7 @@ fun GreetingHeader(
     greetingEmoji: String = "",
     avatarPath: String = "",
     quotes: List<DailyQuote>,
+    boldQuote: Boolean,
     reduceAnimations: Boolean,
     onOpenArticle: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -497,6 +499,7 @@ fun GreetingHeader(
 
         QuoteBlock(
             quotes = quotes,
+            boldQuote = boldQuote,
             reduceAnimations = reduceAnimations,
             onOpenArticle = onOpenArticle,
         )
@@ -547,6 +550,7 @@ private const val UNDERLINE_EXTRA_DELAY_MS = 100L
 @Composable
 fun QuoteBlock(
     quotes: List<DailyQuote>,
+    boldQuote: Boolean,
     reduceAnimations: Boolean,
     onOpenArticle: (String) -> Unit,
 ) {
@@ -586,6 +590,7 @@ fun QuoteBlock(
     key(quote.text, animationsEnabled) {
         FocusQuote(
             quote = quote,
+            boldQuote = boldQuote,
             animationsEnabled = playEntrance,
             onOpenArticle = onOpenArticle,
         )
@@ -640,6 +645,7 @@ private fun tokenizeQuote(text: String): List<QuoteToken> {
 @Composable
 private fun FocusQuote(
     quote: DailyQuote,
+    boldQuote: Boolean,
     animationsEnabled: Boolean,
     onOpenArticle: (String) -> Unit,
 ) {
@@ -674,6 +680,7 @@ private fun FocusQuote(
         tokens.forEachIndexed { i, (tk, highlighted) ->
             FocusToken(
                 token = tk,
+                boldQuote = boldQuote,
                 delayMs = i * staggerMs,
                 animationsEnabled = animationsEnabled,
                 highlighted = highlighted,
@@ -712,6 +719,7 @@ private fun FocusQuote(
 @Composable
 private fun FocusToken(
     token: QuoteToken,
+    boldQuote: Boolean,
     delayMs: Int,
     animationsEnabled: Boolean,
     highlighted: Boolean,
@@ -731,7 +739,7 @@ private fun FocusToken(
 
     Text(
         text = token.text,
-        style = t.quoteSerif,
+        style = t.quoteSerif.copy(fontWeight = if (boldQuote) FontWeight.Bold else FontWeight.Normal),
         color = c.text,
         onTextLayout = { baseline = it.getLineBaseline(0).toFloat() },
         modifier = Modifier

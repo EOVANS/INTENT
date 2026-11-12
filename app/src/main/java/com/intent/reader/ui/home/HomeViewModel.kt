@@ -60,6 +60,7 @@ data class HomeUiState(
     val refreshing: Boolean = false,
     val loaded: Boolean = false,
     val reduceAnimations: Boolean = false,
+    val boldGreetingQuote: Boolean = false,
     val aiQuote: HomeAiQuoteState = HomeAiQuoteState(),
 )
 
@@ -98,6 +99,7 @@ class HomeViewModel(private val app: IntentApplication) : ViewModel() {
                 avatarPath = settings.avatarPath,
                 refreshing = refreshing, loaded = true,
                 reduceAnimations = settings.reduceAnimations,
+                boldGreetingQuote = settings.boldGreetingQuote,
                 aiQuote = ai,
             )
         } else {
@@ -151,6 +153,7 @@ class HomeViewModel(private val app: IntentApplication) : ViewModel() {
                 avatarPath = settings.avatarPath,
                 refreshing = refreshing, loaded = true,
                 reduceAnimations = settings.reduceAnimations,
+                boldGreetingQuote = settings.boldGreetingQuote,
                 aiQuote = ai,
             )
         }

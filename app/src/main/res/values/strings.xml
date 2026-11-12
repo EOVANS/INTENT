@@ -481,5 +481,6 @@
     <string name="font_delete_title">删除字体？</string>
     <string name="font_delete_message">确定删除字体“%1$s”？如果正在使用，将切换为系统字体。</string>
     <string name="font_delete_failed">无法删除字体</string>
+    <string name="font_bold_greeting">使用粗体顶部问候区</string>
 </resources>
 

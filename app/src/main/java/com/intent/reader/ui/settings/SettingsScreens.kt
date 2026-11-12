@@ -142,6 +142,7 @@ class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
     fun setLanguageTag(v: String) = launch { repo.setLanguageTag(v) }
     fun setTextScaleLevel(v: Int) = launch { repo.setTextScaleLevel(v) }
     fun setFollowSystemFontScale(v: Boolean) = launch { repo.setFollowSystemFontScale(v) }
+    fun setBoldGreetingQuote(v: Boolean) = launch { repo.setBoldGreetingQuote(v) }
     fun setDisplaySizeLevel(v: Int) = launch { repo.setDisplaySizeLevel(v) }
     fun setHighContrast(v: Boolean) = launch { repo.setHighContrast(v) }
     fun setLargeTouchTargets(v: Boolean) = launch { repo.setLargeTouchTargets(v) }
@@ -1153,6 +1154,7 @@ fun FontSettingsScreen(onBack: () -> Unit) {
                         colors = SliderDefaults.colors(thumbColor = c.accent, activeTrackColor = c.accent),
                     )
                     SwitchRow(stringResource(R.string.a11y_follow_system_font), s.followSystemFontScale) { vm.setFollowSystemFontScale(it) }
+                    SwitchRow(stringResource(R.string.font_bold_greeting), s.boldGreetingQuote) { vm.setBoldGreetingQuote(it) }
                     if (axis != null) {
                         Box(Modifier.fillMaxWidth().height(1.dp).background(c.divider))
                         Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {

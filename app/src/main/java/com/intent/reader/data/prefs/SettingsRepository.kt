@@ -34,6 +34,7 @@ data class SettingsState(
     val languageTag: String = "",           // "" = follow system
     val textScaleLevel: Int = 1,            // 0..3
     val followSystemFontScale: Boolean = true,
+    val boldGreetingQuote: Boolean = false,
     val displaySizeLevel: Int = 1,          // 0..3 (in-app density scale)
     val highContrast: Boolean = false,
     val largeTouchTargets: Boolean = false,
@@ -90,6 +91,7 @@ class SettingsRepository(
         val languageTag = stringPreferencesKey("language_tag")
         val textScale = intPreferencesKey("text_scale_level")
         val followFontScale = booleanPreferencesKey("follow_system_font_scale")
+        val boldGreetingQuote = booleanPreferencesKey("bold_greeting_quote")
         val displaySize = intPreferencesKey("display_size_level")
         val highContrast = booleanPreferencesKey("high_contrast")
         val largeTouch = booleanPreferencesKey("large_touch_targets")
@@ -142,6 +144,7 @@ class SettingsRepository(
             languageTag = p[Keys.languageTag] ?: "",
             textScaleLevel = p[Keys.textScale] ?: 1,
             followSystemFontScale = p[Keys.followFontScale] ?: true,
+            boldGreetingQuote = p[Keys.boldGreetingQuote] ?: false,
             displaySizeLevel = p[Keys.displaySize] ?: 1,
             highContrast = p[Keys.highContrast] ?: false,
             largeTouchTargets = p[Keys.largeTouch] ?: false,
@@ -213,6 +216,7 @@ class SettingsRepository(
     suspend fun setLanguageTag(v: String) = edit { it[Keys.languageTag] = v }
     suspend fun setTextScaleLevel(v: Int) = edit { it[Keys.textScale] = v }
     suspend fun setFollowSystemFontScale(v: Boolean) = edit { it[Keys.followFontScale] = v }
+    suspend fun setBoldGreetingQuote(v: Boolean) = edit { it[Keys.boldGreetingQuote] = v }
     suspend fun setDisplaySizeLevel(v: Int) = edit { it[Keys.displaySize] = v }
     suspend fun setHighContrast(v: Boolean) = edit { it[Keys.highContrast] = v }
     suspend fun setLargeTouchTargets(v: Boolean) = edit { it[Keys.largeTouch] = v }

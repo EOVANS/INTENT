@@ -462,4 +462,6 @@
     <string name="font_delete_message">Delete “%1$s”? If selected, the system font will be used.</string>
     <string name="font_delete_failed">Could not delete font</string>
     <string name="font_bold_greeting">Use bold text for the greeting quote</string>
+    <string name="ai_quote_no_candidates">No eligible sentences were found today. Showing offline quotes.</string>
+    <string name="ai_quote_invalid_selection">AI selected an invalid option. Showing offline quotes.</string>
 </resources>

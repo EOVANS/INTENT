@@ -79,6 +79,8 @@ internal fun aiErrorResource(error: Throwable): Int = when ((error as? AiExcepti
     AiError.RATE_LIMIT -> R.string.ai_error_rate
     AiError.RESPONSE -> R.string.ai_error_response
     AiError.QUOTE -> R.string.ai_error_quote
+    AiError.QUOTE_CANDIDATES -> R.string.ai_quote_no_candidates
+    AiError.QUOTE_SELECTION -> R.string.ai_quote_invalid_selection
     AiError.STORAGE -> R.string.ai_error_storage
     AiError.SERVICE -> R.string.ai_error_service
     else -> R.string.ai_error_network

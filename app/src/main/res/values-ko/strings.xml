@@ -460,4 +460,6 @@
     <string name="font_delete_message">“%1$s” 글꼴을 삭제할까요? 사용 중이면 시스템 글꼴로 전환됩니다.</string>
     <string name="font_delete_failed">글꼴을 삭제할 수 없습니다</string>
     <string name="font_bold_greeting">상단 인사말의 명언을 굵게 표시</string>
+    <string name="ai_quote_no_candidates">오늘 본문에서 조건에 맞는 문장을 찾지 못해 오프라인 명언을 표시합니다.</string>
+    <string name="ai_quote_invalid_selection">AI가 유효하지 않은 후보 번호를 반환하여 오프라인 명언을 표시합니다.</string>
 </resources>

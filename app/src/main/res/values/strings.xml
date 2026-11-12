@@ -482,5 +482,7 @@
     <string name="font_delete_message">确定删除字体“%1$s”？如果正在使用，将切换为系统字体。</string>
     <string name="font_delete_failed">无法删除字体</string>
     <string name="font_bold_greeting">使用粗体顶部问候区</string>
+    <string name="ai_quote_no_candidates">今天没有符合条件的正文原句，继续显示离线金句。</string>
+    <string name="ai_quote_invalid_selection">AI 返回的候选编号无效，继续显示离线金句。</string>
 </resources>
 

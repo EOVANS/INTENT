@@ -94,7 +94,7 @@ class AiRepositoryTest {
     }
 
     @Test fun verifiedQuoteIsCachedAcrossRecreationAndNextDayAllowsNewAttempt() = runBlocking {
-        answer = "{\"articleId\":\"a1\",\"text\":\"$body\"}"
+        answer = "{\"id\":1}"
         assertEquals(AiQuote("a1", body), repository().dailyQuote(listOf(article())))
         assertEquals(AiQuote("a1", body), repository().dailyQuote(listOf(article())))
         assertEquals(1, calls)
@@ -103,16 +103,16 @@ class AiRepositoryTest {
         assertEquals(2, calls)
     }
 
-    @Test fun inventedQuotesUnknownArticlesAndHeadlinesCannotBePresentedAsExcerpts() = runBlocking {
-        val repo = repository()
-        for (bad in listOf(
-            AiQuote("a1", "自由来自认真阅读与持续思考，而非盲目接受所有人的观点。"),
-            AiQuote("unknown", body),
-            AiQuote("a1", article().title),
-        )) {
-            answer = "{\"articleId\":\"${bad.articleId}\",\"text\":\"${bad.text}\"}"
-            expect(AiError.QUOTE) { repo.dailyQuote(listOf(article()), regenerate = true) }
-        }
+    @Test fun invalidSelectionCannotBePresentedAsExcerpt() = runBlocking {
+        answer = "{\"id\":999}"
+        expect(AiError.QUOTE_SELECTION) { repository().dailyQuote(listOf(article()), regenerate = true) }
+        assertEquals(1, calls)
+    }
+
+    @Test fun noEligibleSentencesMakesNoRequest() = runBlocking {
+        val text = "这是一个不能作为金句的问题吗？这是另一个不能作为金句的问题吗？"
+        expect(AiError.QUOTE_CANDIDATES) { repository().dailyQuote(listOf(article(text = text)), regenerate = true) }
+        assertEquals(0, calls)
     }
 
     @Test fun failedAutomaticQuoteDoesNotRetrySilentlyEvenAfterCacheClear() = runBlocking {
@@ -122,7 +122,7 @@ class AiRepositoryTest {
         repository().clearCache()
         assertNull(repository().dailyQuote(listOf(article())))
         assertEquals(1, calls)
-        answer = "{\"articleId\":\"a1\",\"text\":\"$body\"}"
+        answer = "{\"id\":1}"
         assertNotNull(repository().dailyQuote(listOf(article()), regenerate = true))
         assertEquals(2, calls)
     }
@@ -143,10 +143,10 @@ class AiRepositoryTest {
 
     @Test fun quoteSkipsSummaryOnlyAndOversizedCandidatesWithoutSendingFragments() = runBlocking {
         val repo = repository()
-        assertNull(repo.dailyQuote(listOf(article().copy(contentHtml = null))))
-        assertNull(repo.dailyQuote(listOf(article(text = "字".repeat(AiRepository.MAX_INPUT_CHARS + 1)))))
+        expect(AiError.QUOTE_CANDIDATES) { repo.dailyQuote(listOf(article().copy(contentHtml = null))) }
+        expect(AiError.QUOTE_CANDIDATES) { repo.dailyQuote(listOf(article(text = "字".repeat(AiRepository.MAX_INPUT_CHARS + 1)))) }
         assertEquals(0, calls)
-        answer = "{\"articleId\":\"a1\",\"text\":\"$body\"}"
+        answer = "{\"id\":1}"
         assertNotNull(repo.dailyQuote(listOf(article())))
         assertEquals(1, calls)
     }
@@ -159,12 +159,25 @@ class AiRepositoryTest {
         assertFalse(AiRepository.verifies(AiQuote("a1", body), listOf(joined)))
     }
 
-    @Test fun quoteCandidatesAreBoundedAndEachSentArticleRemainsWhole() = runBlocking {
-        answer = "{\"articleId\":\"a1\",\"text\":\"$body\"}"
+    @Test fun quoteCandidatesAreBoundedAndContainOnlyEligibleSentences() = runBlocking {
+        answer = "{\"id\":1}"
         val articles = (1..8).map { article("a$it") }
         repository().dailyQuote(articles)
-        assertEquals(3, Regex("<article id=").findAll(input).count())
-        assertTrue(input.contains(AiRepository.articleText(articles.first()).text))
+        assertEquals(6, kotlinx.serialization.json.Json.parseToJsonElement(input).let { it as kotlinx.serialization.json.JsonArray }.size)
+        assertTrue(input.contains(body))
+        assertFalse(input.contains("<article"))
+    }
+
+    @Test fun laterArticlesAreUsedWhenEarlierOnesHaveNoEligibleSentence() = runBlocking {
+        val invalid = article(text = "这是一个不能作为金句的问题吗？".repeat(4))
+        answer = "{\"id\":1}"
+        assertEquals(AiQuote("a1", body), repository().dailyQuote(listOf(invalid, invalid, invalid, article())))
+    }
+
+    @Test fun chosenNumberMapsToOriginalSentence() = runBlocking {
+        val second = "我们沿着河岸慢慢前行，观察两侧建筑与道路之间的细微变化。"
+        answer = "{\"id\":2}"
+        assertEquals(AiQuote("a1", second), repository().dailyQuote(listOf(article())))
     }
 
     @Test fun disablingQuotesMakesNoRequests() = runBlocking {

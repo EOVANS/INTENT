@@ -460,4 +460,6 @@
     <string name="font_delete_message">「%1$s」を削除しますか？使用中の場合はシステムフォントに切り替わります。</string>
     <string name="font_delete_failed">フォントを削除できませんでした</string>
     <string name="font_bold_greeting">上部のあいさつ欄の名言を太字にする</string>
+    <string name="ai_quote_no_candidates">今日の本文に条件を満たす文がないため、オフラインの名言を表示します。</string>
+    <string name="ai_quote_invalid_selection">AI が無効な候補番号を返したため、オフラインの名言を表示します。</string>
 </resources>

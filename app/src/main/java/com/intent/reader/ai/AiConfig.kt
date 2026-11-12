@@ -23,7 +23,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-enum class AiError { CONFIG, URL, EMPTY, TOO_LONG, AUTH, RATE_LIMIT, NETWORK, SERVICE, RESPONSE, QUOTE, STORAGE }
+enum class AiError { CONFIG, URL, EMPTY, TOO_LONG, AUTH, RATE_LIMIT, NETWORK, SERVICE, RESPONSE, QUOTE, QUOTE_CANDIDATES, QUOTE_SELECTION, STORAGE }
 class AiException(val reason: AiError) : Exception(reason.name)
 
 @Serializable

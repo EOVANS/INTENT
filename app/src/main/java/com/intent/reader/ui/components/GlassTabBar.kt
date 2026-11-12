@@ -9,9 +9,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -96,18 +96,31 @@ fun GlassTabBar(
     val c = IntentTheme.colors
     val mainTabs = listOf(IntentTab.HOME, IntentTab.NOTES)
     val selectedIndex = mainTabs.indexOf(selected)
-    var lastMainIndex by remember { mutableIntStateOf(0) }
-    LaunchedEffect(selectedIndex) { if (selectedIndex >= 0) lastMainIndex = selectedIndex }
+    var previousTab by remember { mutableStateOf(selected) }
     var dragging by remember { mutableStateOf(false) }
     var dragPosition by remember { mutableFloatStateOf(0f) }
     var panelPressed by remember { mutableStateOf(false) }
     val currentOnSelect by rememberUpdatedState(onSelect)
-    val settledIndex by rememberUpdatedState(if (selectedIndex >= 0) selectedIndex else lastMainIndex)
-    val position by animateFloatAsState(
-        targetValue = if (dragging) dragPosition else settledIndex.toFloat(),
-        animationSpec = if (dragging) snap() else if (advanced) spring(0.78f, 380f) else spring(1f, 900f),
-        label = "tabSliderPosition",
-    )
+    val position = remember { Animatable(selectedIndex.coerceAtLeast(0).toFloat()) }
+    // The main thumb is invisible in Search. Move it directly to the chosen
+    // destination before it fades back in; only main-to-main changes slide.
+    val returningFromSearch = selectedIndex >= 0 && previousTab == IntentTab.SEARCH
+    LaunchedEffect(selected, dragging, dragPosition, advanced) {
+        if (dragging) {
+            position.snapTo(dragPosition)
+        } else {
+            val fromSearch = previousTab == IntentTab.SEARCH
+            if (selectedIndex < 0) {
+                previousTab = selected
+            } else if (fromSearch) {
+                position.snapTo(selectedIndex.toFloat())
+                previousTab = selected
+            } else {
+                previousTab = selected
+                position.animateTo(selectedIndex.toFloat(), if (advanced) spring(0.78f, 380f) else spring(1f, 900f))
+            }
+        }
+    }
     val press by animateFloatAsState(
         targetValue = if (panelPressed) 1f else 0f,
         animationSpec = spring(0.7f, 450f), label = "tabPanelPress",
@@ -135,7 +148,11 @@ fun GlassTabBar(
             val maxPosition = mainTabs.lastIndex.toFloat()
             val slotPx = with(density) { slotWidth.toPx() }
             val insetPx = with(density) { 4.dp.toPx() }
-            val displayedPosition = if (dragging) dragPosition else position
+            val displayedPosition = when {
+                dragging -> dragPosition
+                returningFromSearch -> selectedIndex.toFloat()
+                else -> position.value
+            }
             Box(
                 Modifier.fillMaxSize()
                     .pointerInput(advanced) {

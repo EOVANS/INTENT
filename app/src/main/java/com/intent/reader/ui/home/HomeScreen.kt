@@ -424,6 +424,7 @@ fun GreetingHeader(
     val t = IntentTheme.typography
     val hi = stringResource(R.string.greeting_first_line)
     val todayPrefix = stringResource(R.string.today_prefix)
+    var displayedQuote by remember { mutableStateOf<DailyQuote?>(null) }
 
     val dateText = run {
         val d = LocalDate.now()
@@ -499,6 +500,8 @@ fun GreetingHeader(
 
         QuoteBlock(
             quotes = quotes,
+            aiQuote = aiQuote.quote,
+            onQuoteDisplayed = { displayedQuote = it },
             boldQuote = boldQuote,
             reduceAnimations = reduceAnimations,
             onOpenArticle = onOpenArticle,
@@ -508,7 +511,7 @@ fun GreetingHeader(
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(if (aiQuote.loading) R.string.ai_loading
-                        else if (aiQuote.quote != null) R.string.ai_quote_ready else R.string.ai_quote),
+                        else if (aiQuote.quote != null && displayedQuote == aiQuote.quote) R.string.ai_quote_ready else R.string.ai_quote),
                     style = t.micro, color = c.textSecondary, modifier = Modifier.weight(1f),
                 )
                 TextButton(enabled = !aiQuote.loading, onClick = onRefreshAiQuote) {
@@ -550,6 +553,8 @@ private const val UNDERLINE_EXTRA_DELAY_MS = 100L
 @Composable
 fun QuoteBlock(
     quotes: List<DailyQuote>,
+    aiQuote: DailyQuote?,
+    onQuoteDisplayed: (DailyQuote) -> Unit,
     boldQuote: Boolean,
     reduceAnimations: Boolean,
     onOpenArticle: (String) -> Unit,
@@ -570,6 +575,7 @@ fun QuoteBlock(
 
     var index by rememberSaveable { mutableIntStateOf(0) }
     var displayedText by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(aiQuote) { if (aiQuote != null) index = 0 }
     LaunchedEffect(quotes, lifecycle) {
         if (index >= quotes.size) index = 0
         if (quotes.size <= 1) return@LaunchedEffect
@@ -581,6 +587,7 @@ fun QuoteBlock(
         }
     }
     val quote = quotes.getOrElse(index) { quotes.first() }
+    LaunchedEffect(quote) { onQuoteDisplayed(quote) }
     // Preserve the current quote on tab restoration without replaying dozens of
     // per-token blur animations. Newly rotated quotes still animate normally.
     val playEntrance = remember(quote.text, animationsEnabled) { animationsEnabled && displayedText != quote.text }

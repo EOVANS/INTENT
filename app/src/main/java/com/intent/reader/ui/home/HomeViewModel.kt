@@ -71,6 +71,9 @@ data class HomeAiQuoteState(
     val message: Int? = null,
 )
 
+internal fun mergeHomeQuotes(offline: List<DailyQuote>, ai: DailyQuote?): List<DailyQuote> =
+    if (ai == null) offline else listOf(ai) + offline.filterNot { it.text == ai.text }
+
 class HomeViewModel(private val app: IntentApplication) : ViewModel() {
 
     private val container = app.container
@@ -80,7 +83,7 @@ class HomeViewModel(private val app: IntentApplication) : ViewModel() {
     private var aiQuoteJob: Job? = null
     private var homeForeground = false
     private val displayedQuotes = combine(quoteList, aiQuote) { offline, ai ->
-        (ai.quote?.let { listOf(it) } ?: offline) to ai
+        mergeHomeQuotes(offline, ai.quote) to ai
     }
 
     val state: StateFlow<HomeUiState> = combine(

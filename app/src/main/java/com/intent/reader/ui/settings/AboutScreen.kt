@@ -32,6 +32,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -76,6 +79,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -163,21 +167,15 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
         }
     }
 
-    Column(Modifier.fillMaxSize().background(c.bg).verticalScroll(rememberScrollState())) {
-        TopAppBar(
-            title = { Text(stringResource(R.string.about), style = t.pageTitle) },
-            navigationIcon = {
-                // Inside the wide two-pane layout the section index stays visible, so the
-                // page does not need an arrow of its own.
-                if (!LocalSettingsPaneEmbedded.current) {
-                    HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = c.bg,
-                titleContentColor = c.text,
-            ),
-        )
+    val density = LocalDensity.current
+    val statusBarTop = WindowInsets.statusBars.getTop(density)
+    var headerHeight by remember(statusBarTop, density) {
+        mutableIntStateOf(statusBarTop + with(density) { 64.dp.roundToPx() })
+    }
+    Box(Modifier.fillMaxSize().background(c.bg)) {
+        Column(Modifier.fillMaxSize().settingsHeaderBlur(with(density) { headerHeight.toDp() })
+            .verticalScroll(rememberScrollState())) {
+            Spacer(Modifier.height(with(density) { headerHeight.toDp() }))
         Column(
             Modifier
                 .fillMaxWidth()
@@ -284,6 +282,22 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(24.dp))
+        }
+        }
+        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 56.dp).background(
+            Brush.verticalGradient(0f to c.bg, 0.75f to c.bg.copy(alpha = 0.98f), 1f to c.bg.copy(alpha = 0f)),
+        ))
+        Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
+            TopAppBar(
+                title = { Text(stringResource(R.string.about), style = t.pageTitle) },
+                navigationIcon = {
+                    if (!LocalSettingsPaneEmbedded.current) {
+                        HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                    }
+                },
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent, titleContentColor = c.text),
+            )
         }
     }
 

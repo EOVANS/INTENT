@@ -20,6 +20,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,9 +86,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.selection.selectable
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -95,6 +100,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.intent.reader.IntentApplication
 import com.intent.reader.R
 import com.intent.reader.ui.components.HeaderIconButton
+import com.intent.reader.ui.components.ScrollEdge
+import com.intent.reader.ui.components.scrollEdgeBlur
 import com.intent.reader.data.CacheCleaner
 import com.intent.reader.data.prefs.SettingsState
 import com.intent.reader.data.prefs.ThemeMode
@@ -205,6 +212,12 @@ internal fun settingsVm(): SettingsViewModel {
 internal val LocalSettingsPaneEmbedded = staticCompositionLocalOf { false }
 
 @Composable
+internal fun Modifier.settingsHeaderBlur(height: Dp): Modifier =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        scrollEdgeBlur(ScrollEdge.TOP, height + 56.dp, 28.dp)
+    } else this
+
+@Composable
 internal fun SettingsScaffold(
     title: String,
     onBack: (() -> Unit)? = null,
@@ -213,54 +226,43 @@ internal fun SettingsScaffold(
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val embedded = LocalSettingsPaneEmbedded.current
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(c.bg)
-            .verticalScroll(rememberScrollState())
-            .navigationBarsPadding()
-    ) {
-        Row(
-            Modifier
-                .align(Alignment.CenterHorizontally)
-                .widthIn(max = 720.dp)
-                .fillMaxWidth()
-                .statusBarsPadding()
-                // Same top offset as the search page title (status bar + 24dp),
-                // and the same 16dp gap above the first row (8dp here + the 8dp
-                // spacer inside the scroll content).
-                .padding(
-                    start = IntentDimens.pageHMarginPhone.dp,
-                    end = IntentDimens.pageHMarginPhone.dp,
-                    top = 24.dp,
-                    bottom = 8.dp,
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (onBack != null && !embedded) {
-                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
-            }
-            Text(
-                text = title,
-                style = t.pageTitle,
-                color = c.text,
-            )
-        }
-        // The floating glass tab bar is drawn over the scroll content, so the
-        // content must reserve its footprint (nav inset + 12dp + 56dp) or the
-        // last rows end up unreachable. The root page (no back arrow) carries the
-        // tab bar; sub-pages do not, so they only need a hairline bottom margin.
-        val bottomReserve = if (onBack == null) 84.dp else 16.dp
+    val density = LocalDensity.current
+    val statusBarTop = WindowInsets.statusBars.getTop(density)
+    var headerHeight by remember(statusBarTop, density) {
+        mutableIntStateOf(statusBarTop + with(density) { 80.dp.roundToPx() })
+    }
+    Box(Modifier.fillMaxSize().background(c.bg)) {
         Column(
-            Modifier
-                .align(Alignment.CenterHorizontally)
-                .widthIn(max = 720.dp)
-                .fillMaxWidth()
-                .padding(horizontal = IntentDimens.pageHMarginPhone.dp),
+            Modifier.fillMaxSize().settingsHeaderBlur(with(density) { headerHeight.toDp() })
+                .verticalScroll(rememberScrollState()).navigationBarsPadding(),
         ) {
-            Spacer(Modifier.height(8.dp))
-            content()
-            Spacer(Modifier.height(bottomReserve))
+            Spacer(Modifier.height(with(density) { headerHeight.toDp() }))
+            val bottomReserve = if (onBack == null) 84.dp else 16.dp
+            Column(
+                Modifier.align(Alignment.CenterHorizontally).widthIn(max = 720.dp)
+                    .fillMaxWidth().padding(horizontal = IntentDimens.pageHMarginPhone.dp),
+            ) {
+                Spacer(Modifier.height(8.dp))
+                content()
+                Spacer(Modifier.height(bottomReserve))
+            }
+        }
+        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 56.dp).background(
+            Brush.verticalGradient(0f to c.bg, 0.75f to c.bg.copy(alpha = 0.98f), 1f to c.bg.copy(alpha = 0f)),
+        ))
+        // Keep the title fixed above the same gradual fade used on Home.
+        Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
+            Row(
+                Modifier.align(Alignment.TopCenter).widthIn(max = 720.dp).fillMaxWidth()
+                    .padding(start = IntentDimens.pageHMarginPhone.dp, end = IntentDimens.pageHMarginPhone.dp,
+                        top = 24.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (onBack != null && !embedded) {
+                    HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                }
+                Text(text = title, style = t.pageTitle, color = c.text)
+            }
         }
     }
 }
@@ -1088,15 +1090,16 @@ fun FontSettingsScreen(onBack: () -> Unit) {
             dismissButton = { TextButton(onClick = { deleteFont = null }) { Text(context.getString(R.string.close)) } },
         )
     }
+    val density = LocalDensity.current
+    val statusBarTop = WindowInsets.statusBars.getTop(density)
+    var headerHeight by remember(statusBarTop, density) {
+        mutableIntStateOf(statusBarTop + with(density) { 80.dp.roundToPx() })
+    }
     Column(Modifier.fillMaxSize().background(c.surface)) {
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
-        Row(
-            Modifier.fillMaxWidth().background(c.surface).statusBarsPadding().padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
-            Text(stringResource(R.string.ui_font), style = t.pageTitle, color = c.text)
-        }
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+        Column(Modifier.fillMaxSize().settingsHeaderBlur(with(density) { headerHeight.toDp() })
+            .verticalScroll(rememberScrollState())) {
+        Spacer(Modifier.height(with(density) { headerHeight.toDp() }))
         Column(Modifier.fillMaxWidth().background(c.card)) {
             Column(Modifier.fillMaxWidth().background(c.surface).heightIn(min = 210.dp).padding(horizontal = 20.dp, vertical = 24.dp)) {
                 Text(stringResource(R.string.font_preview_title), style = t.pageTitle.copy(fontFamily = previewFamily), color = c.text)
@@ -1167,6 +1170,18 @@ fun FontSettingsScreen(onBack: () -> Unit) {
                 }
             }
             }
+        }
+        }
+        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 56.dp).background(
+            Brush.verticalGradient(0f to c.surface, 0.75f to c.surface.copy(alpha = 0.98f), 1f to c.surface.copy(alpha = 0f)),
+        ))
+        Row(
+            Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()
+                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+            Text(stringResource(R.string.ui_font), style = t.pageTitle, color = c.text)
         }
         }
         Box(Modifier.fillMaxWidth().background(c.card)) {

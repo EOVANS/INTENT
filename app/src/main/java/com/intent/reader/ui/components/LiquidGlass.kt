@@ -261,20 +261,32 @@ half4 main(float2 coord) {
     if (r <= 0.6) {
         return content.eval(coord);
     }
-    // 9 抽样高斯近似（σ ≈ 1.8 个步长），沿纵向展开
+    // Dense Gaussian sampling avoids separated copies of high-contrast text.
     float2 v = float2(0.0, 1.0);
-    float o = r * 0.55;
+    float o = r / 6.0;
     float2 lo = float2(0.0);
     float2 hi = size;
-    half4 sum = content.eval(coord) * 0.2270270;
-    sum += content.eval(clamp(coord + v * (1.0 * o), lo, hi)) * 0.1945946;
-    sum += content.eval(clamp(coord - v * (1.0 * o), lo, hi)) * 0.1945946;
-    sum += content.eval(clamp(coord + v * (2.0 * o), lo, hi)) * 0.1216216;
-    sum += content.eval(clamp(coord - v * (2.0 * o), lo, hi)) * 0.1216216;
-    sum += content.eval(clamp(coord + v * (3.0 * o), lo, hi)) * 0.0540540;
-    sum += content.eval(clamp(coord - v * (3.0 * o), lo, hi)) * 0.0540540;
-    sum += content.eval(clamp(coord + v * (4.0 * o), lo, hi)) * 0.0162160;
-    sum += content.eval(clamp(coord - v * (4.0 * o), lo, hi)) * 0.0162160;
+    half4 sum = content.eval(coord) * 0.10058980;
+    sum += content.eval(clamp(coord + v * (1.0 * o), lo, hi)) * 0.09749497;
+    sum += content.eval(clamp(coord - v * (1.0 * o), lo, hi)) * 0.09749497;
+    sum += content.eval(clamp(coord + v * (2.0 * o), lo, hi)) * 0.08877018;
+    sum += content.eval(clamp(coord - v * (2.0 * o), lo, hi)) * 0.08877018;
+    sum += content.eval(clamp(coord + v * (3.0 * o), lo, hi)) * 0.07592916;
+    sum += content.eval(clamp(coord - v * (3.0 * o), lo, hi)) * 0.07592916;
+    sum += content.eval(clamp(coord + v * (4.0 * o), lo, hi)) * 0.06101080;
+    sum += content.eval(clamp(coord - v * (4.0 * o), lo, hi)) * 0.06101080;
+    sum += content.eval(clamp(coord + v * (5.0 * o), lo, hi)) * 0.04605336;
+    sum += content.eval(clamp(coord - v * (5.0 * o), lo, hi)) * 0.04605336;
+    sum += content.eval(clamp(coord + v * (6.0 * o), lo, hi)) * 0.03265673;
+    sum += content.eval(clamp(coord - v * (6.0 * o), lo, hi)) * 0.03265673;
+    sum += content.eval(clamp(coord + v * (7.0 * o), lo, hi)) * 0.02175407;
+    sum += content.eval(clamp(coord - v * (7.0 * o), lo, hi)) * 0.02175407;
+    sum += content.eval(clamp(coord + v * (8.0 * o), lo, hi)) * 0.01361335;
+    sum += content.eval(clamp(coord - v * (8.0 * o), lo, hi)) * 0.01361335;
+    sum += content.eval(clamp(coord + v * (9.0 * o), lo, hi)) * 0.00800287;
+    sum += content.eval(clamp(coord - v * (9.0 * o), lo, hi)) * 0.00800287;
+    sum += content.eval(clamp(coord + v * (10.0 * o), lo, hi)) * 0.00441961;
+    sum += content.eval(clamp(coord - v * (10.0 * o), lo, hi)) * 0.00441961;
     return sum;
 }
 """

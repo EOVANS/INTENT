@@ -217,13 +217,15 @@ internal fun SettingsScaffold(
         Modifier
             .fillMaxSize()
             .background(c.bg)
-            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .navigationBarsPadding()
     ) {
         Row(
             Modifier
                 .align(Alignment.CenterHorizontally)
                 .widthIn(max = 720.dp)
                 .fillMaxWidth()
+                .statusBarsPadding()
                 // Same top offset as the search page title (status bar + 24dp),
                 // and the same 16dp gap above the first row (8dp here + the 8dp
                 // spacer inside the scroll content).
@@ -254,9 +256,6 @@ internal fun SettingsScaffold(
                 .align(Alignment.CenterHorizontally)
                 .widthIn(max = 720.dp)
                 .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .navigationBarsPadding()
                 .padding(horizontal = IntentDimens.pageHMarginPhone.dp),
         ) {
             Spacer(Modifier.height(8.dp))
@@ -1089,15 +1088,16 @@ fun FontSettingsScreen(onBack: () -> Unit) {
             dismissButton = { TextButton(onClick = { deleteFont = null }) { Text(context.getString(R.string.close)) } },
         )
     }
-    Column(Modifier.fillMaxSize().background(c.surface).statusBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(c.surface)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Row(
-            Modifier.fillMaxWidth().background(c.surface).padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+            Modifier.fillMaxWidth().background(c.surface).statusBarsPadding().padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
             Text(stringResource(R.string.ui_font), style = t.pageTitle, color = c.text)
         }
-        Column(Modifier.weight(1f).fillMaxWidth().background(c.card).verticalScroll(rememberScrollState())) {
+        Column(Modifier.fillMaxWidth().background(c.card)) {
             Column(Modifier.fillMaxWidth().background(c.surface).heightIn(min = 210.dp).padding(horizontal = 20.dp, vertical = 24.dp)) {
                 Text(stringResource(R.string.font_preview_title), style = t.pageTitle.copy(fontFamily = previewFamily), color = c.text)
                 Spacer(Modifier.height(20.dp))
@@ -1167,6 +1167,7 @@ fun FontSettingsScreen(onBack: () -> Unit) {
                 }
             }
             }
+        }
         }
         Box(Modifier.fillMaxWidth().background(c.card)) {
         Button(

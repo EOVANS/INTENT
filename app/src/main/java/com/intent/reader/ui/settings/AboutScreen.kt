@@ -163,7 +163,7 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
         }
     }
 
-    Column(Modifier.fillMaxSize().background(c.bg)) {
+    Column(Modifier.fillMaxSize().background(c.bg).verticalScroll(rememberScrollState())) {
         TopAppBar(
             title = { Text(stringResource(R.string.about), style = t.pageTitle) },
             navigationIcon = {
@@ -180,8 +180,7 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
         )
         Column(
             Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
                 .padding(horizontal = 20.dp),
         ) {
             Spacer(Modifier.height(36.dp))

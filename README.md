@@ -30,8 +30,8 @@
 
 <img width="1215" height="555" alt="image" src="https://github.com/user-attachments/assets/94bc9d77-8e91-4cf9-98ff-103af8b49bcf" />
 
-## 加速下载 (中国大陆）
-[![Download with GitHub Boost](https://gh.absinthe.life/badge.svg?file=INTENT.1.6.4.apk&source=https%3A%2F%2Fgithub.com%2FEOVANS%2FINTENT%2Freleases%2Fdownload%2Fv1.6.4%2FINTENT.1.6.4.apk)](https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.6.4/INTENT.1.6.4.apk)
+## 加速下载 (中国大陆）/ 版本 v.1.6.5
+[![Download with GitHub Boost](https://gh.absinthe.life/badge.svg?file=INTENT.1.6.5.apk&source=https%3A%2F%2Fgithub.com%2FEOVANS%2FINTENT%2Freleases%2Fdownload%2Fv1.6.5%2FINTENT.1.6.5.apk)](https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.6.5/INTENT.1.6.5.apk)
 ---
 
 ## 目录

@@ -91,7 +91,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -100,8 +99,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.intent.reader.IntentApplication
 import com.intent.reader.R
 import com.intent.reader.ui.components.HeaderIconButton
-import com.intent.reader.ui.components.ScrollEdge
-import com.intent.reader.ui.components.scrollEdgeBlur
 import com.intent.reader.data.CacheCleaner
 import com.intent.reader.data.prefs.SettingsState
 import com.intent.reader.data.prefs.ThemeMode
@@ -211,11 +208,6 @@ internal fun settingsVm(): SettingsViewModel {
  */
 internal val LocalSettingsPaneEmbedded = staticCompositionLocalOf { false }
 
-@Composable
-internal fun Modifier.settingsHeaderBlur(height: Dp): Modifier =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        scrollEdgeBlur(ScrollEdge.TOP, height + 56.dp, 28.dp)
-    } else this
 
 @Composable
 internal fun SettingsScaffold(
@@ -233,7 +225,7 @@ internal fun SettingsScaffold(
     }
     Box(Modifier.fillMaxSize().background(c.bg)) {
         Column(
-            Modifier.fillMaxSize().settingsHeaderBlur(with(density) { headerHeight.toDp() })
+            Modifier.fillMaxSize()
                 .verticalScroll(rememberScrollState()).navigationBarsPadding(),
         ) {
             Spacer(Modifier.height(with(density) { headerHeight.toDp() }))
@@ -247,8 +239,8 @@ internal fun SettingsScaffold(
                 Spacer(Modifier.height(bottomReserve))
             }
         }
-        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 56.dp).background(
-            Brush.verticalGradient(0f to c.bg, 0.75f to c.bg.copy(alpha = 0.98f), 1f to c.bg.copy(alpha = 0f)),
+        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 24.dp).background(
+            Brush.verticalGradient(0f to c.bg, 0.6f to c.bg.copy(alpha = 0.85f), 1f to c.bg.copy(alpha = 0f)),
         ))
         // Keep the title fixed above the same gradual fade used on Home.
         Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
@@ -1097,7 +1089,7 @@ fun FontSettingsScreen(onBack: () -> Unit) {
     }
     Column(Modifier.fillMaxSize().background(c.surface)) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
-        Column(Modifier.fillMaxSize().settingsHeaderBlur(with(density) { headerHeight.toDp() })
+        Column(Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(with(density) { headerHeight.toDp() }))
         Column(Modifier.fillMaxWidth().background(c.card)) {
@@ -1172,8 +1164,8 @@ fun FontSettingsScreen(onBack: () -> Unit) {
             }
         }
         }
-        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 56.dp).background(
-            Brush.verticalGradient(0f to c.surface, 0.75f to c.surface.copy(alpha = 0.98f), 1f to c.surface.copy(alpha = 0f)),
+        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 24.dp).background(
+            Brush.verticalGradient(0f to c.surface, 0.6f to c.surface.copy(alpha = 0.85f), 1f to c.surface.copy(alpha = 0f)),
         ))
         Row(
             Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()

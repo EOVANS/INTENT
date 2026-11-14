@@ -173,7 +173,7 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
         mutableIntStateOf(statusBarTop + with(density) { 64.dp.roundToPx() })
     }
     Box(Modifier.fillMaxSize().background(c.bg)) {
-        Column(Modifier.fillMaxSize().settingsHeaderBlur(with(density) { headerHeight.toDp() })
+        Column(Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(with(density) { headerHeight.toDp() }))
         Column(
@@ -284,8 +284,8 @@ fun AboutScreen(onBack: () -> Unit, onOpenPage: (title: String, url: String) -> 
             Spacer(Modifier.height(24.dp))
         }
         }
-        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 56.dp).background(
-            Brush.verticalGradient(0f to c.bg, 0.75f to c.bg.copy(alpha = 0.98f), 1f to c.bg.copy(alpha = 0f)),
+        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 24.dp).background(
+            Brush.verticalGradient(0f to c.bg, 0.6f to c.bg.copy(alpha = 0.85f), 1f to c.bg.copy(alpha = 0f)),
         ))
         Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
             TopAppBar(

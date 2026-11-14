@@ -1,6 +1,6 @@
 # INTENT 用户使用手册
 
-**INTENT — 一款专注于阅读的、由 AI 轻量赋能的 RSS 阅读器**
+**INTENT — 专注于阅读的、由 AI 轻量赋能的 RSS 阅读器**
 
 [![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-7F52FF)](https://kotlinlang.org/)
 [![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
@@ -141,6 +141,7 @@ https://news.google.com/rss/search?q=关键词&hl=zh-CN&gl=CN&ceid=CN:zh-Hans
 
 > 地址以官方公布为准；复制到 INTENT 搜索框即可订阅。
 > 找不到时用上方导航站或 Google 新闻 / RSSHub 自行生成。
+> INTENT 自己的 RSS 源 [INTENT Devblog](https://intentblog.pages.dev/feed.xml)
 
 ### 4.1 综合·国际新闻
 

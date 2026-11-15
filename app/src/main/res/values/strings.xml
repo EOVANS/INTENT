@@ -492,4 +492,15 @@
     <string name="report_sources_hint">按文章笔记数统计，同篇文章在所选时段内只计一次。</string>
     <string name="report_unknown_source">未知来源</string>
     <string name="report_empty">还没有笔记，留下摘录后就能在这里看到报告。</string>
+    <string name="report_chart_notes">篇笔记</string>
+    <string name="report_chart_characters">字</string>
+    <string name="report_chart_days">天</string>
+    <string name="report_ai_title">AI 洞察</string>
+    <string name="report_ai_description">从失败路径反推关键洞察，让笔记成为可检验的行动。</string>
+    <string name="report_ai_disclosure">点击生成后，将本时段的文章标题、来源、摘录与文字备注发送至你配置的 AI 服务，可能产生费用；手写内容不会发送。结果仅在当前页面显示。</string>
+    <string name="report_ai_config">请先在设置中启用并配置 AI。</string>
+    <string name="report_ai_generate">生成洞察</string>
+    <string name="report_ai_regenerate">重新生成</string>
+    <string name="report_ai_loading">正在分析…</string>
+    <string name="report_ai_too_long">本时段笔记超过 24000 字符，本次未发送。</string>
 </resources>

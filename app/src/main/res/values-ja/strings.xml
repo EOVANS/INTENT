@@ -470,4 +470,15 @@
     <string name="report_sources_hint">記事ごとのノート数。同じ記事は期間内に一度だけ数えます。</string>
     <string name="report_unknown_source">不明なソース</string>
     <string name="report_empty">ノートを保存すると、ここにレポートが表示されます。</string>
+    <string name="report_chart_notes">件のノート</string>
+    <string name="report_chart_characters">文字</string>
+    <string name="report_chart_days">日</string>
+    <string name="report_ai_title">AI 洞察</string>
+    <string name="report_ai_description">失敗への道筋から逆算し、行動につながる洞察を探します。</string>
+    <string name="report_ai_disclosure">生成すると、この期間の記事タイトル、ソース、抜粋、テキストメモが設定済みの AI サービスに送信され、料金が発生する場合があります。手書きは送信されません。結果はこの画面にのみ表示されます。</string>
+    <string name="report_ai_config">先に設定で AI を有効にして構成してください。</string>
+    <string name="report_ai_generate">洞察を生成</string>
+    <string name="report_ai_regenerate">再生成</string>
+    <string name="report_ai_loading">分析中…</string>
+    <string name="report_ai_too_long">この期間のノートは 24,000 文字を超えているため送信されませんでした。</string>
 </resources>

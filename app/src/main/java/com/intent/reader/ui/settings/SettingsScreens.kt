@@ -1533,6 +1533,7 @@ fun PrivacyScreen(
                 quickRead = vm.settings.aiQuickReadCount,
                 quote = vm.settings.aiQuoteCount,
                 test = vm.settings.aiTestCount,
+                insight = vm.settings.aiInsightCount,
             )
             PrivacyNote(stringResource(R.string.privacy_ai_description))
         }
@@ -1601,11 +1602,11 @@ private fun PrivacyNote(text: String) {
 
 /** Local AI usage: a big total on the left and one bar per feature on the right. */
 @Composable
-private fun AiUsageBars(quickRead: Int, quote: Int, test: Int) {
+private fun AiUsageBars(quickRead: Int, quote: Int, test: Int, insight: Int) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
-    val total = quickRead + quote + test
-    val max = maxOf(quickRead, quote, test, 1)
+    val total = quickRead + quote + test + insight
+    val max = maxOf(quickRead, quote, test, insight, 1)
     Row(
         Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 6.dp),
         verticalAlignment = Alignment.Bottom,
@@ -1618,10 +1619,11 @@ private fun AiUsageBars(quickRead: Int, quote: Int, test: Int) {
                     modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Bottom) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.Bottom) {
             AiUsageBar(quickRead, max, Icons.Filled.AutoAwesome, Color(0xFF9B70EF), stringResource(R.string.privacy_ai_quick_read))
             AiUsageBar(quote, max, Icons.Filled.FormatQuote, Color(0xFFDD8A3C), stringResource(R.string.privacy_ai_quote))
             AiUsageBar(test, max, Icons.Filled.Bolt, Color(0xFF2587FF), stringResource(R.string.privacy_ai_test))
+            AiUsageBar(insight, max, Icons.Filled.AutoAwesome, Color(0xFF4BCD89), stringResource(R.string.report_ai_title))
         }
     }
 }

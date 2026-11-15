@@ -47,6 +47,19 @@ class AiRepositoryTest {
         catch (error: AiException) { assertEquals(reason, error.reason) }
     }
 
+    @Test fun insightSendsOnlySelectedTextAndHonorsInputLimit() = runBlocking {
+        val note = com.intent.reader.notes.IslandNote("id", "article", "Title", "https://private.invalid", "Source", "key", 1, 1, "Excerpt", "Remark", handwritingRevision = "secret-ink")
+        assertEquals(answer, repository().noteInsight(listOf(note), "2026-11", SummaryLanguage.ENGLISH))
+        assertTrue(input.contains("Excerpt"))
+        assertTrue(input.contains("Remark"))
+        assertTrue(input.contains("Title"))
+        assertFalse(input.contains("private.invalid"))
+        assertFalse(input.contains("secret-ink"))
+        assertTrue(systemPrompt.contains("English"))
+        assertTrue(systemPrompt.contains("逆向思维"))
+        expect(AiError.TOO_LONG) { repository().noteInsight(listOf(note.copy(quote = "x".repeat(25000))), "2026-11", SummaryLanguage.CHINESE) }
+        assertEquals(1, calls)
+    }
     @Test fun summaryCacheSurvivesRecreationAndRegenerationIsExplicit() = runBlocking {
         assertEquals(answer, repository().summary(article()))
         assertEquals(answer, repository().summary(article()))

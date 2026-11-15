@@ -13,11 +13,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.intent.reader.IntentApplication
+import com.intent.reader.ai.SummaryLanguage
+import com.intent.reader.ai.AiException
+import com.intent.reader.ai.AiError
+import com.intent.reader.ui.settings.aiErrorResource
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import com.intent.reader.R
 import com.intent.reader.notes.*
 import com.intent.reader.ui.components.HeaderIconButton
@@ -60,9 +68,14 @@ fun NoteReportScreen(onBack: () -> Unit) {
                     val notes = remember(periodDates) { periodDates.values.flatten() }
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(period, style = t.sectionTitle, color = c.text)
-                        Text(stringResource(R.string.report_summary, NoteReport.articleCount(notes), NoteArticles.characterCount(notes), periodDates.size), style = t.meta, color = c.textSecondary)
-                        if (yearly) YearGrid(period.toInt(), periodDates) else MonthGrid(YearMonth.parse(period), periodDates)
+                        if (yearly) {
+                            YearCharts(periodDates, notes)
+                        } else {
+                            Text(stringResource(R.string.report_summary, NoteReport.articleCount(notes), NoteArticles.characterCount(notes), periodDates.size), style = t.meta, color = c.textSecondary)
+                            MonthGrid(YearMonth.parse(period), periodDates)
+                        }
                         SourceBars(notes)
+                        InsightCard(period, notes)
                     }
                 }
             }
@@ -97,27 +110,49 @@ private fun MonthGrid(month: YearMonth, days: Map<LocalDate, List<IslandNote>>) 
 }
 
 @Composable
-private fun YearGrid(year: Int, days: Map<LocalDate, List<IslandNote>>) {
-    val c = IntentTheme.colors
-    val t = IntentTheme.typography
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        (1..12).chunked(4).forEach { months ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                months.forEach { month ->
-                    val count = NoteReport.articleCount(days.filterKeys { it.year == year && it.monthValue == month }.values.flatten())
-                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(month.toString(), style = t.micro, color = c.textSecondary)
-                        Box(contentAlignment = Alignment.Center) {
-                            HeatCell(count, Modifier.fillMaxWidth().height(38.dp))
-                            Text(count.toString(), style = t.meta, color = c.text)
-                        }
-                    }
-                }
-            }
-        }
+private fun YearCharts(days: Map<LocalDate, List<IslandNote>>, notes: List<IslandNote>) {
+    val monthly = remember(days) { (1..12).map { month -> days.filterKeys { it.monthValue == month } } }
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        YearChart(NoteReport.articleCount(notes).toLong(), stringResource(R.string.report_chart_notes),
+            monthly.map { NoteReport.articleCount(it.values.flatten()).toLong() }, Color(0xFF4BCD89))
+        YearChart(NoteArticles.characterCount(notes), stringResource(R.string.report_chart_characters),
+            monthly.map { NoteArticles.characterCount(it.values.flatten()) }, Color(0xFF7797F6))
+        YearChart(days.size.toLong(), stringResource(R.string.report_chart_days),
+            monthly.map { it.size.toLong() }, Color(0xFFE98E8E))
     }
 }
 
+@Composable
+private fun YearChart(total: Long, label: String, values: List<Long>, barColor: Color) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val max = values.maxOrNull()?.coerceAtLeast(1L) ?: 1L
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.card).padding(16.dp)) {
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Text(java.text.NumberFormat.getIntegerInstance().format(total), style = t.sectionTitle.copy(fontWeight = FontWeight.Bold), color = c.text)
+            Text(label, style = t.meta, color = c.text, modifier = Modifier.padding(bottom = 1.dp))
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            Row(Modifier.weight(1f).height(104.dp), horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.Bottom) {
+                values.forEach { value ->
+                    Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.BottomCenter) {
+                        if (value > 0) Box(Modifier.fillMaxWidth(.72f).fillMaxHeight((value.toFloat() / max).coerceIn(0f, 1f))
+                            .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)).background(barColor))
+                    }
+                }
+            }
+            Column(Modifier.width(44.dp).height(104.dp).padding(start = 6.dp), verticalArrangement = Arrangement.SpaceBetween) {
+                Text(java.text.NumberFormat.getIntegerInstance().format(max), style = t.micro, color = c.textSecondary)
+                Text(java.text.NumberFormat.getIntegerInstance().format(max / 2), style = t.micro, color = c.textSecondary)
+                Text("0", style = t.micro, color = c.textSecondary)
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(end = 44.dp)) {
+            (1..12).forEach { month -> Text(month.toString(), Modifier.weight(1f), textAlign = TextAlign.Center, style = t.micro, color = c.textSecondary, maxLines = 1) }
+        }
+    }
+}
 @Composable
 private fun HeatCell(count: Int, modifier: Modifier) {
     val c = IntentTheme.colors
@@ -125,6 +160,39 @@ private fun HeatCell(count: Int, modifier: Modifier) {
     Box(modifier.clip(RoundedCornerShape(5.dp)).background(color))
 }
 
+@Composable
+private fun InsightCard(period: String, notes: List<IslandNote>) {
+    val context = LocalContext.current
+    val container = (context.applicationContext as IntentApplication).container
+    val config by container.aiConfigStore.config.collectAsState()
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val scope = rememberCoroutineScope()
+    var result by remember(period, notes) { mutableStateOf<String?>(null) }
+    var error by remember(period, notes) { mutableStateOf<Int?>(null) }
+    var loading by remember(period, notes) { mutableStateOf(false) }
+    val language = SummaryLanguage.resolve(context.resources.configuration.locales[0]?.toLanguageTag().orEmpty(), "")
+    Column(Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(14.dp)).background(c.card).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(stringResource(R.string.report_ai_title), style = t.sectionTitle, color = c.text)
+        Text(stringResource(R.string.report_ai_description), style = t.bodySmall, color = c.textSecondary)
+        Text(stringResource(R.string.report_ai_disclosure), style = t.micro, color = c.textSecondary)
+        if (!config.enabled) Text(stringResource(R.string.report_ai_config), style = t.meta, color = c.textSecondary)
+        Button(enabled = config.enabled && !loading && notes.isNotEmpty(), onClick = {
+            loading = true
+            error = null
+            result = null
+            scope.launch {
+                try { result = container.aiRepository.noteInsight(notes, period, language) }
+                catch (cancelled: CancellationException) { throw cancelled }
+                catch (failure: Exception) { error = if ((failure as? AiException)?.reason == AiError.TOO_LONG) R.string.report_ai_too_long else aiErrorResource(failure) }
+                finally { loading = false }
+            }
+        }) { Text(stringResource(if (loading) R.string.report_ai_loading else if (result == null) R.string.report_ai_generate else R.string.report_ai_regenerate)) }
+        error?.let { Text(stringResource(it), style = t.meta, color = c.accent) }
+        result?.let { Text(it, style = t.bodySmall, color = c.text) }
+    }
+}
 @Composable
 private fun SourceBars(notes: List<IslandNote>) {
     val c = IntentTheme.colors

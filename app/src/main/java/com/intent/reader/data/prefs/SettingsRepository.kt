@@ -16,7 +16,7 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 enum class ThemeMode { FOLLOW_SYSTEM, LIGHT, DARK }
 
 /** AI features counted locally for the privacy page; never uploaded. */
-enum class AiUsageFeature { QUICK_READ, QUOTE, TEST }
+enum class AiUsageFeature { QUICK_READ, QUOTE, TEST, INSIGHT }
 
 data class SettingsState(
     val userName: String = "",
@@ -67,6 +67,7 @@ data class SettingsState(
     val aiQuickReadCount: Int = 0,
     val aiQuoteCount: Int = 0,
     val aiTestCount: Int = 0,
+    val aiInsightCount: Int = 0,
 )
 
 class SettingsRepository(
@@ -123,6 +124,7 @@ class SettingsRepository(
         val aiQuickReadCount = intPreferencesKey("ai_quick_read_count")
         val aiQuoteCount = intPreferencesKey("ai_quote_count")
         val aiTestCount = intPreferencesKey("ai_test_count")
+        val aiInsightCount = intPreferencesKey("ai_insight_count")
     }
 
     val settings: Flow<SettingsState> = context.dataStore.data.map { p ->
@@ -177,6 +179,7 @@ class SettingsRepository(
             aiQuickReadCount = p[Keys.aiQuickReadCount] ?: 0,
             aiQuoteCount = p[Keys.aiQuoteCount] ?: 0,
             aiTestCount = p[Keys.aiTestCount] ?: 0,
+            aiInsightCount = p[Keys.aiInsightCount] ?: 0,
         )
     }
 
@@ -256,6 +259,7 @@ class SettingsRepository(
             AiUsageFeature.QUICK_READ -> Keys.aiQuickReadCount
             AiUsageFeature.QUOTE -> Keys.aiQuoteCount
             AiUsageFeature.TEST -> Keys.aiTestCount
+            AiUsageFeature.INSIGHT -> Keys.aiInsightCount
         }
         it[key] = (it[key] ?: 0) + 1
     }

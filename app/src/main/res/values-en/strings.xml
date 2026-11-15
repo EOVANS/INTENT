@@ -472,4 +472,15 @@
     <string name="report_sources_hint">Based on article notes; each article is counted once per period.</string>
     <string name="report_unknown_source">Unknown source</string>
     <string name="report_empty">Your report will appear here after you save a note.</string>
+    <string name="report_chart_notes">article notes</string>
+    <string name="report_chart_characters">characters</string>
+    <string name="report_chart_days">days</string>
+    <string name="report_ai_title">AI insight</string>
+    <string name="report_ai_description">Work backwards from possible failure paths to find actionable insights.</string>
+    <string name="report_ai_disclosure">Generating sends article titles, sources, excerpts and text notes from this period to your configured AI provider and may incur charges. Handwriting is excluded. Results remain on this screen only.</string>
+    <string name="report_ai_config">Enable and configure AI in Settings first.</string>
+    <string name="report_ai_generate">Generate insight</string>
+    <string name="report_ai_regenerate">Generate again</string>
+    <string name="report_ai_loading">Analyzing…</string>
+    <string name="report_ai_too_long">Notes for this period exceed 24,000 characters and were not sent.</string>
 </resources>

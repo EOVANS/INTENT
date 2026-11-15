@@ -1,6 +1,9 @@
 package com.intent.reader.ui.reader
 
 import android.os.Build
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.selection.selectable
@@ -22,6 +25,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.annotation.StringRes
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +54,7 @@ import com.intent.reader.ui.theme.IntentTheme
 import java.time.*
 import java.time.format.TextStyle
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @Composable
 private fun reportString(@StringRes id: Int, vararg args: Any): String =
@@ -136,16 +143,53 @@ private fun ReportPeriodToggle(yearly: Boolean, onChange: (Boolean) -> Unit, bac
         },
     ).border(0.6.dp, c.text.copy(alpha = 0.12f), shape)
     else Modifier.clip(shape).background(c.surface).border(1.dp, c.divider, shape)
-    Row(Modifier.widthIn(min = 200.dp).height(44.dp).then(surface).padding(4.dp).selectableGroup()) {
-        listOf(false, true).forEach { isYear ->
-            val selected = yearly == isYear
-            Box(Modifier.weight(1f).fillMaxHeight().clip(shape)
-                .background(if (selected) c.text.copy(alpha = if (advanced) 0.14f else 0.12f) else Color.Transparent, shape)
-                .selectable(selected = selected, role = Role.Tab, onClick = { onChange(isYear) }),
-                contentAlignment = Alignment.Center) {
-                Text(reportString(if (isYear) R.string.report_year else R.string.report_month),
-                    style = t.body, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (selected) c.text else c.textSecondary)
+    var dragging by remember { mutableStateOf(false) }
+    var dragPosition by remember { mutableFloatStateOf(if (yearly) 1f else 0f) }
+    val position = remember { Animatable(if (yearly) 1f else 0f) }
+    val currentOnChange by rememberUpdatedState(onChange)
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    LaunchedEffect(yearly, dragging, dragPosition, material.reduceMotion) {
+        if (dragging) position.snapTo(dragPosition)
+        else if (material.reduceMotion) position.snapTo(if (yearly) 1f else 0f)
+        else position.animateTo(if (yearly) 1f else 0f, spring(0.78f, 380f))
+    }
+    BoxWithConstraints(Modifier.width(200.dp).height(44.dp).then(surface).selectableGroup()) {
+        val slotWidth = (maxWidth - 8.dp) / 2
+        val density = LocalDensity.current
+        val slotPx = with(density) { slotWidth.toPx() }
+        val insetPx = with(density) { 4.dp.toPx() }
+        val displayedPosition = if (dragging) dragPosition else position.value
+        Box(Modifier.fillMaxSize().pointerInput(slotPx, rtl) {
+            try {
+                detectHorizontalDragGestures(
+                    onDragStart = { point ->
+                        val x = if (rtl) size.width - point.x else point.x
+                        dragPosition = ((x - insetPx) / slotPx - 0.5f).coerceIn(0f, 1f)
+                        dragging = true
+                    },
+                    onHorizontalDrag = { change, amount ->
+                        change.consume()
+                        dragPosition = (dragPosition + amount / slotPx * if (rtl) -1 else 1).coerceIn(0f, 1f)
+                    },
+                    onDragEnd = { currentOnChange(dragPosition.roundToInt() == 1); dragging = false },
+                    onDragCancel = { dragging = false },
+                )
+            } finally { dragging = false }
+        }) {
+            Box(Modifier.padding(4.dp).offset(x = slotWidth * displayedPosition)
+                .width(slotWidth).fillMaxHeight().clip(shape)
+                .background(c.text.copy(alpha = if (advanced) 0.14f else 0.12f)))
+            Row(Modifier.fillMaxSize().padding(4.dp)) {
+                listOf(false, true).forEach { isYear ->
+                    val selected = yearly == isYear
+                    Box(Modifier.weight(1f).fillMaxHeight().clip(shape)
+                        .selectable(selected = selected, role = Role.Tab, onClick = { onChange(isYear) }),
+                        contentAlignment = Alignment.Center) {
+                        Text(reportString(if (isYear) R.string.report_year else R.string.report_month),
+                            style = t.body, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (selected) c.text else c.textSecondary)
+                    }
+                }
             }
         }
     }

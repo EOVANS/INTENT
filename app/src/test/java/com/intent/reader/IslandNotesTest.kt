@@ -48,12 +48,14 @@ class IslandNotesTest {
         reopened.load()
         assertEquals(ink, reopened.loadHandwriting(reopened.state.value.notes.single()))
         val archive = File(directory, "export.zip")
-        com.intent.reader.notes.NoteExport.writeZip(archive, snapshot)
+        com.intent.reader.notes.NoteExport.writeZip(archive, snapshot, "Handwritten note")
         java.util.zip.ZipFile(archive).use { zip ->
             assertNotNull(zip.getEntry("notes.md"))
             assertNotNull(zip.getEntry("handwriting/${snapshot.single().note.id}.json"))
             assertNotNull(zip.getEntry("handwriting/${snapshot.single().note.id}.png"))
-            assertTrue(zip.getInputStream(zip.getEntry("notes.md")).bufferedReader().readText().contains("备注"))
+            val exportedText = zip.getInputStream(zip.getEntry("notes.md")).bufferedReader().readText()
+            assertTrue(exportedText.contains("备注"))
+            assertTrue(exportedText.contains("![Handwritten note]"))
             val json = zip.getInputStream(zip.getEntry("handwriting/${snapshot.single().note.id}.json")).use { it.readBytes() }
             assertEquals(ink, com.intent.reader.notes.HandwritingFormat.decode(json))
         }

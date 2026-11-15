@@ -1,6 +1,10 @@
 package com.intent.reader.ui.reader
 
+import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,8 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.annotation.StringRes
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.intent.reader.IntentApplication
@@ -29,11 +34,20 @@ import kotlinx.coroutines.launch
 import com.intent.reader.R
 import com.intent.reader.notes.*
 import com.intent.reader.ui.components.HeaderIconButton
+import com.intent.reader.ui.components.LocalHeaderMaterial
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.highlight.Highlight
 import com.intent.reader.ui.theme.IntentTheme
 import java.time.*
 import java.time.format.TextStyle
 import java.util.Locale
 
+@Composable
+private fun reportString(@StringRes id: Int, vararg args: Any): String =
+    LocalContext.current.getString(id, *args)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteReportScreen(onBack: () -> Unit) {
@@ -45,18 +59,15 @@ fun NoteReportScreen(onBack: () -> Unit) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     Column(Modifier.fillMaxSize().background(c.bg)) {
-        TopAppBar(title = { Text(stringResource(R.string.notes_report), style = t.meta) },
-            navigationIcon = { HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack) },
+        TopAppBar(title = { Text(reportString(R.string.notes_report), style = t.pageTitle) },
+            navigationIcon = { HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, reportString(R.string.notes_back), onBack) },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg, titleContentColor = c.text))
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.Center) {
-            SingleChoiceSegmentedButtonRow {
-                SegmentedButton(selected = !yearly, onClick = { yearly = false }, shape = SegmentedButtonDefaults.itemShape(0, 2)) { Text(stringResource(R.string.report_month)) }
-                SegmentedButton(selected = yearly, onClick = { yearly = true }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { Text(stringResource(R.string.report_year)) }
-            }
+            ReportPeriodToggle(yearly = yearly, onChange = { yearly = it })
         }
-        if (state.unreadableFiles > 0) Text(stringResource(R.string.notes_load_error), Modifier.padding(16.dp), color = c.accent, style = t.meta)
+        if (state.unreadableFiles > 0) Text(reportString(R.string.notes_load_error), Modifier.padding(16.dp), color = c.accent, style = t.meta)
         if (state.loaded && dated.isEmpty()) {
-            Text(stringResource(R.string.report_empty), Modifier.padding(24.dp), color = c.textSecondary, style = t.bodySmall)
+            Text(reportString(R.string.report_empty), Modifier.padding(24.dp), color = c.textSecondary, style = t.bodySmall)
         } else {
             val periods = remember(dated, yearly) {
                 if (yearly) dated.keys.map { it.year.toString() }.distinct().sortedDescending()
@@ -71,7 +82,7 @@ fun NoteReportScreen(onBack: () -> Unit) {
                         if (yearly) {
                             YearCharts(periodDates, notes)
                         } else {
-                            Text(stringResource(R.string.report_summary, NoteReport.articleCount(notes), NoteArticles.characterCount(notes), periodDates.size), style = t.meta, color = c.textSecondary)
+                            Text(reportString(R.string.report_summary, NoteReport.articleCount(notes), NoteArticles.characterCount(notes), periodDates.size), style = t.meta, color = c.textSecondary)
                             MonthGrid(YearMonth.parse(period), periodDates)
                         }
                         SourceBars(notes)
@@ -83,6 +94,44 @@ fun NoteReportScreen(onBack: () -> Unit) {
     }
 }
 
+@Composable
+private fun ReportPeriodToggle(yearly: Boolean, onChange: (Boolean) -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    val material = LocalHeaderMaterial.current
+    val advanced = Build.VERSION.SDK_INT >= 33 && material.liquidGlass
+    val shape = RoundedCornerShape(50)
+    // Like header controls, sample the plain page color to avoid sampling the control itself.
+    val backdrop = if (advanced) rememberCanvasBackdrop { drawRect(c.bg) } else null
+    val surface = if (backdrop != null) Modifier.drawBackdrop(
+        backdrop = backdrop,
+        shape = { shape },
+        effects = {
+            blur((8.dp - 6.dp * material.transparency.coerceIn(0f, 1f)).toPx())
+            lens(12.dp.toPx(), 14.dp.toPx(), chromaticAberration = false)
+        },
+        highlight = { Highlight(width = 0.6.dp, alpha = 0.55f) },
+        shadow = null,
+        onDrawSurface = {
+            val tint = if (c.isDark) Color.White else Color.Black
+            drawRect(tint.copy(alpha = 0.14f - 0.08f * material.transparency.coerceIn(0f, 1f)))
+        },
+    ).border(0.6.dp, c.text.copy(alpha = 0.12f), shape)
+    else Modifier.clip(shape).background(c.surface).border(1.dp, c.divider, shape)
+    Row(Modifier.widthIn(min = 200.dp).height(44.dp).then(surface).padding(4.dp).selectableGroup()) {
+        listOf(false, true).forEach { isYear ->
+            val selected = yearly == isYear
+            Box(Modifier.weight(1f).fillMaxHeight().clip(shape)
+                .background(if (selected) c.text.copy(alpha = if (advanced) 0.14f else 0.12f) else Color.Transparent, shape)
+                .selectable(selected = selected, role = Role.Tab, onClick = { onChange(isYear) }),
+                contentAlignment = Alignment.Center) {
+                Text(reportString(if (isYear) R.string.report_year else R.string.report_month),
+                    style = t.body, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (selected) c.text else c.textSecondary)
+            }
+        }
+    }
+}
 @Composable
 private fun MonthGrid(month: YearMonth, days: Map<LocalDate, List<IslandNote>>) {
     val c = IntentTheme.colors
@@ -113,11 +162,11 @@ private fun MonthGrid(month: YearMonth, days: Map<LocalDate, List<IslandNote>>) 
 private fun YearCharts(days: Map<LocalDate, List<IslandNote>>, notes: List<IslandNote>) {
     val monthly = remember(days) { (1..12).map { month -> days.filterKeys { it.monthValue == month } } }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        YearChart(NoteReport.articleCount(notes).toLong(), stringResource(R.string.report_chart_notes),
+        YearChart(NoteReport.articleCount(notes).toLong(), reportString(R.string.report_chart_notes),
             monthly.map { NoteReport.articleCount(it.values.flatten()).toLong() }, Color(0xFF4BCD89))
-        YearChart(NoteArticles.characterCount(notes), stringResource(R.string.report_chart_characters),
+        YearChart(NoteArticles.characterCount(notes), reportString(R.string.report_chart_characters),
             monthly.map { NoteArticles.characterCount(it.values.flatten()) }, Color(0xFF7797F6))
-        YearChart(days.size.toLong(), stringResource(R.string.report_chart_days),
+        YearChart(days.size.toLong(), reportString(R.string.report_chart_days),
             monthly.map { it.size.toLong() }, Color(0xFFE98E8E))
     }
 }
@@ -129,7 +178,7 @@ private fun YearChart(total: Long, label: String, values: List<Long>, barColor: 
     val max = values.maxOrNull()?.coerceAtLeast(1L) ?: 1L
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.card).padding(16.dp)) {
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(java.text.NumberFormat.getIntegerInstance().format(total), style = t.sectionTitle.copy(fontWeight = FontWeight.Bold), color = c.text)
+            Text(java.text.NumberFormat.getIntegerInstance(LocalContext.current.resources.configuration.locales[0]).format(total), style = t.sectionTitle.copy(fontWeight = FontWeight.Bold), color = c.text)
             Text(label, style = t.meta, color = c.text, modifier = Modifier.padding(bottom = 1.dp))
         }
         Spacer(Modifier.height(16.dp))
@@ -143,8 +192,8 @@ private fun YearChart(total: Long, label: String, values: List<Long>, barColor: 
                 }
             }
             Column(Modifier.width(44.dp).height(104.dp).padding(start = 6.dp), verticalArrangement = Arrangement.SpaceBetween) {
-                Text(java.text.NumberFormat.getIntegerInstance().format(max), style = t.micro, color = c.textSecondary)
-                Text(java.text.NumberFormat.getIntegerInstance().format(max / 2), style = t.micro, color = c.textSecondary)
+                Text(java.text.NumberFormat.getIntegerInstance(LocalContext.current.resources.configuration.locales[0]).format(max), style = t.micro, color = c.textSecondary)
+                Text(java.text.NumberFormat.getIntegerInstance(LocalContext.current.resources.configuration.locales[0]).format(max / 2), style = t.micro, color = c.textSecondary)
                 Text("0", style = t.micro, color = c.textSecondary)
             }
         }
@@ -174,11 +223,11 @@ private fun InsightCard(period: String, notes: List<IslandNote>) {
     val language = SummaryLanguage.resolve(context.resources.configuration.locales[0]?.toLanguageTag().orEmpty(), "")
     Column(Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(14.dp)).background(c.card).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(stringResource(R.string.report_ai_title), style = t.sectionTitle, color = c.text)
-        Text(stringResource(R.string.report_ai_description), style = t.bodySmall, color = c.textSecondary)
-        Text(stringResource(R.string.report_ai_disclosure), style = t.micro, color = c.textSecondary)
-        if (!config.enabled) Text(stringResource(R.string.report_ai_config), style = t.meta, color = c.textSecondary)
-        if (config.enabled && !config.dietEnabled) Text(stringResource(R.string.report_ai_disabled), style = t.meta, color = c.textSecondary)
+        Text(reportString(R.string.report_ai_title), style = t.sectionTitle, color = c.text)
+        Text(reportString(R.string.report_ai_description), style = t.bodySmall, color = c.textSecondary)
+        Text(reportString(R.string.report_ai_disclosure), style = t.micro, color = c.textSecondary)
+        if (!config.enabled) Text(reportString(R.string.report_ai_config), style = t.meta, color = c.textSecondary)
+        if (config.enabled && !config.dietEnabled) Text(reportString(R.string.report_ai_disabled), style = t.meta, color = c.textSecondary)
         Button(enabled = config.enabled && config.dietEnabled && !loading && notes.isNotEmpty(), onClick = {
             loading = true
             error = null
@@ -189,8 +238,8 @@ private fun InsightCard(period: String, notes: List<IslandNote>) {
                 catch (failure: Exception) { error = if ((failure as? AiException)?.reason == AiError.TOO_LONG) R.string.report_ai_too_long else aiErrorResource(failure) }
                 finally { loading = false }
             }
-        }) { Text(stringResource(if (loading) R.string.report_ai_loading else if (result == null) R.string.report_ai_generate else R.string.report_ai_regenerate)) }
-        error?.let { Text(stringResource(it), style = t.meta, color = c.accent) }
+        }) { Text(reportString(if (loading) R.string.report_ai_loading else if (result == null) R.string.report_ai_generate else R.string.report_ai_regenerate)) }
+        error?.let { Text(reportString(it), style = t.meta, color = c.accent) }
         result?.let { Text(it, style = t.bodySmall, color = c.text) }
     }
 }
@@ -201,13 +250,13 @@ private fun SourceBars(notes: List<IslandNote>) {
     val sources = remember(notes) { NoteReport.sources(notes) }
     val total = NoteReport.articleCount(notes)
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 8.dp)) {
-        Text(stringResource(R.string.report_sources), style = t.sectionTitle, color = c.text)
-        Text(stringResource(R.string.report_sources_hint), style = t.micro, color = c.textSecondary)
+        Text(reportString(R.string.report_sources), style = t.sectionTitle, color = c.text)
+        Text(reportString(R.string.report_sources_hint), style = t.micro, color = c.textSecondary)
         sources.forEach { source ->
             val fraction = source.count.toFloat() / total
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(source.title.ifBlank { stringResource(R.string.report_unknown_source) }, Modifier.weight(1f), style = t.meta, color = c.text, maxLines = 1)
+                    Text(source.title.ifBlank { reportString(R.string.report_unknown_source) }, Modifier.weight(1f), style = t.meta, color = c.text, maxLines = 1)
                     Text("${source.count} · ${kotlin.math.round(fraction * 100).toInt()}%", style = t.meta, color = c.textSecondary)
                 }
                 Box(Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(c.textSecondary.copy(alpha = .15f))) {

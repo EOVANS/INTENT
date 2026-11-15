@@ -482,4 +482,5 @@
     <string name="report_ai_loading">분석 중…</string>
     <string name="report_ai_too_long">이 기간의 노트가 24,000자를 초과하여 전송되지 않았습니다.</string>
     <string name="report_ai_disabled">AI 설정에서 정보 소비 보고서를 먼저 켜세요.</string>
+    <string name="notes_handwriting_export_label">손글씨 노트</string>
 </resources>

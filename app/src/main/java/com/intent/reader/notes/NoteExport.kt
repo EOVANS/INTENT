@@ -12,7 +12,7 @@ import kotlin.math.roundToInt
 
 /** A share archive is a readable snapshot, not an importable backup. */
 object NoteExport {
-    fun writeZip(file: File, items: List<NoteExportItem>) {
+    fun writeZip(file: File, items: List<NoteExportItem>, handwritingLabel: String = "手写笔记") {
         require(items.isNotEmpty())
         ZipOutputStream(file.outputStream().buffered()).use { zip ->
             zip.putNextEntry(ZipEntry("notes.md"))
@@ -22,7 +22,7 @@ object NoteExport {
                     append(NoteMarkdown.encodeArticle(group.map { it.note }))
                     group.filter { it.handwriting != null }.forEach { item ->
                         append("\n> ").append(item.note.quote.replace('\n', ' ')).append("\n")
-                        append("\n![手写笔记](handwriting/").append(item.note.id).append(".png)\n")
+                        append("\n![").append(handwritingLabel).append("](handwriting/").append(item.note.id).append(".png)\n")
                     }
                 }
             }

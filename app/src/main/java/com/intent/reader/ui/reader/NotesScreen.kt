@@ -132,7 +132,7 @@ fun NotesScreen(
                         val directory = java.io.File(context.cacheDir, "note-shares")
                         if (!directory.exists() && !directory.mkdirs()) throw java.io.IOException("Cannot create share directory")
                         val file = java.io.File.createTempFile("INTENT-notes-${LocalDate.now()}-", if (hasInk) ".zip" else ".md", directory)
-                        if (hasInk) NoteExport.writeZip(file, exportItems) else file.bufferedWriter(Charsets.UTF_8).use { writer ->
+                        if (hasInk) NoteExport.writeZip(file, exportItems, context.getString(R.string.notes_handwriting_export_label)) else file.bufferedWriter(Charsets.UTF_8).use { writer ->
                             NoteArticles.group(snapshot).forEachIndexed { index, group ->
                                 if (index > 0) writer.write("\n\n---\n\n")
                                 val source = (context.applicationContext as IntentApplication).container.database.articleDao().getById(group.articleId)
@@ -189,12 +189,12 @@ fun NotesScreen(
                 tonalElevation = 0.dp,
             ) {
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.notes_export)) },
+                    text = { Text(context.getString(R.string.notes_export)) },
                     enabled = notes.isNotEmpty() && !exporting,
                     onClick = { menuOpen = false; shareNotes() },
                 )
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.notes_report)) },
+                    text = { Text(context.getString(R.string.notes_report)) },
                     enabled = articleId == null,
                     onClick = { menuOpen = false; onOpenReport() },
                 )

@@ -504,4 +504,5 @@
     <string name="report_ai_loading">正在分析…</string>
     <string name="report_ai_too_long">本时段笔记超过 24000 字符，本次未发送。</string>
     <string name="report_ai_disabled">请先在 AI 配置中开启信息饮食报告。</string>
+    <string name="notes_handwriting_export_label">手写笔记</string>
 </resources>

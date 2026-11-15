@@ -484,5 +484,12 @@
     <string name="font_bold_greeting">使用粗体顶部问候区</string>
     <string name="ai_quote_no_candidates">今天没有符合条件的正文原句，继续显示离线金句。</string>
     <string name="ai_quote_invalid_selection">AI 返回的候选编号无效，继续显示离线金句。</string>
+    <string name="notes_report">信息饮食报告</string>
+    <string name="report_month">月</string>
+    <string name="report_year">年</string>
+    <string name="report_summary">%1$d 篇笔记 · %2$d 字 · 记录 %3$d 天</string>
+    <string name="report_sources">RSS 来源占比</string>
+    <string name="report_sources_hint">按文章笔记数统计，同篇文章在所选时段内只计一次。</string>
+    <string name="report_unknown_source">未知来源</string>
+    <string name="report_empty">还没有笔记，留下摘录后就能在这里看到报告。</string>
 </resources>
-

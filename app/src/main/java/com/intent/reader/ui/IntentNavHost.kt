@@ -119,6 +119,7 @@ object Routes {
     const val SETTINGS = "settings"
     const val READER = "reader/{articleId}"
     const val NOTES = "notes"
+    const val NOTES_REPORT = "notes_report"
     const val ARTICLE_NOTES = "article_notes/{articleId}"
     fun notes(articleId: String) = "article_notes/${android.net.Uri.encode(articleId)}"
     fun reader(id: String) = "reader/${android.net.Uri.encode(id)}"
@@ -521,6 +522,7 @@ fun IntentNavHost(
             framedComposable(Routes.NOTES) {
                 com.intent.reader.ui.reader.NotesScreen(
                     articleId = null,
+                    onOpenReport = { navController.navigate(Routes.NOTES_REPORT) },
                     popupBackdrop = backdrop,
                     userName = settings.userName,
                     contentPadding = PaddingValues(bottom = bottomBarPad),
@@ -577,6 +579,10 @@ fun IntentNavHost(
                         ).clip(RoundedCornerShape(articleTransitionCorner)) else tracking
                     },
                 )
+            }
+
+            framedComposable(Routes.NOTES_REPORT) {
+                com.intent.reader.ui.reader.NoteReportScreen(onBack = { navController.popBackStack() })
             }
 
             framedComposable(Routes.ARTICLE_NOTES, arguments = listOf(navArgument("articleId") { type = NavType.StringType })) { entry ->

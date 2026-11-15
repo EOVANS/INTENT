@@ -72,6 +72,7 @@ fun NotesScreen(
     onOpenArticleNotes: (String) -> Unit = {},
     cardTransitionModifier: @Composable (String) -> Modifier = { Modifier },
     popupBackdrop: Backdrop? = null,
+    onOpenReport: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val repository = (context.applicationContext as IntentApplication).container.notesRepository
@@ -193,9 +194,9 @@ fun NotesScreen(
                     onClick = { menuOpen = false; shareNotes() },
                 )
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.notes_report_placeholder)) },
-                    enabled = false,
-                    onClick = {},
+                    text = { Text(stringResource(R.string.notes_report)) },
+                    enabled = articleId == null,
+                    onClick = { menuOpen = false; onOpenReport() },
                 )
             }
         }

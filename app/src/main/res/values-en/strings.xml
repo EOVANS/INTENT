@@ -464,4 +464,12 @@
     <string name="font_bold_greeting">Use bold text for the greeting quote</string>
     <string name="ai_quote_no_candidates">No eligible sentences were found today. Showing offline quotes.</string>
     <string name="ai_quote_invalid_selection">AI selected an invalid option. Showing offline quotes.</string>
+    <string name="notes_report">Information diet</string>
+    <string name="report_month">Month</string>
+    <string name="report_year">Year</string>
+    <string name="report_summary">%1$d article notes · %2$d characters · %3$d days</string>
+    <string name="report_sources">RSS sources</string>
+    <string name="report_sources_hint">Based on article notes; each article is counted once per period.</string>
+    <string name="report_unknown_source">Unknown source</string>
+    <string name="report_empty">Your report will appear here after you save a note.</string>
 </resources>

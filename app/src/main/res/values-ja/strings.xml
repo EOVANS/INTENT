@@ -462,4 +462,12 @@
     <string name="font_bold_greeting">上部のあいさつ欄の名言を太字にする</string>
     <string name="ai_quote_no_candidates">今日の本文に条件を満たす文がないため、オフラインの名言を表示します。</string>
     <string name="ai_quote_invalid_selection">AI が無効な候補番号を返したため、オフラインの名言を表示します。</string>
+    <string name="notes_report">情報摂取レポート</string>
+    <string name="report_month">月</string>
+    <string name="report_year">年</string>
+    <string name="report_summary">%1$d 件のノート · %2$d 文字 · %3$d 日</string>
+    <string name="report_sources">RSS ソースの割合</string>
+    <string name="report_sources_hint">記事ごとのノート数。同じ記事は期間内に一度だけ数えます。</string>
+    <string name="report_unknown_source">不明なソース</string>
+    <string name="report_empty">ノートを保存すると、ここにレポートが表示されます。</string>
 </resources>

@@ -31,30 +31,40 @@ object HtmlText {
 
     /** Structured body: ordered blocks of paragraph text and inline images. */
     sealed interface Block {
-        data class Para(val text: String) : Block
+        data class Para(val text: String, val headingLevel: Int? = null) : Block
         data class Img(val url: String, val alt: String?) : Block
     }
 
     /**
      * Parse article HTML into render blocks. Splits on <img> so images appear in
-     * their original position between paragraphs. All other tags are stripped.
+     * their original position between paragraphs. HTML headings retain their level.
      */
     fun toBlocks(html: String?): List<Block> {
         if (html.isNullOrBlank()) return emptyList()
         val out = mutableListOf<Block>()
-        fun appendParagraphs(fragment: String) {
-            val safe = fragment.replace(Regex("(?is)<(script|style)[^>]*>.*?</\\1>"), "")
+        fun appendParagraphs(safe: String, headingLevel: Int? = null) {
             val boundaries = if (safe.contains('<')) "(?i)<br\\s*/?>|</(?:p|div|li|h[1-6]|tr)\\s*>" else "[\\r\\n]+"
             safe.split(Regex(boundaries))
                 .map { stripTags(it).trim() }.filter { it.isNotBlank() }
-                .forEach { out += Block.Para(it) }
+                .forEach { out += Block.Para(it, headingLevel) }
         }
+        fun appendText(fragment: String) {
+            val headings = Regex("(?is)<h([1-6])\\b[^>]*>(.*?)</h\\1\\s*>")
+            var start = 0
+            for (heading in headings.findAll(fragment)) {
+                appendParagraphs(fragment.substring(start, heading.range.first))
+                appendParagraphs(heading.groupValues[2], heading.groupValues[1].toInt())
+                start = heading.range.last + 1
+            }
+            appendParagraphs(fragment.substring(start))
+        }
+        val safeHtml = html.replace(Regex("(?is)<(script|style)[^>]*>.*?</\\1>"), "")
         val imgRe = Regex("(?is)<img\\b([^>]*)>")
         var cursor = 0
-        for (m in imgRe.findAll(html)) {
+        for (m in imgRe.findAll(safeHtml)) {
             // Flush text before this <img>
-            val pre = html.substring(cursor, m.range.first)
-            appendParagraphs(pre)
+            val pre = safeHtml.substring(cursor, m.range.first)
+            appendText(pre)
             // Extract src + alt from the attrs
             val attrs = m.groupValues[1]
             val src = Regex("(?i)src\\s*=\\s*[\"']([^\"']+)[\"']").find(attrs)?.groupValues?.get(1)
@@ -65,7 +75,7 @@ object HtmlText {
             cursor = m.range.last + 1
         }
         // Trailing text
-        appendParagraphs(html.substring(cursor))
+        appendText(safeHtml.substring(cursor))
         return out
     }
 

@@ -52,6 +52,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.intent.reader.R
@@ -218,6 +221,7 @@ fun ReaderScreen(
         ) {
             Text(
                 text = article.title.withCjkSpacing(),
+                modifier = Modifier.semantics { heading() },
                 style = t.pageTitle,
                 color = c.text,
             )
@@ -265,9 +269,14 @@ fun ReaderScreen(
                         val note = notesByParagraph[paragraph.key]
                         Text(
                             text = paragraph.text.withCjkSpacing(),
-                            style = t.body.copy(lineHeight = t.body.lineHeight * 1.4f),
+                            style = if (block.headingLevel != null) t.body.copy(
+                                fontSize = t.body.fontSize * if (block.headingLevel <= 2) 1.25f else 1.1f,
+                                lineHeight = t.body.lineHeight * 1.4f,
+                                fontWeight = FontWeight.Bold,
+                            ) else t.body.copy(lineHeight = t.body.lineHeight * 1.4f),
                             color = c.text,
                             modifier = Modifier.fillMaxWidth()
+                                .then(if (block.headingLevel != null) Modifier.semantics { heading() } else Modifier)
                                 .background(if (note != null) c.accent.copy(alpha = 0.14f) else androidx.compose.ui.graphics.Color.Transparent)
                                 .combinedClickable(
                                     enabled = state.notesReady,

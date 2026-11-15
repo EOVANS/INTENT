@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +37,9 @@ import com.intent.reader.R
 import com.intent.reader.notes.*
 import com.intent.reader.ui.components.HeaderIconButton
 import com.intent.reader.ui.components.LocalHeaderMaterial
-import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -58,51 +62,65 @@ fun NoteReportScreen(onBack: () -> Unit) {
     var yearly by rememberSaveable { mutableStateOf(false) }
     val c = IntentTheme.colors
     val t = IntentTheme.typography
-    Column(Modifier.fillMaxSize().background(c.bg)) {
-        TopAppBar(title = { Text(reportString(R.string.notes_report), style = t.pageTitle) },
-            navigationIcon = { HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, reportString(R.string.notes_back), onBack) },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg, titleContentColor = c.text))
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.Center) {
-            ReportPeriodToggle(yearly = yearly, onChange = { yearly = it })
-        }
-        if (state.unreadableFiles > 0) Text(reportString(R.string.notes_load_error), Modifier.padding(16.dp), color = c.accent, style = t.meta)
-        if (state.loaded && dated.isEmpty()) {
-            Text(reportString(R.string.report_empty), Modifier.padding(24.dp), color = c.textSecondary, style = t.bodySmall)
-        } else {
-            val periods = remember(dated, yearly) {
-                if (yearly) dated.keys.map { it.year.toString() }.distinct().sortedDescending()
-                else dated.keys.map { YearMonth.from(it).toString() }.distinct().sortedDescending()
+    val material = LocalHeaderMaterial.current
+    val backdrop = if (Build.VERSION.SDK_INT >= 33 && material.liquidGlass) rememberLayerBackdrop() else null
+    val statusTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
+    val periods = remember(dated, yearly) {
+        if (yearly) dated.keys.map { it.year.toString() }.distinct().sortedDescending()
+        else dated.keys.map { YearMonth.from(it).toString() }.distinct().sortedDescending()
+    }
+    Box(Modifier.fillMaxSize().background(c.bg)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier).background(c.bg),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = statusTop + 152.dp, bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(36.dp),
+        ) {
+            if (state.unreadableFiles > 0) item(key = "error") {
+                Text(reportString(R.string.notes_load_error), color = c.accent, style = t.meta)
             }
-            LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 40.dp), verticalArrangement = Arrangement.spacedBy(36.dp)) {
-                items(periods, key = { it }) { period ->
-                    val periodDates = remember(dated, period, yearly) { dated.filterKeys { if (yearly) it.year.toString() == period else YearMonth.from(it).toString() == period } }
-                    val notes = remember(periodDates) { periodDates.values.flatten() }
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(period, style = t.sectionTitle, color = c.text)
-                        if (yearly) {
-                            YearCharts(periodDates, notes)
-                        } else {
-                            Text(reportString(R.string.report_summary, NoteReport.articleCount(notes), NoteArticles.characterCount(notes), periodDates.size), style = t.meta, color = c.textSecondary)
-                            MonthGrid(YearMonth.parse(period), periodDates)
-                        }
-                        SourceBars(notes)
-                        InsightCard(period, notes)
+            if (state.loaded && dated.isEmpty()) item(key = "empty") {
+                Text(reportString(R.string.report_empty), color = c.textSecondary, style = t.bodySmall)
+            }
+            items(periods, key = { it }) { period ->
+                val periodDates = remember(dated, period, yearly) { dated.filterKeys { if (yearly) it.year.toString() == period else YearMonth.from(it).toString() == period } }
+                val notes = remember(periodDates) { periodDates.values.flatten() }
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(period, style = t.sectionTitle, color = c.text)
+                    if (yearly) {
+                        YearCharts(periodDates, notes)
+                    } else {
+                        Text(reportString(R.string.report_summary, NoteReport.articleCount(notes), NoteArticles.characterCount(notes), periodDates.size), style = t.meta, color = c.textSecondary)
+                        MonthGrid(YearMonth.parse(period), periodDates)
                     }
+                    SourceBars(notes)
+                    InsightCard(period, notes)
                 }
+            }
+        }
+        // Match the home/settings status-bar fade; no solid panel below it.
+        Box(Modifier.fillMaxWidth().height(statusTop + 104.dp).background(
+            Brush.verticalGradient(0f to c.bg, 0.6f to c.bg.copy(alpha = 0.85f), 1f to c.bg.copy(alpha = 0f)),
+        ))
+        Column(Modifier.fillMaxWidth().statusBarsPadding()) {
+            Row(Modifier.fillMaxWidth().widthIn(max = 720.dp).padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, reportString(R.string.notes_back), onBack)
+                Text(reportString(R.string.notes_report), style = t.pageTitle, color = c.text)
+            }
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                ReportPeriodToggle(yearly = yearly, onChange = { yearly = it }, backdrop = backdrop)
             }
         }
     }
 }
 
 @Composable
-private fun ReportPeriodToggle(yearly: Boolean, onChange: (Boolean) -> Unit) {
+private fun ReportPeriodToggle(yearly: Boolean, onChange: (Boolean) -> Unit, backdrop: Backdrop?) {
     val c = IntentTheme.colors
     val t = IntentTheme.typography
     val material = LocalHeaderMaterial.current
     val advanced = Build.VERSION.SDK_INT >= 33 && material.liquidGlass
     val shape = RoundedCornerShape(50)
-    // Like header controls, sample the plain page color to avoid sampling the control itself.
-    val backdrop = if (advanced) rememberCanvasBackdrop { drawRect(c.bg) } else null
     val surface = if (backdrop != null) Modifier.drawBackdrop(
         backdrop = backdrop,
         shape = { shape },

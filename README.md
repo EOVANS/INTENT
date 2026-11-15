@@ -1,5 +1,7 @@
 # INTENT 用户使用手册
 
+**简体中文** | [English](README.en.md)
+
 **INTENT — 专注于阅读的、由 AI 轻量赋能的 RSS 阅读器**
 
 [![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-7F52FF)](https://kotlinlang.org/)

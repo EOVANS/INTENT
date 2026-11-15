@@ -244,7 +244,15 @@ fun AiSettingsScreen(onBack: () -> Unit, popupBackdrop: Backdrop? = null) {
                 )
             }
             AiFeatureRow(Icons.Filled.PieChart, Color(0xFF19AA86), stringResource(R.string.ai_feature_diet), stringResource(R.string.ai_feature_diet_desc)) {
-                Text(stringResource(R.string.ai_feature_unsupported), style = IntentTheme.typography.micro, color = colors.textSecondary)
+                Switch(
+                    checked = draft.dietEnabled,
+                    enabled = draft.enabled && !busy,
+                    onCheckedChange = { want ->
+                        draft = draft.copy(dietEnabled = want); status = null
+                        persist(draft)
+                    },
+                    colors = SwitchDefaults.colors(checkedTrackColor = colors.text, checkedThumbColor = colors.bg, uncheckedTrackColor = colors.divider, uncheckedThumbColor = colors.bg, uncheckedBorderColor = colors.divider),
+                )
             }
             AiFeatureRow(Icons.Filled.AutoStories, Color(0xFF2587FF), stringResource(R.string.ai_feature_read), stringResource(R.string.ai_feature_read_desc))
         }

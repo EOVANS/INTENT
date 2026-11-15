@@ -47,6 +47,12 @@ class AiRepositoryTest {
         catch (error: AiException) { assertEquals(reason, error.reason) }
     }
 
+    @Test fun disabledInsightDoesNotSendNotes() = runBlocking {
+        config = config.copy(dietEnabled = false)
+        val note = com.intent.reader.notes.IslandNote("id", "article", "Title", "url", "Source", "key", 1, 1, "Excerpt", "Remark")
+        expect(AiError.CONFIG) { repository().noteInsight(listOf(note), "2026-11", SummaryLanguage.CHINESE) }
+        assertEquals(0, calls)
+    }
     @Test fun insightSendsOnlySelectedTextAndHonorsInputLimit() = runBlocking {
         val note = com.intent.reader.notes.IslandNote("id", "article", "Title", "https://private.invalid", "Source", "key", 1, 1, "Excerpt", "Remark", handwritingRevision = "secret-ink")
         assertEquals(answer, repository().noteInsight(listOf(note), "2026-11", SummaryLanguage.ENGLISH))

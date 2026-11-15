@@ -178,7 +178,8 @@ private fun InsightCard(period: String, notes: List<IslandNote>) {
         Text(stringResource(R.string.report_ai_description), style = t.bodySmall, color = c.textSecondary)
         Text(stringResource(R.string.report_ai_disclosure), style = t.micro, color = c.textSecondary)
         if (!config.enabled) Text(stringResource(R.string.report_ai_config), style = t.meta, color = c.textSecondary)
-        Button(enabled = config.enabled && !loading && notes.isNotEmpty(), onClick = {
+        if (config.enabled && !config.dietEnabled) Text(stringResource(R.string.report_ai_disabled), style = t.meta, color = c.textSecondary)
+        Button(enabled = config.enabled && config.dietEnabled && !loading && notes.isNotEmpty(), onClick = {
             loading = true
             error = null
             result = null

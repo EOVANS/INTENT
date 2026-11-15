@@ -459,7 +459,7 @@
     <string name="ai_feature_quote">每日金句 Quote</string>
     <string name="ai_feature_quote_desc">通过云端 LLM 提呈金句，相对于本地算法推算的金句质量更高。开启后，在首页有候选正文时，每天自动尝试一次。只展示能在原文中核实的摘录；失败时继续显示离线金句。手动重新提取会再次调用服务。</string>
     <string name="ai_feature_diet">信息饮食报告</string>
-    <string name="ai_feature_diet_desc">量化你的阅读结构\n这是一个基于本地数据的统计分析工具，旨在帮你客观审视自己的信息摄入情况。</string>
+    <string name="ai_feature_diet_desc">使用笔记生成 AI 洞察；只有手动请求时才发送数据。</string>
     <string name="ai_feature_unsupported">暂不支持</string>
     <string name="ai_feature_read">Ai 速读</string>
     <string name="ai_feature_read_desc">针对长文阅读场景，INTENT 提供基于 BYOK（Bring Your Own Key）模式的 Ai 辅助功能。你可以配置自己的 API Key，让 Ai 成为你的私人阅读助理。</string>
@@ -503,4 +503,5 @@
     <string name="report_ai_regenerate">重新生成</string>
     <string name="report_ai_loading">正在分析…</string>
     <string name="report_ai_too_long">本时段笔记超过 24000 字符，本次未发送。</string>
+    <string name="report_ai_disabled">请先在 AI 配置中开启信息饮食报告。</string>
 </resources>

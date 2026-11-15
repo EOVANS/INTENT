@@ -35,6 +35,7 @@ data class AiConfig(
     val apiKey: String = "",
     val providerId: String = "custom",
     val workspaceId: String = "",
+    val dietEnabled: Boolean = true,
 ) {
     fun endpoint(): HttpUrl {
         val url = baseUrl.trim().toHttpUrlOrNull() ?: throw AiException(AiError.URL)

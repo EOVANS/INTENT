@@ -437,7 +437,7 @@
     <string name="ai_feature_quote">今日の名言 Quote</string>
     <string name="ai_feature_quote_desc">クラウドの LLM が、ローカルのアルゴリズムより質の高い名言の抽出を目指します。有効時はホームに候補本文があれば 1 日 1 回試行し、原文で確認できた抜粋のみ表示します。失敗時はオフラインの名言を表示し、再抽出時にはサービスを再度呼び出します。</string>
     <string name="ai_feature_diet">情報ダイエットレポート</string>
-    <string name="ai_feature_diet_desc">読書の構成を可視化\n端末内のデータを分析し、情報摂取の傾向を客観的に振り返るためのツールです。</string>
+    <string name="ai_feature_diet_desc">ノートから AI 洞察を生成します。データは手動で依頼した場合にのみ送信されます。</string>
     <string name="ai_feature_unsupported">準備中</string>
     <string name="ai_feature_read">Ai 要約</string>
     <string name="ai_feature_read_desc">長文向けに、INTENT は BYOK（Bring Your Own Key）方式の Ai 支援機能を提供します。自分の API キーを設定し、Ai を読書アシスタントとして活用できます。</string>
@@ -481,4 +481,5 @@
     <string name="report_ai_regenerate">再生成</string>
     <string name="report_ai_loading">分析中…</string>
     <string name="report_ai_too_long">この期間のノートは 24,000 文字を超えているため送信されませんでした。</string>
+    <string name="report_ai_disabled">AI 設定で情報摂取レポートを有効にしてください。</string>
 </resources>

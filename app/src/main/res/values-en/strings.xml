@@ -439,7 +439,7 @@
     <string name="ai_feature_quote">Daily Quote</string>
     <string name="ai_feature_quote_desc">A cloud LLM selects quotes that may be of higher quality than those chosen by the local algorithm. When enabled, it tries once a day when candidate article text is available on the home page. Only excerpts verified in the source are shown; offline quotes remain on failure. Extracting again calls the service again.</string>
     <string name="ai_feature_diet">Information Diet Report</string>
-    <string name="ai_feature_diet_desc">Understand the shape of your reading\nThis local-data analysis tool helps you assess your information intake objectively.</string>
+    <string name="ai_feature_diet_desc">Generate AI insights from notes; data is sent only when requested.</string>
     <string name="ai_feature_unsupported">Coming later</string>
     <string name="ai_feature_read">Ai Glance</string>
     <string name="ai_feature_read_desc">For long articles, INTENT offers Ai assistance using BYOK (Bring Your Own Key). Configure your own API key to make Ai your personal reading assistant.</string>
@@ -483,4 +483,5 @@
     <string name="report_ai_regenerate">Generate again</string>
     <string name="report_ai_loading">Analyzing…</string>
     <string name="report_ai_too_long">Notes for this period exceed 24,000 characters and were not sent.</string>
+    <string name="report_ai_disabled">Enable Information Diet in AI settings first.</string>
 </resources>

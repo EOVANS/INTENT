@@ -83,6 +83,7 @@ class AiRepository(
     /** Explicitly requested analysis. Notes are sent only to the configured provider and are not cached. */
     suspend fun noteInsight(notes: List<IslandNote>, period: String, language: SummaryLanguage): String = withContext(Dispatchers.IO) {
         val config = enabledConfig()
+        if (!config.dietEnabled) throw AiException(AiError.CONFIG)
         if (notes.isEmpty()) throw AiException(AiError.EMPTY)
         val data = json.encodeToString(notes.sortedBy { it.createdAt }.map {
             InsightNote(it.articleTitle, it.sourceTitle, it.quote, it.remark)

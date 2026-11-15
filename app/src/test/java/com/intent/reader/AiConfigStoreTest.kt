@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.intent.reader.ai.AiConfig
 import com.intent.reader.ai.AiConfigStore
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -33,6 +34,12 @@ class AiConfigStoreTest {
         assertEquals(config, AiConfigStore(context) { secret }.config.value)
     }
 
+    @Test fun dietSwitchPersistsAndOldConfigurationsStayEnabled() = runBlocking {
+        assertTrue(kotlinx.serialization.json.Json.decodeFromString<AiConfig>("{\"enabled\":true}").dietEnabled)
+        val store = AiConfigStore(context) { secret }
+        store.save(config.copy(dietEnabled = false))
+        assertFalse(AiConfigStore(context) { secret }.config.value.dietEnabled)
+    }
     @Test fun wrongKeyAndCorruptedFilesDisableAiSafely() = runBlocking {
         AiConfigStore(context) { secret }.save(config)
         val other = KeyGenerator.getInstance("AES").apply { init(256) }.generateKey()

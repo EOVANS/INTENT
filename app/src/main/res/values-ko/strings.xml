@@ -483,4 +483,6 @@
     <string name="report_ai_too_long">이 기간의 노트가 24,000자를 초과하여 전송되지 않았습니다.</string>
     <string name="report_ai_disabled">AI 설정에서 정보 소비 보고서를 먼저 켜세요.</string>
     <string name="notes_handwriting_export_label">손글씨 노트</string>
+    <string name="category_more">더 많은 소스</string>
+    <string name="add_source_verification">소스에서 보안 인증을 요구합니다. 나중에 다시 시도하거나 다른 인스턴스를 사용하세요.</string>
 </resources>

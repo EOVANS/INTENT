@@ -10,7 +10,7 @@ import okhttp3.Request
 object SiteDiscovery {
 
     /** Why a URL could not be turned into a feed subscription. */
-    enum class FeedFailure { UNREACHABLE, NO_FEED, BAD_FORMAT }
+    enum class FeedFailure { UNREACHABLE, NO_FEED, BAD_FORMAT, VERIFICATION }
 
     class FeedException(val kind: FeedFailure, message: String) : Exception(message)
 
@@ -21,9 +21,16 @@ object SiteDiscovery {
         val iconUrl: String?,
     )
 
-    fun fetch(client: OkHttpClient, url: String): Result<SiteInfo> = try {
+    fun fetch(client: OkHttpClient, url: String): Result<SiteInfo> {
+        val first = fetchOnce(client, url)
+        return if ((first.exceptionOrNull() as? FeedException)?.kind == FeedFailure.VERIFICATION)
+            fetchOnce(client, url) else first
+    }
+
+    private fun fetchOnce(client: OkHttpClient, url: String): Result<SiteInfo> = try {
         val resp = client.newCall(
-            Request.Builder().url(normalizeUrl(url)).header("User-Agent", FeedFetcher.USER_AGENT).build()
+            Request.Builder().url(normalizeUrl(url)).cacheControl(okhttp3.CacheControl.FORCE_NETWORK)
+                .header("User-Agent", FeedFetcher.USER_AGENT).build()
         ).execute()
         resp.use { r ->
             if (!r.isSuccessful) {
@@ -31,7 +38,11 @@ object SiteDiscovery {
             }
             val contentType = r.header("Content-Type") ?: ""
             val body = r.body?.string().orEmpty()
-            if (contentType.contains("html") || body.contains("<html", ignoreCase = true) ||
+            if (looksLikeFeed(body)) {
+                Result.success(SiteInfo(feedUrl = normalizeUrl(url), siteUrl = null, title = null, iconUrl = null))
+            } else if (isVerificationPage(body)) {
+                Result.failure(FeedException(FeedFailure.VERIFICATION, "Security verification"))
+            } else if (contentType.contains("html") || body.contains("<html", ignoreCase = true) ||
                 body.contains("<!DOCTYPE", ignoreCase = true)
             ) {
                 val feedUrl = discoverFeedLink(body) // absolute-ized by caller when relative
@@ -45,9 +56,6 @@ object SiteDiscovery {
                             ?: defaultFavicon(normalizeUrl(url)),
                     )
                 )
-            } else if (looksLikeFeed(body)) {
-                // Already a feed document.
-                Result.success(SiteInfo(feedUrl = normalizeUrl(url), siteUrl = null, title = null, iconUrl = null))
             } else {
                 Result.failure(FeedException(FeedFailure.BAD_FORMAT, "not a feed"))
             }
@@ -63,6 +71,10 @@ object SiteDiscovery {
         val head = body.take(2048).lowercase()
         return head.contains("<rss") || head.contains("<feed") || head.contains("<rdf:rdf")
     }
+
+    fun isVerificationPage(body: String): Boolean =
+        body.contains("security verification", ignoreCase = true) ||
+            body.contains("just a moment", ignoreCase = true) && body.contains("challenge", ignoreCase = true)
 
     /** Finds <link rel="alternate" type="application/rss+xml|atom+xml"> */
     fun discoverFeedLink(html: String): String? {
@@ -102,6 +114,8 @@ object SiteDiscovery {
 
     fun normalizeUrl(url: String): String {
         val u = url.trim()
+        if (u.startsWith("rsshub://", ignoreCase = true))
+            return "https://rsshub.cups.moe/" + u.substringAfter("://").trimStart('/')
         return if (u.startsWith("http://") || u.startsWith("https://")) u else "https://$u"
     }
 

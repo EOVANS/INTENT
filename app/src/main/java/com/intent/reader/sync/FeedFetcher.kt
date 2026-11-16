@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 class FeedFetcher(private val client: OkHttpClient) {
 
     /** Whether a fetch failed on the wire or because the body is not a feed. */
-    enum class FailureKind { NETWORK, PARSE }
+    enum class FailureKind { NETWORK, PARSE, VERIFICATION }
 
     sealed interface FetchResult {
         data class Ok(
@@ -27,9 +27,16 @@ class FeedFetcher(private val client: OkHttpClient) {
         data class Failed(val message: String, val kind: FailureKind = FailureKind.NETWORK) : FetchResult
     }
 
-    fun fetch(source: Source): FetchResult = try {
+    fun fetch(source: Source): FetchResult {
+        val first = fetchOnce(source)
+        return if (first is FetchResult.Failed && first.kind == FailureKind.VERIFICATION)
+            fetchOnce(source) else first
+    }
+
+    private fun fetchOnce(source: Source): FetchResult = try {
         val builder = Request.Builder()
             .url(source.feedUrl)
+            .cacheControl(CacheControl.FORCE_NETWORK)
             .header("User-Agent", USER_AGENT)
             .header("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*")
         source.etag?.let { builder.header("If-None-Match", it) }
@@ -43,7 +50,11 @@ class FeedFetcher(private val client: OkHttpClient) {
                     val body = resp.body ?: return FetchResult.Failed("empty body", FailureKind.PARSE)
                     val etag = resp.header("ETag")
                     val lastModified = resp.header("Last-Modified")
-                    when (val parsed = FeedParser.parse(body.charStream())) {
+                    val content = body.string()
+                    if (SiteDiscovery.isVerificationPage(content) && !SiteDiscovery.looksLikeFeed(content)) {
+                        return FetchResult.Failed("Security verification", FailureKind.VERIFICATION)
+                    }
+                    when (val parsed = FeedParser.parse(content.reader())) {
                         is FeedParser.ParseResult.Ok -> FetchResult.Ok(parsed.feed, etag, lastModified)
                         is FeedParser.ParseResult.Error ->
                             FetchResult.Failed(parsed.message, FailureKind.PARSE)

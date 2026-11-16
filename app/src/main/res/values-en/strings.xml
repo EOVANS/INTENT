@@ -485,4 +485,6 @@
     <string name="report_ai_too_long">Notes for this period exceed 24,000 characters and were not sent.</string>
     <string name="report_ai_disabled">Enable Information Diet in AI settings first.</string>
     <string name="notes_handwriting_export_label">Handwritten note</string>
+    <string name="category_more">More sources</string>
+    <string name="add_source_verification">The source requires security verification. Try again later or use another instance.</string>
 </resources>

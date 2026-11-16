@@ -21,7 +21,7 @@ class SourceRepository(
     private val syncer: FeedSyncer,
 ) {
     /** Why an external feed could not be subscribed, surfaced as a toast/snackbar. */
-    enum class AddSourceError { INVALID, NOT_FOUND, BAD_FORMAT }
+    enum class AddSourceError { INVALID, NOT_FOUND, BAD_FORMAT, VERIFICATION }
 
     class AddSourceException(val error: AddSourceError) : Exception(error.name)
 
@@ -56,6 +56,7 @@ class SourceRepository(
                     when ((e as? SiteDiscovery.FeedException)?.kind) {
                         SiteDiscovery.FeedFailure.BAD_FORMAT -> AddSourceError.BAD_FORMAT
                         SiteDiscovery.FeedFailure.NO_FEED -> AddSourceError.NOT_FOUND
+                        SiteDiscovery.FeedFailure.VERIFICATION -> AddSourceError.VERIFICATION
                         else -> AddSourceError.INVALID
                     }
                 )
@@ -128,6 +129,7 @@ class SourceRepository(
     private fun FeedSyncer.Outcome.Failed.error(): AddSourceError = when (kind) {
         FeedFetcher.FailureKind.PARSE -> AddSourceError.BAD_FORMAT
         FeedFetcher.FailureKind.NETWORK -> AddSourceError.INVALID
+        FeedFetcher.FailureKind.VERIFICATION -> AddSourceError.VERIFICATION
     }
 
     private suspend fun rollback(sourceId: String) {

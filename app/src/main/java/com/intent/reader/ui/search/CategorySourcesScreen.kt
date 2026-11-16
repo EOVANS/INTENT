@@ -61,6 +61,7 @@ fun CategorySourcesScreen(
     val invalidMsg = stringResource(R.string.add_source_invalid)
     val notFoundMsg = stringResource(R.string.add_source_not_found)
     val badFormatMsg = stringResource(R.string.add_source_bad_format)
+    val verificationMsg = stringResource(R.string.add_source_verification)
     val presets = remember(categoryKey) { RecommendedSources.byCategoryOrAll(categoryKey) }
     val label = categoryLabel(categoryKey)
     val byFeedUrl = remember(sources) { sources.associateBy { it.feedUrl } }
@@ -115,6 +116,7 @@ fun CategorySourcesScreen(
                                                 AddSourceError.INVALID -> invalidMsg
                                                 AddSourceError.NOT_FOUND -> notFoundMsg
                                                 AddSourceError.BAD_FORMAT -> badFormatMsg
+                                                AddSourceError.VERIFICATION -> verificationMsg
                                             }
                                         )
                                     }

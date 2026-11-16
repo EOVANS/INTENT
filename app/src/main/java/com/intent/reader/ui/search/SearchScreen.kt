@@ -92,6 +92,7 @@ fun SearchScreen(
     val invalidMsg = stringResource(R.string.add_source_invalid)
     val notFoundMsg = stringResource(R.string.add_source_not_found)
     val badFormatMsg = stringResource(R.string.add_source_bad_format)
+    val verificationMsg = stringResource(R.string.add_source_verification)
     var input by remember { mutableStateOf("") }
     // Edge-to-edge: the list has to clear the status bar itself.
     val statusBarTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
@@ -101,7 +102,7 @@ fun SearchScreen(
     fun submit() {
         val v = input.trim()
         when {
-            v.startsWith("http://") || v.startsWith("https://") ||
+            v.startsWith("http://") || v.startsWith("https://") || v.startsWith("rsshub://", ignoreCase = true) ||
                 (v.contains(".") && !v.contains(" ")) -> {
                 onAddSource(v) { error ->
                     scope.launch {
@@ -116,6 +117,7 @@ fun SearchScreen(
                                 AddSourceError.INVALID -> invalidMsg
                                 AddSourceError.NOT_FOUND -> notFoundMsg
                                 AddSourceError.BAD_FORMAT -> badFormatMsg
+                                AddSourceError.VERIFICATION -> verificationMsg
                             }
                         )
                     }
@@ -257,6 +259,7 @@ fun categoryLabel(key: String): String = stringResource(
         RecommendedSources.CATEGORY_LAW -> R.string.category_law
         RecommendedSources.CATEGORY_HISTORY -> R.string.category_history
         RecommendedSources.CATEGORY_CULTURE -> R.string.category_culture
+        RecommendedSources.CATEGORY_MORE -> R.string.category_more
         else -> R.string.category_news
     }
 )

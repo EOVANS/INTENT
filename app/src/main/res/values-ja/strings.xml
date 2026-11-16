@@ -483,4 +483,6 @@
     <string name="report_ai_too_long">この期間のノートは 24,000 文字を超えているため送信されませんでした。</string>
     <string name="report_ai_disabled">AI 設定で情報摂取レポートを有効にしてください。</string>
     <string name="notes_handwriting_export_label">手書きノート</string>
+    <string name="category_more">さらに探す</string>
+    <string name="add_source_verification">配信元でセキュリティ認証が必要です。後でもう一度試すか、別のインスタンスをご利用ください。</string>
 </resources>

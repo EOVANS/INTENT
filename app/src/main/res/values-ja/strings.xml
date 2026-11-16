@@ -485,4 +485,6 @@
     <string name="notes_handwriting_export_label">手書きノート</string>
     <string name="category_more">さらに探す</string>
     <string name="add_source_verification">配信元でセキュリティ認証が必要です。後でもう一度試すか、別のインスタンスをご利用ください。</string>
+    <string name="intent_official_blog">INTENT · 公式開発ブログ</string>
+    <string name="intent_official_blog_description">INTENT の公式開発ブログ。最新の更新情報をいち早くお届けします。</string>
 </resources>

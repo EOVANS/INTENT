@@ -485,4 +485,6 @@
     <string name="notes_handwriting_export_label">손글씨 노트</string>
     <string name="category_more">더 많은 소스</string>
     <string name="add_source_verification">소스에서 보안 인증을 요구합니다. 나중에 다시 시도하거나 다른 인스턴스를 사용하세요.</string>
+    <string name="intent_official_blog">INTENT · 공식 개발 블로그</string>
+    <string name="intent_official_blog_description">INTENT 공식 개발 블로그에서 최신 업데이트 소식을 가장 먼저 확인하세요.</string>
 </resources>

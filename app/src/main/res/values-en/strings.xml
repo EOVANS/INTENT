@@ -487,4 +487,6 @@
     <string name="notes_handwriting_export_label">Handwritten note</string>
     <string name="category_more">More sources</string>
     <string name="add_source_verification">The source requires security verification. Try again later or use another instance.</string>
+    <string name="intent_official_blog">INTENT · Official Blog</string>
+    <string name="intent_official_blog_description">The official INTENT developer blog. Be the first to hear about INTENT updates.</string>
 </resources>

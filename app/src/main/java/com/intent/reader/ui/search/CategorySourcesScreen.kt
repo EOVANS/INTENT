@@ -102,8 +102,12 @@ fun CategorySourcesScreen(
                 presets.forEach { rs ->
                     item(key = rs.feedUrl) {
                         val existing = byFeedUrl[rs.feedUrl]
+                        val official = rs.feedUrl == RecommendedSources.INTENT_BLOG_URL
+                        Column(if (official) Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                            .border(1.dp, c.divider, RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 6.dp)
+                            else Modifier.fillMaxWidth()) {
                         PresetSourceRow(
-                            name = rs.name,
+                            name = if (official) stringResource(R.string.intent_official_blog) else rs.name,
                             logoUrl = rs.logoUrl,
                             subscribed = existing != null,
                             onClick = { existing?.let { onOpenSource(it.id) } },
@@ -123,6 +127,9 @@ fun CategorySourcesScreen(
                                 }
                             },
                         )
+                        if (official) Text(stringResource(R.string.intent_official_blog_description),
+                            style = t.micro, color = c.textSecondary, modifier = Modifier.padding(start = 4.dp, top = 6.dp, bottom = 8.dp))
+                        }
                     }
                 }
             }

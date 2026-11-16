@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +36,7 @@ import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -44,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -51,11 +55,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.intent.reader.R
 import com.intent.reader.ui.theme.withCjkSpacing
@@ -96,6 +103,8 @@ fun SearchScreen(
     var input by remember { mutableStateOf("") }
     // Edge-to-edge: the list has to clear the status bar itself.
     val statusBarTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
+    val density = LocalDensity.current
+    var headerHeight by remember(statusBarTop, density) { mutableIntStateOf(with(density) { (statusBarTop + 80.dp).roundToPx() }) }
     val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val bottomClearance = if (imeVisible) 12.dp else contentPadding.calculateBottomPadding()
 
@@ -133,19 +142,13 @@ fun SearchScreen(
             contentPadding = PaddingValues(
                 start = IntentDimens.pageHMarginPhone.dp,
                 end = IntentDimens.pageHMarginPhone.dp,
-                top = statusBarTop + 24.dp,
+                top = with(density) { headerHeight.toDp() } + 8.dp,
                 // Keep the viewport full-height; only the scrollable content needs
                 // clearance for the floating bar. Outer padding clips rows early.
                 bottom = bottomClearance + 16.dp,
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
-                    Text(stringResource(R.string.tab_search), style = t.pageTitle, color = c.text)
-                }
-            }
             item {
                 OutlinedTextField(
                     value = input,
@@ -239,6 +242,17 @@ fun SearchScreen(
                 item { EntryRow(stringResource(R.string.my_sources)) { onOpenSources() } }
             }
         }
+        Box(Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 24.dp).background(
+            Brush.verticalGradient(0f to c.bg, 0.6f to c.bg.copy(alpha = 0.85f), 1f to c.bg.copy(alpha = 0f)),
+        ))
+        Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
+            Row(Modifier.align(Alignment.TopCenter).widthIn(max = 720.dp).fillMaxWidth()
+                .padding(start = IntentDimens.pageHMarginPhone.dp, end = IntentDimens.pageHMarginPhone.dp, top = 24.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                Text(stringResource(R.string.tab_search), style = t.pageTitle, color = c.text)
+            }
+        }
         // Lift the snackbar clear of the floating glass tab bar, and above the
         // soft keyboard so an add result is never hidden while the field is focused.
         SnackbarHost(
@@ -270,6 +284,7 @@ private fun categoryIcon(key: String): ImageVector = when (key) {
     RecommendedSources.CATEGORY_LAW -> Icons.Outlined.Gavel
     RecommendedSources.CATEGORY_HISTORY -> Icons.Outlined.History
     RecommendedSources.CATEGORY_CULTURE -> Icons.Outlined.Palette
+    RecommendedSources.CATEGORY_MORE -> Icons.Outlined.Explore
     else -> Icons.Outlined.Newspaper
 }
 
@@ -280,7 +295,7 @@ private fun CategoryTile(name: String, icon: ImageVector, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .width(64.dp)
+            .width(80.dp)
             .clickable(onClick = onClick),
     ) {
         Box(
@@ -297,7 +312,8 @@ private fun CategoryTile(name: String, icon: ImageVector, onClick: () -> Unit) {
             text = name,
             style = t.micro,
             color = c.text,
-            maxLines = 1,
+            maxLines = 2,
+            textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
         )
     }

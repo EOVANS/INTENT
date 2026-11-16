@@ -507,4 +507,6 @@
     <string name="notes_handwriting_export_label">手写笔记</string>
     <string name="category_more">来自更多</string>
     <string name="add_source_verification">源站要求安全验证，请稍后重试或更换实例</string>
+    <string name="intent_official_blog">INTENT · 官方开发博客</string>
+    <string name="intent_official_blog_description">INTENT 的官方开发博客，第一时间了解 INTENT 的更新动向。</string>
 </resources>

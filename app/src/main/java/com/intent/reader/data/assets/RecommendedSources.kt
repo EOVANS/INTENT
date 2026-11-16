@@ -21,6 +21,7 @@ object RecommendedSources {
     const val CATEGORY_HISTORY = "history"
     const val CATEGORY_CULTURE = "culture"
     const val CATEGORY_MORE = "more"
+    const val INTENT_BLOG_URL = "https://intentblog.pages.dev/feed.xml"
 
     /** Hero strip order. */
     val categories: List<String> = listOf(
@@ -34,12 +35,15 @@ object RecommendedSources {
     )
 
     val all: List<RecommendedSource> = listOf(
+        RecommendedSource("INTENT · Blog", INTENT_BLOG_URL, "https://intentblog.pages.dev/favicon.ico", CATEGORY_MORE),
         RecommendedSource("Anthropic Engineering", "https://rsshub.cups.moe/anthropic/engineering", "https://www.anthropic.com/favicon.ico", CATEGORY_MORE),
         RecommendedSource("Epic Games Free Games", "https://rsshub.cups.moe/epicgames/freegames/en-US/US", "https://store.epicgames.com/favicon.ico", CATEGORY_MORE),
         RecommendedSource("TED Talks Daily", "https://feeds.acast.com/public/shows/67587e77c705e441797aff96", "https://www.ted.com/favicon.ico", CATEGORY_MORE),
         RecommendedSource("OpenAI News", "https://openai.com/news/rss.xml", "https://openai.com/favicon.ico", CATEGORY_MORE),
         RecommendedSource("Hacker News", "https://rsshub.cups.moe/hackernews", "https://news.ycombinator.com/favicon.ico", CATEGORY_MORE),
-        RecommendedSource("少数派", "https://rsshub.cups.moe/sspai/index", "https://sspai.com/favicon.ico", CATEGORY_MORE),
+        RecommendedSource("MIT Technology Review China", "https://rsshub.cups.moe/mittrchina", "https://www.mittrchina.com/favicon.ico", CATEGORY_MORE),
+        RecommendedSource("OpenAI Research", "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_openai_research.xml", "https://openai.com/favicon.ico", CATEGORY_MORE),
+        RecommendedSource("Anthropic Research", "https://cdn.jsdelivr.net/gh/Olshansk/rss-feeds@main/feeds/feed_anthropic_research.xml", "https://www.anthropic.com/favicon.ico", CATEGORY_MORE),
         // ---------- 时事 ----------
         RecommendedSource(
             "BBC News", "https://feeds.bbci.co.uk/news/rss.xml",

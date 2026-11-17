@@ -340,7 +340,17 @@ private fun ProfileEntry(name: String, avatarPath: String, onClick: () -> Unit) 
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(name.withCjkSpacing(), style = t.body.copy(fontWeight = FontWeight.SemiBold), color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(
+                name.withCjkSpacing(),
+                style = t.body.copy(
+                    fontSize = (16 * t.scale).sp,
+                    lineHeight = (22 * t.scale).sp,
+                    fontWeight = FontWeight.SemiBold,
+                ),
+                color = c.text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
             Text(stringResource(R.string.settings_profile_hint), style = t.micro, color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Text("›", style = t.pageTitle, color = c.textTertiary)

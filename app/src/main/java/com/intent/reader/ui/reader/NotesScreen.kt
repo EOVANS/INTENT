@@ -202,6 +202,9 @@ fun NotesScreen(
             }
         }
     }
+    val orderedArticleNotes = remember(notes, article) {
+        NoteArticles.order(notes, HtmlText.toBlocks(article?.contentHtml ?: article?.summary))
+    }
     Box(modifier.fillMaxSize().background(c.bg).imePadding()) {
         if (articleId != null) {
             LazyColumn(
@@ -220,13 +223,10 @@ fun NotesScreen(
                 if (loadFailed || state.unreadableFiles > 0) item(key = "error") {
                     Text(stringResource(R.string.notes_load_error), style = t.meta, color = c.accent)
                 }
-                val ordered = remember(notes, article) {
-                    NoteArticles.order(notes, HtmlText.toBlocks(article?.contentHtml ?: article?.summary))
-                }
-                if (state.loaded && ordered.isEmpty()) item(key = "empty") {
+                if (state.loaded && orderedArticleNotes.isEmpty()) item(key = "empty") {
                     Text(stringResource(R.string.notes_empty), style = t.bodySmall, color = c.textSecondary)
                 }
-                items(ordered, key = { it.id }) { note ->
+                items(orderedArticleNotes, key = { it.id }) { note ->
                     Column(Modifier.fillMaxWidth().clickable { editingId = note.id }, verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         Text(note.quote.withCjkSpacing(), style = t.body.copy(lineHeight = t.body.lineHeight * 1.4f), color = c.text)
                         if (note.remark.isNotBlank() || note.handwritingRevision == null) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -246,10 +246,10 @@ fun NotesScreen(
                         }
                     }
                 }
-                if (ordered.isNotEmpty()) item(key = "footer") {
-                    val updated = Instant.ofEpochMilli(ordered.maxOf { it.updatedAt }).atZone(ZoneId.systemDefault())
+                if (orderedArticleNotes.isNotEmpty()) item(key = "footer") {
+                    val updated = Instant.ofEpochMilli(orderedArticleNotes.maxOf { it.updatedAt }).atZone(ZoneId.systemDefault())
                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-                    Text(stringResource(R.string.notes_detail_meta, updated, NoteArticles.characterCount(ordered)),
+                    Text(stringResource(R.string.notes_detail_meta, updated, NoteArticles.characterCount(orderedArticleNotes)),
                         style = t.micro, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp))
                 }
             }

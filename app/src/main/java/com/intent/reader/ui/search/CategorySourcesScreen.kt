@@ -40,7 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.roundToPx
 import com.intent.reader.R
 import com.intent.reader.ui.theme.withCjkSpacing
 import com.intent.reader.data.assets.RecommendedSources

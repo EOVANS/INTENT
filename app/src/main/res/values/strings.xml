@@ -31,7 +31,7 @@
     <string name="onboarding_slogan">A focused reader.</string>
     <string name="onboarding_slogan_zh">专注阅读。</string>
     <string name="onboarding_quote_title">每日一句金句</string>
-    <string name="onboarding_quote_desc">AI 从你订阅的文章中提取当日最值得读的一句话。</string>
+    <string name="onboarding_quote_desc">Ai 从你订阅的文章中提取当日最值得读的一句话。</string>
     <string name="onboarding_quote_note">离线生成 · 轻量省电</string>
     <string name="onboarding_feed_title">克制的信息流</string>
     <string name="onboarding_feed_desc">多种卡片节奏，瑞士网格排版，只留下内容本身。</string>
@@ -101,7 +101,8 @@
     <string name="settings_a11y">无障碍</string>
     <string name="settings_notify">通知管理</string>
     <string name="settings_user_name">用户名</string>
-    <string name="settings_user">用户设置</string>
+    <string name="settings_user">个人资料</string>
+    <string name="settings_profile_hint">管理你的头像与名称</string>
     <string name="settings_privacy">隐私</string>
     <string name="settings_permissions">设备与权限</string>
     <string name="permissions_intro">INTENT 始终坚持隐私权不应被妥协的产品原则，权限申请严格遵循「最小必要」准则：仅在对应功能触发时申请，绝不索取与功能无关的权限。</string>
@@ -345,7 +346,7 @@
     <string name="widget_next">切换下一篇</string>
     <string name="widget_unread">未读</string>
     <string name="widget_style_restart_hint">更改小组件样式后，需重启 APP 才能生效</string>
-    <!-- Optional BYOK AI -->
+    <!-- Optional BYOK Ai -->
     <string name="ai_settings">Ai 配置</string>
     <string name="ai_provider_label">服务商：%1$s</string>
     <string name="ai_provider_custom">自定义</string>
@@ -381,18 +382,18 @@
     <string name="ai_clear_config">清除配置与密钥</string>
     <string name="ai_clear_cache">清除 Ai 结果缓存</string>
     <string name="ai_cleared">已清除</string>
-    <string name="ai_loading">AI 处理中…</string>
+    <string name="ai_loading">Ai 处理中…</string>
     <string name="ai_summary">Ai 速读</string>
     <string name="ai_regenerate">重新生成</string>
     <string name="ai_excerpt_only">仅基于 RSS 摘要，未获取完整正文。</string>
     <string name="ai_content_scope">基于 App 已获取的文章文字；不包含图片或未获取的网页内容。</string>
-    <string name="ai_output_hint">AI 内容仅供参考；重新生成会再次调用你的服务。</string>
-    <string name="ai_quote">AI 金句</string>
-    <string name="ai_quote_enabled">从正文提取每日 AI 金句</string>
+    <string name="ai_output_hint">Ai 内容仅供参考；重新生成会再次调用你的服务。</string>
+    <string name="ai_quote">Ai 金句</string>
+    <string name="ai_quote_enabled">从正文提取每日 Ai 金句</string>
     <string name="ai_quote_help">开启后，在首页有候选正文时，每天自动尝试一次。只展示能在原文中核实的摘录；失败时继续显示离线金句。手动重新提取会再次调用服务。</string>
-    <string name="ai_quote_ready">AI 原文摘录</string>
+    <string name="ai_quote_ready">Ai 原文摘录</string>
     <string name="ai_quote_retry">重新提取</string>
-    <string name="ai_quote_unavailable">暂未取得 AI 摘录，继续显示离线金句。</string>
+    <string name="ai_quote_unavailable">暂未取得 Ai 摘录，继续显示离线金句。</string>
     <string name="ai_error_config">请先在「Ai 配置」中启用服务，并填写模型和有效密钥。</string>
     <string name="ai_error_url">请输入 HTTPS 服务地址，不包含用户名、密码、查询参数或片段。</string>
     <string name="ai_error_empty">当前没有可供分析的文章文字。</string>
@@ -402,7 +403,7 @@
     <string name="ai_error_network">网络连接失败或超时，请稍后重试。</string>
     <string name="ai_error_service">Ai 服务返回错误，请检查地址、模型或服务状态。</string>
     <string name="ai_error_response">服务未返回完整的兼容结果，本次未采用。</string>
-    <string name="ai_error_quote">AI 摘录无法在对应正文中核实，已保留离线金句。</string>
+    <string name="ai_error_quote">Ai 摘录无法在对应正文中核实，已保留离线金句。</string>
     <string name="ai_error_storage">本地保存失败，请检查设备存储后重试。</string>
     <string name="island_notes">孤岛笔记</string>
     <string name="notes_this_article">本篇笔记</string>
@@ -459,7 +460,7 @@
     <string name="ai_feature_quote">每日金句 Quote</string>
     <string name="ai_feature_quote_desc">通过云端 LLM 提呈金句，相对于本地算法推算的金句质量更高。开启后，在首页有候选正文时，每天自动尝试一次。只展示能在原文中核实的摘录；失败时继续显示离线金句。手动重新提取会再次调用服务。</string>
     <string name="ai_feature_diet">信息饮食报告</string>
-    <string name="ai_feature_diet_desc">使用笔记生成 AI 洞察；只有手动请求时才发送数据。</string>
+    <string name="ai_feature_diet_desc">使用笔记生成 Ai 洞察；只有手动请求时才发送数据。</string>
     <string name="ai_feature_unsupported">暂不支持</string>
     <string name="ai_feature_read">Ai 速读</string>
     <string name="ai_feature_read_desc">针对长文阅读场景，INTENT 提供基于 BYOK（Bring Your Own Key）模式的 Ai 辅助功能。你可以配置自己的 API Key，让 Ai 成为你的私人阅读助理。</string>
@@ -483,7 +484,7 @@
     <string name="font_delete_failed">无法删除字体</string>
     <string name="font_bold_greeting">使用粗体顶部问候区</string>
     <string name="ai_quote_no_candidates">今天没有符合条件的正文原句，继续显示离线金句。</string>
-    <string name="ai_quote_invalid_selection">AI 返回的候选编号无效，继续显示离线金句。</string>
+    <string name="ai_quote_invalid_selection">Ai 返回的候选编号无效，继续显示离线金句。</string>
     <string name="notes_report">信息饮食报告</string>
     <string name="report_month">月</string>
     <string name="report_year">年</string>
@@ -495,18 +496,20 @@
     <string name="report_chart_notes">篇笔记</string>
     <string name="report_chart_characters">字</string>
     <string name="report_chart_days">天</string>
-    <string name="report_ai_title">AI 洞察</string>
+    <string name="report_ai_title">Ai 洞察</string>
     <string name="report_ai_description">从失败路径反推关键洞察，让笔记成为可检验的行动。</string>
-    <string name="report_ai_disclosure">点击生成后，将本时段的文章标题、来源、摘录与文字备注发送至你配置的 AI 服务，可能产生费用；手写内容不会发送。结果仅在当前页面显示。</string>
-    <string name="report_ai_config">请先在设置中启用并配置 AI。</string>
+    <string name="report_ai_disclosure">点击生成后，将本时段的文章标题、来源、摘录与文字备注发送至你配置的 Ai 服务，可能产生费用；手写内容不会发送。结果仅在当前页面显示。</string>
+    <string name="report_ai_config">请先在设置中启用并配置 Ai。</string>
     <string name="report_ai_generate">生成洞察</string>
     <string name="report_ai_regenerate">重新生成</string>
     <string name="report_ai_loading">正在分析…</string>
     <string name="report_ai_too_long">本时段笔记超过 24000 字符，本次未发送。</string>
-    <string name="report_ai_disabled">请先在 AI 配置中开启信息饮食报告。</string>
+    <string name="report_ai_disabled">请先在 Ai 配置中开启信息饮食报告。</string>
     <string name="notes_handwriting_export_label">手写笔记</string>
     <string name="category_more">来自更多</string>
     <string name="add_source_verification">源站要求安全验证，请稍后重试或更换实例</string>
     <string name="intent_official_blog">INTENT · 官方开发博客</string>
     <string name="intent_official_blog_description">INTENT 的官方开发博客，第一时间了解 INTENT 的更新动向。</string>
+    <string name="intent_daily_news">INTENT 每日要闻</string>
+    <string name="intent_daily_news_description">INTENT 的官方要闻推送，来自 BBC、NBC 等权威新闻媒体，由 Ai 整理生成。</string>
 </resources>

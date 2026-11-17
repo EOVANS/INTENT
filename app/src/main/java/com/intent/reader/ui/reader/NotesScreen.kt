@@ -23,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
@@ -201,20 +202,16 @@ fun NotesScreen(
             }
         }
     }
-    Column(modifier.fillMaxSize().background(c.bg).imePadding()) {
-        if (onBack != null) TopAppBar(
-            title = { Text(stringResource(R.string.notes_this_article), style = t.meta) },
-            navigationIcon = { HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack) },
-            actions = actions,
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg, titleContentColor = c.text),
-        )
+    Box(modifier.fillMaxSize().background(c.bg).imePadding()) {
         if (articleId != null) {
-            val ordered = remember(notes, article) {
-                NoteArticles.order(notes, HtmlText.toBlocks(article?.contentHtml ?: article?.summary))
-            }
             LazyColumn(
                 Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = margin, end = margin, top = 20.dp, bottom = navigationBottom + 32.dp),
+                contentPadding = PaddingValues(
+                    start = margin,
+                    end = margin,
+                    top = if (onBack != null) statusTop + 84.dp else 12.dp,
+                    bottom = navigationBottom + 32.dp,
+                ),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
                 item(key = "title") {
@@ -222,6 +219,9 @@ fun NotesScreen(
                 }
                 if (loadFailed || state.unreadableFiles > 0) item(key = "error") {
                     Text(stringResource(R.string.notes_load_error), style = t.meta, color = c.accent)
+                }
+                val ordered = remember(notes, article) {
+                    NoteArticles.order(notes, HtmlText.toBlocks(article?.contentHtml ?: article?.summary))
                 }
                 if (state.loaded && ordered.isEmpty()) item(key = "empty") {
                     Text(stringResource(R.string.notes_empty), style = t.bodySmall, color = c.textSecondary)
@@ -253,7 +253,14 @@ fun NotesScreen(
                         style = t.micro, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp))
                 }
             }
-        } else LazyColumn(
+        } else Column(Modifier.fillMaxSize()) {
+        if (onBack != null) TopAppBar(
+            title = { Text(stringResource(R.string.notes_this_article), style = t.meta) },
+            navigationIcon = { HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack) },
+            actions = actions,
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg, titleContentColor = c.text),
+        )
+        LazyColumn(
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 top = if (onBack == null) statusTop + 12.dp else 12.dp,
@@ -321,6 +328,25 @@ fun NotesScreen(
             }
             item(key = "local") {
                 Text(stringResource(R.string.notes_local_hint), modifier = Modifier.padding(horizontal = margin), style = t.micro, color = c.textSecondary)
+            }
+        }
+        }
+        if (articleId != null && onBack != null) {
+            Box(
+                Modifier.fillMaxWidth().height(statusTop + 104.dp).background(
+                    Brush.verticalGradient(0f to c.bg, 0.6f to c.bg.copy(alpha = 0.85f), 1f to c.bg.copy(alpha = 0f)),
+                ),
+            )
+            Column(Modifier.fillMaxWidth().statusBarsPadding()) {
+                Row(
+                    Modifier.fillMaxWidth().widthIn(max = 720.dp)
+                        .padding(start = margin, end = margin, top = 24.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                    Text(stringResource(R.string.notes_this_article), style = t.meta, color = c.textSecondary, modifier = Modifier.weight(1f))
+                    actions()
+                }
             }
         }
     }

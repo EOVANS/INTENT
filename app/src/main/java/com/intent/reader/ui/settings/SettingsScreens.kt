@@ -143,7 +143,10 @@ class SettingsViewModel(private val app: IntentApplication) : ViewModel() {
     fun setWidgetStyle(v: String) = launch { repo.setWidgetStyle(v); IntentWidgets.setStyle(app, v) }
     fun setFontChoice(v: String) = launch { repo.setFontChoice(v) }
     fun setFontWeight(v: Int) = launch { repo.setFontWeight(v) }
-    fun setLanguageTag(v: String) = launch { repo.setLanguageTag(v) }
+    fun setLanguageTag(v: String, onSaved: () -> Unit) = launch {
+        repo.setLanguageTag(v)
+        onSaved()
+    }
     fun setTextScaleLevel(v: Int) = launch { repo.setTextScaleLevel(v) }
     fun setFollowSystemFontScale(v: Boolean) = launch { repo.setFollowSystemFontScale(v) }
     fun setBoldGreetingQuote(v: Boolean) = launch { repo.setBoldGreetingQuote(v) }
@@ -303,6 +306,44 @@ private fun EntryRow(title: String, value: String? = null, icon: ImageVector? = 
             Spacer(Modifier.width(8.dp))
         }
         Text(text = "→", style = t.body, color = if (enabled) c.textTertiary else c.textTertiary.copy(alpha = 0.4f))
+    }
+}
+
+@Composable
+private fun ProfileEntry(name: String, avatarPath: String, onClick: () -> Unit) {
+    val c = IntentTheme.colors
+    val t = IntentTheme.typography
+    Row(
+        Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(c.surface)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            Modifier.size(48.dp).clip(CircleShape).background(c.bg)
+                .border(1.dp, c.divider, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            val avatar = avatarPath.takeIf { it.isNotBlank() }?.let { java.io.File(it) }
+            if (avatar?.exists() == true) {
+                coil.compose.AsyncImage(
+                    model = avatar,
+                    contentDescription = null,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                Text(name.trim().take(1).ifBlank { "·" }, style = t.greetingSerif.copy(fontWeight = FontWeight.Bold), color = c.textSecondary)
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(name.withCjkSpacing(), style = t.body.copy(fontWeight = FontWeight.SemiBold), color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(stringResource(R.string.settings_profile_hint), style = t.micro, color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Text("›", style = t.pageTitle, color = c.textTertiary)
     }
 }
 
@@ -538,12 +579,17 @@ fun SettingsScreen(
     val retainOptions = listOf(7, 30, 90, 180)
 
     SettingsScaffold(title = stringResource(R.string.settings_title), onBack = onBack) {
+        ProfileEntry(
+            name = s.userName.ifBlank { stringResource(R.string.settings_user) },
+            avatarPath = s.avatarPath,
+            onClick = onOpenUser,
+        )
+        Spacer(Modifier.height(16.dp))
         SettingsGroup {
             EntryRow(stringResource(R.string.settings_ui), icon = Icons.Filled.Palette, iconColor = Color(0xFFAE66E9), onClick = onOpenUi)
             EntryRow(stringResource(R.string.settings_a11y), icon = Icons.Filled.AccessibilityNew, iconColor = Color(0xFF2587FF), onClick = onOpenA11y)
             EntryRow(stringResource(R.string.settings_notify), icon = Icons.Filled.Notifications, iconColor = Color(0xFF31C76A), onClick = onOpenNotify)
             EntryRow(stringResource(R.string.ai_settings), icon = Icons.Filled.AutoAwesome, iconColor = Color(0xFF9B70EF), onClick = onOpenAi)
-            EntryRow(stringResource(R.string.settings_user), value = s.userName.ifBlank { null }, icon = Icons.Filled.Person, iconColor = Color(0xFFEC9450), onClick = onOpenUser)
             EntryRow(stringResource(R.string.settings_privacy), icon = Icons.Filled.PrivacyTip, iconColor = Color(0xFF5A64D8), onClick = onOpenPrivacy)
             EntryRow(stringResource(R.string.settings_permissions), icon = Icons.Filled.Security, iconColor = Color(0xFF3D7BEA), onClick = onOpenPermissions)
             EntryRow(stringResource(R.string.settings_advanced), icon = Icons.Filled.Tune, iconColor = Color(0xFF50B7C5), onClick = onOpenAdvanced)
@@ -1267,6 +1313,7 @@ fun LanguageSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
     val t = IntentTheme.typography
     val vm = settingsVm()
     val s = vm.settings
+    var changingLanguage by remember { mutableStateOf(false) }
     SettingsScaffold(title = stringResource(R.string.ui_language), onBack = onBack) {
         val langs = listOf(
             "" to stringResource(R.string.lang_auto),
@@ -1286,9 +1333,11 @@ fun LanguageSettingsScreen(onBack: () -> Unit, onRecreate: () -> Unit) {
                             if (selected) c.text else c.surface,
                             RoundedCornerShape(IntentDimens.radiusInput.dp),
                         )
-                        .clickable {
-                            vm.setLanguageTag(tag)
-                            onRecreate()
+                        .clickable(enabled = !changingLanguage && !selected) {
+                            if (!changingLanguage && !selected) {
+                                changingLanguage = true
+                                vm.setLanguageTag(tag, onRecreate)
+                            }
                         }
                         .padding(horizontal = 14.dp, vertical = 12.dp),
                 ) {

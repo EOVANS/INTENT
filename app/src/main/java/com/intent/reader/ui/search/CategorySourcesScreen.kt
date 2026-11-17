@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,14 +26,21 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToPx
 import com.intent.reader.R
 import com.intent.reader.ui.theme.withCjkSpacing
 import com.intent.reader.data.assets.RecommendedSources
@@ -65,49 +75,37 @@ fun CategorySourcesScreen(
     val presets = remember(categoryKey) { RecommendedSources.byCategoryOrAll(categoryKey) }
     val label = categoryLabel(categoryKey)
     val byFeedUrl = remember(sources) { sources.associateBy { it.feedUrl } }
+    val density = LocalDensity.current
+    val statusBarTop = with(density) { WindowInsets.statusBars.getTop(this).toDp() }
+    var headerHeight by remember(statusBarTop, density) {
+        mutableIntStateOf(with(density) { (statusBarTop + 80.dp).roundToPx() })
+    }
 
-    Column(Modifier.fillMaxSize().background(c.bg).statusBarsPadding()) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = IntentDimens.pageHMarginPhone.dp,
-                    end = IntentDimens.pageHMarginPhone.dp,
-                    top = 24.dp,
-                    bottom = 8.dp,
-                ),
-            verticalAlignment = Alignment.CenterVertically,
+    Box(Modifier.fillMaxSize().background(c.bg)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = IntentDimens.pageHMarginPhone.dp,
+                end = IntentDimens.pageHMarginPhone.dp,
+                top = with(density) { headerHeight.toDp() } + 8.dp,
+                bottom = 32.dp,
+            ),
         ) {
-            HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
-            Column {
-                Text(label, style = t.pageTitle, color = c.text)
-                Text(
-                    stringResource(R.string.category_feeds_count, presets.size),
-                    style = t.micro,
-                    color = c.textSecondary,
-                )
-            }
-        }
-
-        Box(Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = IntentDimens.pageHMarginPhone.dp,
-                    end = IntentDimens.pageHMarginPhone.dp,
-                    top = 8.dp,
-                    bottom = 32.dp,
-                ),
-            ) {
                 presets.forEach { rs ->
                     item(key = rs.feedUrl) {
                         val existing = byFeedUrl[rs.feedUrl]
-                        val official = rs.feedUrl == RecommendedSources.INTENT_BLOG_URL
+                        val isOfficialBlog = rs.feedUrl == RecommendedSources.INTENT_BLOG_URL
+                        val isDailyBriefing = rs.feedUrl == RecommendedSources.INTENT_DAILY_CN_URL
+                        val official = isOfficialBlog || isDailyBriefing
                         Column(if (official) Modifier.fillMaxWidth().padding(bottom = 16.dp)
                             .border(1.dp, c.divider, RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 6.dp)
                             else Modifier.fillMaxWidth()) {
                         PresetSourceRow(
-                            name = if (official) stringResource(R.string.intent_official_blog) else rs.name,
+                            name = when {
+                                isOfficialBlog -> stringResource(R.string.intent_official_blog)
+                                isDailyBriefing -> stringResource(R.string.intent_daily_news)
+                                else -> rs.name
+                            },
                             logoUrl = rs.logoUrl,
                             subscribed = existing != null,
                             onClick = { existing?.let { onOpenSource(it.id) } },
@@ -127,17 +125,35 @@ fun CategorySourcesScreen(
                                 }
                             },
                         )
-                        if (official) Text(stringResource(R.string.intent_official_blog_description),
-                            style = t.micro, color = c.textSecondary, modifier = Modifier.padding(start = 4.dp, top = 6.dp, bottom = 8.dp))
+                        if (official) Text(
+                            stringResource(if (isDailyBriefing) R.string.intent_daily_news_description else R.string.intent_official_blog_description),
+                            style = t.micro, color = c.textSecondary, modifier = Modifier.padding(start = 4.dp, top = 6.dp, bottom = 8.dp),
+                        )
                         }
                     }
                 }
-            }
-            SnackbarHost(
-                snackbar,
-                Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 12.dp),
-            )
         }
+        Box(
+            Modifier.fillMaxWidth().height(with(density) { headerHeight.toDp() } + 24.dp)
+                .background(Brush.verticalGradient(0f to c.bg, 0.6f to c.bg.copy(alpha = 0.85f), 1f to c.bg.copy(alpha = 0f))),
+        )
+        Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
+            Row(
+                Modifier.align(Alignment.TopCenter).widthIn(max = 720.dp).fillMaxWidth()
+                    .padding(start = IntentDimens.pageHMarginPhone.dp, end = IntentDimens.pageHMarginPhone.dp, top = 24.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)
+                Column {
+                    Text(label, style = t.pageTitle, color = c.text)
+                    Text(stringResource(R.string.category_feeds_count, presets.size), style = t.micro, color = c.textSecondary)
+                }
+            }
+        }
+        SnackbarHost(
+            snackbar,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 12.dp),
+        )
     }
 }
 

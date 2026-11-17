@@ -22,6 +22,7 @@ object RecommendedSources {
     const val CATEGORY_CULTURE = "culture"
     const val CATEGORY_MORE = "more"
     const val INTENT_BLOG_URL = "https://intentblog.pages.dev/feed.xml"
+    const val INTENT_DAILY_CN_URL = "https://raw.githubusercontent.com/EOVANS/INTENT-Daily-CN/main/docs/feed.xml"
 
     /** Hero strip order. */
     val categories: List<String> = listOf(
@@ -36,6 +37,7 @@ object RecommendedSources {
 
     val all: List<RecommendedSource> = listOf(
         RecommendedSource("INTENT · Blog", INTENT_BLOG_URL, "https://intentblog.pages.dev/favicon.ico", CATEGORY_MORE),
+        RecommendedSource("INTENT Daily Briefing", INTENT_DAILY_CN_URL, "https://www.bbc.com/favicon.ico", CATEGORY_MORE),
         RecommendedSource("Anthropic Engineering", "https://rsshub.cups.moe/anthropic/engineering", "https://www.anthropic.com/favicon.ico", CATEGORY_MORE),
         RecommendedSource("Epic Games Free Games", "https://rsshub.cups.moe/epicgames/freegames/en-US/US", "https://store.epicgames.com/favicon.ico", CATEGORY_MORE),
         RecommendedSource("TED Talks Daily", "https://feeds.acast.com/public/shows/67587e77c705e441797aff96", "https://www.ted.com/favicon.ico", CATEGORY_MORE),

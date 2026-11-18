@@ -26,6 +26,8 @@
 
 欢迎到访直男之家：[帮助中心](https://intentsonnet.pages.dev/help.html)
 
+线上体验（仅限于功能演示，用于用户评估 App 是否符合需求，值不值得下载）：[点击体验](https://intentview.pages.dev/)
+
 [![Read the Docs](https://img.shields.io/badge/Read%20the%20Docs-%23000000.svg?style=for-the-badge&logo=readthedocs&logoColor=white)](https://intentsonnet.pages.dev/help.html)
 
 软件安全性检查：https://www.virustotal.com/gui/
@@ -435,6 +437,9 @@ A：在 App 内改色后会自动刷新；如启动器缓存，可删除小组�
 ## 许可证
 
 本项目原创代码采用 [MIT 许可证](LICENSE)，版权归 Cynosure/Atelier 所有。项目包含的第三方组件遵循各自的许可证；例如 Android Liquid Glass 使用 [Apache License 2.0](third-party/android-liquid-glass/LICENSE)。
+
+## 了解更多
+[![Forms follows Fuctions](https://quotes-github-readme.vercel.app/api?type=horizontal&theme=dark)](https://github.com/piyushsuthar/github-readme-quotes)
 
 ---
 

@@ -189,14 +189,22 @@ open class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Android 12+ system splash screen exit animation (platform
-     * [android.window.SplashScreen] API, no compat dependency). Waits for the
-     * icon's AVD to finish (capped so a slow first frame never stalls launch),
-     * then fades the splash out with a gentle icon scale-up and removes it.
-     * Below API 31 there is no system splash, so this is a no-op.
+     * Android 12+ system splash screen handling (platform
+     * [android.window.SplashScreen] API, no compat dependency). Picks the splash
+     * theme for the current launcher icon, then fades the splash out with a
+     * gentle icon scale-up once the icon's AVD has finished (capped so a slow
+     * first frame never stalls launch). Below API 31 there is no system splash,
+     * so this is a no-op.
      */
     private fun installSplashExitAnimation() {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) return
+        // The animated "I" artwork belongs to the default launcher icon only; any
+        // other icon choice falls back to the plain system splash (its own icon,
+        // no AVD). The override applies from the next launch on.
+        splashScreen.setSplashScreenTheme(
+            if (com.intent.reader.ui.settings.currentAppIcon(this) == "default")
+                R.style.Theme_INTENT else R.style.Theme_INTENT_SplashPlain
+        )
         splashScreen.setOnExitAnimationListener { splashView ->
             val iconStart = splashView.iconAnimationStart
             val iconDuration = splashView.iconAnimationDuration
@@ -204,17 +212,23 @@ open class MainActivity : ComponentActivity() {
                 (iconDuration.toMillis() - (System.currentTimeMillis() - iconStart.toEpochMilli()))
                     .coerceIn(0L, 300L)
             } else 0L
-            val fadeOut = android.animation.ObjectAnimator.ofFloat(
-                splashView, android.view.View.ALPHA, 1f, 0f
+            val animators = mutableListOf<android.animation.Animator>(
+                android.animation.ObjectAnimator.ofFloat(
+                    splashView, android.view.View.ALPHA, 1f, 0f
+                )
             )
-            val scaleX = android.animation.ObjectAnimator.ofFloat(
-                splashView.iconView, android.view.View.SCALE_X, 1f, 1.08f
-            )
-            val scaleY = android.animation.ObjectAnimator.ofFloat(
-                splashView.iconView, android.view.View.SCALE_Y, 1f, 1.08f
-            )
+            // iconView is null when the system showed a solid-color splash
+            // (e.g. cold starts from widgets or other non-launcher entry points).
+            splashView.iconView?.let { icon ->
+                animators += android.animation.ObjectAnimator.ofFloat(
+                    icon, android.view.View.SCALE_X, 1f, 1.08f
+                )
+                animators += android.animation.ObjectAnimator.ofFloat(
+                    icon, android.view.View.SCALE_Y, 1f, 1.08f
+                )
+            }
             android.animation.AnimatorSet().apply {
-                playTogether(fadeOut, scaleX, scaleY)
+                playTogether(animators)
                 interpolator = android.view.animation.AccelerateInterpolator()
                 duration = 220L
                 startDelay = remaining

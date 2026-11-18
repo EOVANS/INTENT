@@ -3,6 +3,7 @@ package com.intent.reader.ui.settings
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -493,7 +494,23 @@ fun setAppIcon(context: Context, choice: String) {
             )
         }
     }
+    // Splash theme follows the icon: the animated "I" artwork only matches the
+    // default icon; other variants fall back to the plain system splash. The
+    // override is read on the next cold start, and DONT_KILL_APP keeps this
+    // process alive, so it must be written now rather than in onCreate.
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+        context.findActivity()?.splashScreen?.setSplashScreenTheme(
+            if (choice == "default") R.style.Theme_INTENT else R.style.Theme_INTENT_SplashPlain
+        )
+    }
     com.intent.reader.notify.LiveUpdate.refreshPermissions()
+}
+
+/** Unwraps configuration/localization ContextWrappers back to the host Activity. */
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
 
 /**

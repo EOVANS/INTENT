@@ -14,7 +14,7 @@ For INTENT v1.6 and later · Android 11 or later
 
 [Website](https://intentread.pages.dev/#features) · [Help Center](https://intentsonnet.pages.dev/help.html) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/EOVANS/INTENT/releases)
 
-[Download INTENT v1.6.5](https://github.com/EOVANS/INTENT/releases/download/v1.6.5/INTENT.1.6.5.apk) · [Accelerated download for mainland China](https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.6.5/INTENT.1.6.5.apk)
+[Download INTENT v1.7.3](https://github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk) · [Accelerated download for mainland China](https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk)
 
 ## Contents
 

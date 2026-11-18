@@ -201,7 +201,7 @@
     <string name="terms_of_use">软件使用条款</string>
     <string name="help_center">帮助中心</string>
     <string name="visit_official_website">查看官网</string>
-    <string name="about_version">版本 %1$s</string>
+    <string name="about_version">版本 v%1$s</string>
     <string name="check_update">检查更新</string>
     <string name="checking_update">检查中…</string>
     <string name="update_latest">已是最新版本</string>
@@ -465,7 +465,7 @@
     <string name="ai_feature_read">Ai 速读</string>
     <string name="ai_feature_read_desc">针对长文阅读场景，INTENT 提供基于 BYOK（Bring Your Own Key）模式的 Ai 辅助功能。你可以配置自己的 API Key，让 Ai 成为你的私人阅读助理。</string>
     <string name="about_thanks_title">感谢您使用 INTENT</string>
-    <string name="about_thanks_body">This app was built with passion and a love for reading. We hope you enjoy the experience.</string>
+    <string name="about_thanks_body">这款应用怀着热爱与对阅读的喜欢而打造，愿它能安静地陪伴你的每一次阅读。</string>
     <string name="developer_title">开发人员</string>
     <string name="developer_message">感谢你发现这里。愿阅读始终带来新的发现。</string>
     <string name="developer_owner">主理人</string>

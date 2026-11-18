@@ -200,11 +200,15 @@ open class MainActivity : ComponentActivity() {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) return
         // The animated "I" artwork belongs to the default launcher icon only; any
         // other icon choice falls back to the plain system splash (its own icon,
-        // no AVD). The override applies from the next launch on.
+        // no AVD). The theme override applies from the next launch on.
+        val isDefaultIcon = com.intent.reader.ui.settings.currentAppIcon(this) == "default"
         splashScreen.setSplashScreenTheme(
-            if (com.intent.reader.ui.settings.currentAppIcon(this) == "default")
-                R.style.Theme_INTENT else R.style.Theme_INTENT_SplashPlain
+            if (isDefaultIcon) R.style.Theme_INTENT else R.style.Theme_INTENT_SplashPlain
         )
+        // Non-default icons keep the system's stock splash and stock exit
+        // transition; registering a custom exit listener would replace that
+        // transition and reads as a stutter against the plain icon.
+        if (!isDefaultIcon) return
         splashScreen.setOnExitAnimationListener { splashView ->
             val iconStart = splashView.iconAnimationStart
             val iconDuration = splashView.iconAnimationDuration

@@ -96,9 +96,12 @@ object FeedParser {
                                 if (t.isNotBlank()) siteUrl = t
                             }
                             "image" -> {
+                                // Consume until </image>; breaking on any END_TAG would stop
+                                // at nested </title>/</url> and strand the parser mid-image,
+                                // which then ends the whole channel and drops every <item>.
                                 while (true) {
                                     val ev3 = p.next()
-                                    if (ev3 == XmlPullParser.END_TAG) break
+                                    if (ev3 == XmlPullParser.END_TAG && p.name.equals("image", true)) break
                                     if (ev3 == XmlPullParser.END_DOCUMENT) return ParseResult.Error("unexpected end of rss")
                                     if (ev3 == XmlPullParser.START_TAG && p.name.equals("url", true)) {
                                         iconUrl = p.nextText().trim()

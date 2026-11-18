@@ -40,6 +40,13 @@ interface SourceDao {
     @Query("UPDATE sources SET sortOrder = :order WHERE id = :id")
     suspend fun setSortOrder(id: String, order: Int)
 
+    /** Rewrites a retired feed URL in place, keeping id/articles/read state intact. */
+    @Query(
+        "UPDATE sources SET feedUrl = :newUrl, siteUrl = :newSite WHERE feedUrl = :oldUrl " +
+            "AND NOT EXISTS (SELECT 1 FROM sources WHERE feedUrl = :newUrl)"
+    )
+    suspend fun rewriteFeedUrl(oldUrl: String, newUrl: String, newSite: String): Int
+
     @Query("DELETE FROM sources WHERE id = :id")
     suspend fun delete(id: String)
 

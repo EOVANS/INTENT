@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Red quote underline draws in left-to-right once the letter has appeared.
+     Ends at 580ms, within the 1000ms splash budget. -->
+<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:propertyName="scaleX"
+    android:valueFrom="0"
+    android:valueTo="1"
+    android:startOffset="200"
+    android:duration="380"
+    android:interpolator="@android:interpolator/decelerate_cubic" />

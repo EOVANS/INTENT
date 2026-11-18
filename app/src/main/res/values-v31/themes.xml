@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ system splash screen (platform attrs, API 31+; no compat lib
+         because the build is offline). Below API 31 the app keeps its previous
+         behavior: plain windowBackground during launch. -->
+    <style name="Theme.INTENT" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">@color/window_bg</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_anim</item>
+        <!-- Used on API 31/32; API 33+ infers the duration from the AVD (580ms). -->
+        <item name="android:windowSplashScreenAnimationDuration">580</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/splash_icon_bg</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+    </style>
+</resources>

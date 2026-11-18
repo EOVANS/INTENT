@@ -76,6 +76,7 @@ open class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashExitAnimation()
         val standaloneArticleId = if (this is ReaderActivity) intent?.getStringExtra(EXTRA_ARTICLE_ID) else null
         pendingArticleId.value = if (this is ReaderActivity) null else intent?.getStringExtra(EXTRA_ARTICLE_ID)
         // Guard: on some API 35/36 ROMs (MIUI/ColorOS/OneUI) enableEdgeToEdge
@@ -183,6 +184,46 @@ open class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Android 12+ system splash screen exit animation (platform
+     * [android.window.SplashScreen] API, no compat dependency). Waits for the
+     * icon's AVD to finish (capped so a slow first frame never stalls launch),
+     * then fades the splash out with a gentle icon scale-up and removes it.
+     * Below API 31 there is no system splash, so this is a no-op.
+     */
+    private fun installSplashExitAnimation() {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) return
+        splashScreen.setOnExitAnimationListener { splashView ->
+            val iconStart = splashView.iconAnimationStart
+            val iconDuration = splashView.iconAnimationDuration
+            val remaining = if (iconStart != null && iconDuration != null) {
+                (iconDuration.toMillis() - (System.currentTimeMillis() - iconStart.toEpochMilli()))
+                    .coerceIn(0L, 300L)
+            } else 0L
+            val fadeOut = android.animation.ObjectAnimator.ofFloat(
+                splashView, android.view.View.ALPHA, 1f, 0f
+            )
+            val scaleX = android.animation.ObjectAnimator.ofFloat(
+                splashView.iconView, android.view.View.SCALE_X, 1f, 1.08f
+            )
+            val scaleY = android.animation.ObjectAnimator.ofFloat(
+                splashView.iconView, android.view.View.SCALE_Y, 1f, 1.08f
+            )
+            android.animation.AnimatorSet().apply {
+                playTogether(fadeOut, scaleX, scaleY)
+                interpolator = android.view.animation.AccelerateInterpolator()
+                duration = 220L
+                startDelay = remaining
+                addListener(object : android.animation.AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: android.animation.Animator) {
+                        splashView.remove()
+                    }
+                })
+                start()
             }
         }
     }

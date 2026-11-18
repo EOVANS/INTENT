@@ -22,7 +22,11 @@ object RecommendedSources {
     const val CATEGORY_CULTURE = "culture"
     const val CATEGORY_MORE = "more"
     const val INTENT_BLOG_URL = "https://intentblog.pages.dev/feed.xml"
-    const val INTENT_DAILY_CN_URL = "https://raw.githubusercontent.com/EOVANS/INTENT-Daily-CN/main/docs/feed.xml"
+    const val INTENT_DAILY_CN_URL = "https://eovans.github.io/INTENT-Daily-CN/feed.xml"
+
+    /** Retired raw.githubusercontent mirror (unreachable from many networks). */
+    const val LEGACY_INTENT_DAILY_CN_URL =
+        "https://raw.githubusercontent.com/EOVANS/INTENT-Daily-CN/main/docs/feed.xml"
 
     /** Hero strip order. */
     val categories: List<String> = listOf(

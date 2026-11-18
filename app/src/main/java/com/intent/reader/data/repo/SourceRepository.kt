@@ -3,6 +3,7 @@ package com.intent.reader.data.repo
 import android.content.Context
 import android.net.Uri
 import com.intent.reader.data.assets.RecommendedSource
+import com.intent.reader.data.assets.RecommendedSources
 import com.intent.reader.data.db.AppDatabase
 import com.intent.reader.data.db.Source
 import com.intent.reader.sync.FeedFetcher
@@ -149,6 +150,20 @@ class SourceRepository(
     suspend fun remove(id: String) = withContext(Dispatchers.IO) {
         db.articleDao().deleteBySource(id)
         db.sourceDao().delete(id)
+    }
+
+    /**
+     * One-shot repair for installs that subscribed to the daily briefing while it
+     * was hosted on raw.githubusercontent.com (blocked on many networks, surfaced
+     * as "未能检索到相关内容"). Rewrites the stored feed URL to the GitHub Pages
+     * mirror, keeping the row id so existing articles/read state stay linked.
+     */
+    suspend fun migrateLegacyDailyCn() = withContext(Dispatchers.IO) {
+        db.sourceDao().rewriteFeedUrl(
+            RecommendedSources.LEGACY_INTENT_DAILY_CN_URL,
+            RecommendedSources.INTENT_DAILY_CN_URL,
+            guessSite(RecommendedSources.INTENT_DAILY_CN_URL),
+        )
     }
 
     suspend fun rename(id: String, title: String) = db.sourceDao().rename(id, title)

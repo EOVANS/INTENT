@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Splash icon artwork: the launcher "I" letterform scaled 4x per the Android 12+
+     splash spec (AVD canvas 432dp, inner 288dp visible). Static attributes hold the
+     final frame so the icon never renders blank if the animation is skipped. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="432dp"
+    android:height="432dp"
+    android:viewportWidth="432"
+    android:viewportHeight="432">
+    <group
+        android:name="letter"
+        android:pivotX="216"
+        android:pivotY="216">
+        <path
+            android:fillColor="#171717"
+            android:pathData="M152,124h128v20h-40v128h40v20h-128v-20h40v-128h-40z" />
+    </group>
+    <group
+        android:name="underline"
+        android:pivotX="152"
+        android:pivotY="320">
+        <path
+            android:fillColor="#D94336"
+            android:pathData="M152,312h128v16h-128z" />
+    </group>
+</vector>

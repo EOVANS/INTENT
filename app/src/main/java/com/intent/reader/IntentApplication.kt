@@ -36,6 +36,9 @@ class IntentApplication : Application(), Configuration.Provider {
         container = AppContainer(this)
         NotificationChannels.ensure(this)
 
+        // Rewrite the retired daily-briefing feed URL for existing subscribers.
+        appScope.launch(Dispatchers.IO) { container.sourceRepository.migrateLegacyDailyCn() }
+
         // Keep the card in sync with settings, dismissal, day changes and permissions.
         appScope.launch {
             combine(

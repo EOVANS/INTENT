@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_splash_logo">
+    <target
+        android:name="letter"
+        android:animation="@animator/splash_letter_in" />
+    <target
+        android:name="underline"
+        android:animation="@animator/splash_underline_in" />
+</animated-vector>

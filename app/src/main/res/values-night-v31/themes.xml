@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.INTENT" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">@color/window_bg</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_anim</item>
+        <item name="android:windowSplashScreenAnimationDuration">580</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/splash_icon_bg</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+    </style>
+</resources>

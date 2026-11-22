@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  For INTENT v1.6 and later · Android 11 or later
+  For INTENT v1.7 and later · Android 11 or later
 </p>
 
 <p align="center">

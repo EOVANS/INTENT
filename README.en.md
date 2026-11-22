@@ -28,7 +28,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk">Download INTENT v1.7.3</a> · <a href="https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk">Accelerated download for mainland China</a>
+  <a href="https://github.com/EOVANS/INTENT/releases/download/v1.7.4/INTENT.1.7.4.apk">Download INTENT v1.7.4</a> · <a href="https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.7.4/INTENT.1.7.4.apk">Accelerated download for mainland China</a>
 </p>
 
 ## Contents

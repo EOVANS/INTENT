@@ -5,7 +5,7 @@
 ## 项目概况
 
 - Android Kotlin + Jetpack Compose（Material3），单模块 `app`，包名 `com.intent.reader`。
-- 当前版本：`versionName = "v1.6"`，`versionCode = 12`（`app/build.gradle.kts`）。
+- 当前版本：`versionName = "1.7.4"`，`versionCode = 22`（`app/build.gradle.kts`）。
 - minSdk 30 / targetSdk 36 / compileSdk 36。
 - 主要代码：`app/src/main/java/com/intent/reader/`，UI 在 `ui/`（`ui/settings`、`ui/reader`、`ui/home`…），手动 DI 在 `di/AppContainer`，数据层 `data/`、`notes/`、`rss/`。
 - 仓库根目录即本文件所在目录；git 仓库也在这一层（不是上层 `Android APP Build`）。

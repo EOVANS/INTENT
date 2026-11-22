@@ -246,7 +246,7 @@ fun SearchScreen(
             Brush.verticalGradient(0f to c.bg, 0.6f to c.bg.copy(alpha = 0.85f), 1f to c.bg.copy(alpha = 0f)),
         ))
         Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
-            Row(Modifier.align(Alignment.TopCenter).widthIn(max = 720.dp).fillMaxWidth()
+            Row(Modifier.align(Alignment.TopStart).widthIn(max = 720.dp).fillMaxWidth()
                 .padding(start = IntentDimens.pageHMarginPhone.dp, end = IntentDimens.pageHMarginPhone.dp, top = 24.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 HeaderIconButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.notes_back), onBack)

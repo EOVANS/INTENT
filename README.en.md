@@ -1,4 +1,8 @@
-# INTENT User Guide
+<p align="center">
+  <img src="assets/google-play/icon-512.png" width="112" alt="INTENT icon" />
+</p>
+
+<h1 align="center">INTENT User Guide</h1>
 
 [简体中文](README.md) | **English**
 

@@ -4,21 +4,32 @@
 
 <h1 align="center">INTENT User Guide</h1>
 
-[简体中文](README.md) | **English**
+<p align="center">
+  <a href="README.md">简体中文</a> | <b>English</b><br />
+  <b>INTENT — an RSS reader designed for focused reading, with lightweight AI features</b>
+</p>
 
-**INTENT — an RSS reader designed for focused reading, with lightweight AI features**
+<p align="center">
+  <a href="https://kotlinlang.org/"><img src="https://img.shields.io/badge/kotlin-2.4.21-7F52FF" alt="Kotlin" /></a>
+  <a href="https://kotlinlang.org/compose-multiplatform/"><img src="https://img.shields.io/badge/compose-1.12.2-4285F4" alt="Compose Multiplatform" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+</p>
 
-[![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-7F52FF)](https://kotlinlang.org/)
-[![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<p align="center">
+  <img width="4096" height="1920" alt="INTENT app overview" src="https://github.com/user-attachments/assets/b9b0ecbc-7cb1-4680-8265-5a560808230c" />
+</p>
 
-<img width="4096" height="1920" alt="INTENT app overview" src="https://github.com/user-attachments/assets/b9b0ecbc-7cb1-4680-8265-5a560808230c" />
+<p align="center">
+  For INTENT v1.6 and later · Android 11 or later
+</p>
 
-For INTENT v1.6 and later · Android 11 or later
+<p align="center">
+  <a href="https://intentread.pages.dev/#features">Website</a> · <a href="https://intentsonnet.pages.dev/help.html">Help Center</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="https://github.com/EOVANS/INTENT/releases">Releases</a>
+</p>
 
-[Website](https://intentread.pages.dev/#features) · [Help Center](https://intentsonnet.pages.dev/help.html) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/EOVANS/INTENT/releases)
-
-[Download INTENT v1.7.3](https://github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk) · [Accelerated download for mainland China](https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk)
+<p align="center">
+  <a href="https://github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk">Download INTENT v1.7.3</a> · <a href="https://gh.absinthe.life/github.com/EOVANS/INTENT/releases/download/v1.7.3/INTENT.1.7.3.apk">Accelerated download for mainland China</a>
+</p>
 
 ## Contents
 

@@ -4,37 +4,50 @@
 
 <h1 align="center">INTENT 用户使用手册</h1>
 
-**简体中文** | [English](README.en.md)
+<p align="center">
+  <b>简体中文</b> | <a href="README.en.md">English</a><br />
+  <b>INTENT — 专注于阅读的、由 AI 轻量赋能的 RSS 阅读器</b>
+</p>
 
-**INTENT — 专注于阅读的、由 AI 轻量赋能的 RSS 阅读器**
+<p align="center">
+  <a href="https://kotlinlang.org/"><img src="https://img.shields.io/badge/kotlin-2.4.21-7F52FF" alt="Kotlin" /></a>
+  <a href="https://kotlinlang.org/compose-multiplatform/"><img src="https://img.shields.io/badge/compose-1.12.2-4285F4" alt="Compose Multiplatform" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <img src="https://img.shields.io/badge/build-Ai%20Powered%20RSS%20Reader-brightgreen?style=flat&amp;logo=android&amp;label=INTENT&amp;labelColor=%23E02B2B&amp;color=%23110F00" alt="Ai Powered RSS Reader" />
+</p>
 
-[![Kotlin](https://img.shields.io/badge/kotlin-2.4.21-7F52FF)](https://kotlinlang.org/)
-[![Compose Multiplatform](https://img.shields.io/badge/compose-1.12.2-4285F4)](https://kotlinlang.org/compose-multiplatform/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Static Badge](https://img.shields.io/badge/build-Ai%20Powered%20RSS%20Reader-brightgreen?style=flat&logo=android&label=INTENT&labelColor=%23E02B2B&color=%23110F00&link=https%3A%2F%2Fintentread.pages.dev%2F)
+<p align="center">
+  <img width="4096" height="1920" alt="IMG_20261111_004450" src="https://github.com/user-attachments/assets/b9b0ecbc-7cb1-4680-8265-5a560808230c" />
+</p>
 
+<p align="center">
+  适用版本：INTENT v1.7 · Android 11 及以上
+</p>
 
-<img width="4096" height="1920" alt="IMG_20261111_004450" src="https://github.com/user-attachments/assets/b9b0ecbc-7cb1-4680-8265-5a560808230c" />
+<p align="center">
+  <img src="https://img.shields.io/badge/Android-3DDC84?logo=android&amp;logoColor=white" alt="Android" />
+  <img src="https://img.shields.io/badge/chrome%20os-%233d89fc.svg?style=flat" alt="Chrome OS" />
+  <img src="https://img.shields.io/badge/build-Made%20for%20OnePlus-brightgreen?style=flat&amp;logo=oneplus&amp;label=INTENT&amp;labelColor=%23E02B2B&amp;color=%23110F00" alt="Made for OnePlus" />
+</p>
 
-适用版本：INTENT v1.7 · Android 11 及以上
+<p align="center">
+  手册内容：添加订阅 · 找 RSS 源 · 管理与阅读 · 桌面小组件 · 个性化设置 · 常见问题<br />
+  近期功能与实现记录：<a href="CHANGELOG.md">更新日志</a><br />
+  快来网站看看：<a href="https://intentread.pages.dev/#features">官网</a><br />
+  欢迎到访直男之家：<a href="https://intentsonnet.pages.dev/help.html">帮助中心</a>
+</p>
 
-![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)
-![Chrome OS](https://img.shields.io/badge/chrome%20os-%233d89fc.svg?style=flat)
-![Static Badge](https://img.shields.io/badge/build-Made%20for%20OnePlus-brightgreen?style=flat&logo=oneplus&label=INTENT&labelColor=%23E02B2B&color=%23110F00&link=https%3A%2F%2Fintentread.pages.dev%2F)
+<p align="center">
+  <a href="https://intentsonnet.pages.dev/help.html"><img src="https://img.shields.io/badge/Read%20the%20Docs-%23000000.svg?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=white" alt="Read the Docs" /></a>
+</p>
 
-手册内容：添加订阅 · 找 RSS 源 · 管理与阅读 · 桌面小组件 · 个性化设置 · 常见问题
+<p align="center">
+  线上体验（仅限于功能演示，用于用户评估 App 是否符合需求，值不值得下载）：<a href="https://intentview.pages.dev/">点击体验</a>
+</p>
 
-近期功能与实现记录：[更新日志](CHANGELOG.md)
-
-快来网站看看：[官网](https://intentread.pages.dev/#features)
-
-欢迎到访直男之家：[帮助中心](https://intentsonnet.pages.dev/help.html)
-
-[![Read the Docs](https://img.shields.io/badge/Read%20the%20Docs-%23000000.svg?style=for-the-badge&logo=readthedocs&logoColor=white)](https://intentsonnet.pages.dev/help.html)
-
-线上体验（仅限于功能演示，用于用户评估 App 是否符合需求，值不值得下载）：[点击体验](https://intentview.pages.dev/)
-
-软件安全性检查：https://www.virustotal.com/gui/
+<p align="center">
+  软件安全性检查：<a href="https://www.virustotal.com/gui/">https://www.virustotal.com/gui/</a>
+</p>
 
 <img width="1215" height="555" alt="image" src="https://github.com/user-attachments/assets/94bc9d77-8e91-4cf9-98ff-103af8b49bcf" />
 

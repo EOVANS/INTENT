@@ -138,7 +138,7 @@ fun CategorySourcesScreen(
         )
         Box(Modifier.fillMaxWidth().onSizeChanged { headerHeight = it.height }.statusBarsPadding()) {
             Row(
-                Modifier.align(Alignment.TopCenter).widthIn(max = 720.dp).fillMaxWidth()
+                Modifier.align(Alignment.TopStart).widthIn(max = 720.dp).fillMaxWidth()
                     .padding(start = IntentDimens.pageHMarginPhone.dp, end = IntentDimens.pageHMarginPhone.dp, top = 24.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
